@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.ict.atti_boot.user.jpa.entity.User;
 import org.springframework.stereotype.Component;
 import org.ict.atti_boot.doctor.jpa.entity.Doctor;
 
@@ -20,6 +21,7 @@ public class DoctorDto {
     private String introduce;
     private String hospitalAddress;
     private String hospitalName;
+    private String userName;
 
 
 
@@ -33,5 +35,12 @@ public class DoctorDto {
                 .build();
     }
 
-
+    public DoctorDto(Doctor doctor){
+        this.userId = doctor.getUserId();
+        this.userName= doctor.getUser().getUserName();
+        this.hospitalPhone = doctor.getHospitalPhone();
+        this.introduce = doctor.getIntroduce();
+        this.hospitalAddress = doctor.getHospitalAddress();
+        this.hospitalName = doctor.getHospitalName();
+    }
 }

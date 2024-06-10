@@ -27,13 +27,25 @@ public class DoctorService {
     }
 
     public List<DoctorDto> findAllDoctor(){
-        return toDtoList(doctorRepository.findAll());
+        return doctorRepository.findAllWithUsers();
     }
 
     private List<DoctorDto> toDtoList(List<Doctor> doctors){
         List<DoctorDto> doctorDtos = new ArrayList<>();
         for(Doctor doctor : doctors){
             DoctorDto dto = doctor.toDto();
+            doctorDtos.add(dto);
+        }
+        return doctorDtos;
+    }
+
+    public List<DoctorDto> findAll(){
+
+        List<Doctor> doctor = doctorRepository.findAll();
+        log.info(doctor.toString());
+        List<DoctorDto> doctorDtos = new ArrayList<>();
+        for(Doctor d : doctor){
+            DoctorDto dto = new DoctorDto(d);
             doctorDtos.add(dto);
         }
         return doctorDtos;

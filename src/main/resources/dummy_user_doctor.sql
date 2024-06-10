@@ -3,7 +3,7 @@ INSERT INTO users (
     USER_TYPE, GENDER, PROFILE_URL, LOGIN_TIME, LOGIN_TYPE, SNS_ACCESS_TOKEN
 ) VALUES (
     'user1', 'password1', '홍길동', '길동이', 'user1@example.com', '010-1234-5678',
-    TO_DATE('1990-01-01', 'YYYY-MM-DD'), 'A', 'M', '/profile/user1.png',
+    TO_DATE('1990-01-01', 'YYYY-MM-DD'), 'D', 'M', '/profile/user1.png',
     SYSTIMESTAMP, 'EMAIL', 'access_token_1'
 );
 
@@ -12,7 +12,7 @@ INSERT INTO users (
     USER_TYPE, GENDER, PROFILE_URL, LOGIN_TIME, LOGIN_TYPE, SNS_ACCESS_TOKEN
 ) VALUES (
     'user3', 'password3', '김철수', '철수', 'user3@example.com', '010-3456-7890',
-    TO_DATE('1985-03-03', 'YYYY-MM-DD'), 'A', 'M', '/profile/user3.png',
+    TO_DATE('1985-03-03', 'YYYY-MM-DD'), 'D', 'M', '/profile/user3.png',
     SYSTIMESTAMP, 'EMAIL', 'access_token_3'
 );
 
@@ -22,7 +22,7 @@ INSERT INTO users (
     USER_TYPE, GENDER, PROFILE_URL, LOGIN_TIME, LOGIN_TYPE, SNS_ACCESS_TOKEN
 ) VALUES (
     'user5', 'password5', '최영수', '영수', 'user5@example.com', '010-5678-9012',
-    TO_DATE('1979-05-05', 'YYYY-MM-DD'), 'A', 'M', '/profile/user5.png',
+    TO_DATE('1979-05-05', 'YYYY-MM-DD'), 'D', 'M', '/profile/user5.png',
     SYSTIMESTAMP, 'EMAIL', 'access_token_5'
 );
 
@@ -31,7 +31,7 @@ INSERT INTO users (
     USER_TYPE, GENDER, PROFILE_URL, LOGIN_TIME, LOGIN_TYPE, SNS_ACCESS_TOKEN
 ) VALUES (
     'user7', 'password7', '한지민', '지민', 'user7@example.com', '010-7890-1234',
-    TO_DATE('1991-07-07', 'YYYY-MM-DD'), 'A', 'F', '/profile/user7.png',
+    TO_DATE('1991-07-07', 'YYYY-MM-DD'), 'D', 'F', '/profile/user7.png',
     SYSTIMESTAMP, 'EMAIL', 'access_token_7'
 );
 
@@ -41,7 +41,7 @@ INSERT INTO users (
     USER_TYPE, GENDER, PROFILE_URL, LOGIN_TIME, LOGIN_TYPE, SNS_ACCESS_TOKEN
 ) VALUES (
     'user9', 'password9', '김태희', '태희', 'user9@example.com', '010-9012-3456',
-    TO_DATE('1986-09-09', 'YYYY-MM-DD'), 'A', 'F', '/profile/user9.png',
+    TO_DATE('1986-09-09', 'YYYY-MM-DD'), 'D', 'F', '/profile/user9.png',
     SYSTIMESTAMP, 'EMAIL', 'access_token_9'
 );
 

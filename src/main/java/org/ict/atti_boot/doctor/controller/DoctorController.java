@@ -28,6 +28,11 @@ public class DoctorController {
         return ResponseEntity.ok(doctorService.findAllDoctor());
     }
 
+    @GetMapping("/test")
+    public ResponseEntity<List<DoctorDto>> getDoctor() {
+        return ResponseEntity.ok(doctorService.findAllDoctor());
+    }
+
     /*@PostMapping("")
     public ResponseEntity<?> boardWriting(HttpServletRequest request, @RequestBody Notice_Input noticeInput) {
         log.info("notice_input = {}", noticeInput);
