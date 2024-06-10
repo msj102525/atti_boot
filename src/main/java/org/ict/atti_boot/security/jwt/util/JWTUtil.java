@@ -42,13 +42,13 @@ public class JWTUtil {
     }
 
     // 사용자의 이메일을 기반으로 JWT를 생성합니다.
-    public String generateToken(String userEmail,String category, Long expiredMs) {
+    public String generateToken(String userId,String category, Long expiredMs) {
         // UserRepository를 사용해 사용자 정보를 조회합니다.
-        Optional<User> user = userRepository.findByEmail(userEmail);
+        Optional<User> user = userRepository.findByUserId(userId);
 
         // 사용자 정보가 없는 경우, UsernameNotFoundException을 발생시킵니다.
         if (user.isEmpty()) {
-            throw new UsernameNotFoundException("User with email " + userEmail + " not found");
+            throw new UsernameNotFoundException("User with email " + userId + " not found");
         }
 
         // 사용자의 관리자 여부를 확인합니다.
@@ -56,7 +56,7 @@ public class JWTUtil {
         boolean isAdmin = user.get().getUserType() == 'A';
 
         String token = Jwts.builder()
-                .setSubject(userEmail)
+                .setSubject(userId)
                 .claim("admin", isAdmin) // "admin" 클레임에 관리자 여부를 설정합니다.
                 .claim("category",category)
                 .setExpiration(new Date(System.currentTimeMillis() + expiredMs)) // 만료 시간을 설정합니다.
@@ -68,7 +68,7 @@ public class JWTUtil {
     }
 
     // JWT에서 사용자 이메일을 추출합니다.
-    public String getUserEmailFromToken(String token) {
+    public String getUserIdFromToken(String token) {
         Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
         return claims.getSubject();
     }

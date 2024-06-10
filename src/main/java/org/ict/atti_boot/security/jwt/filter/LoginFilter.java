@@ -11,7 +11,6 @@ import org.ict.atti_boot.security.jwt.util.JWTUtil;
 import org.ict.atti_boot.security.model.entity.RefreshToken;
 import org.ict.atti_boot.security.service.RefreshService;
 import org.ict.atti_boot.user.jpa.entity.User;
-import org.ict.atti_boot.user.model.input.InputUser;
 import org.ict.atti_boot.user.model.output.CustomUserDetails;
 import org.ict.atti_boot.user.model.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -55,17 +54,20 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
         try {
-            // 요청 본문에서 사용자의 로그인 데이터를 InputUser 객체로 변환합니다.
-            InputUser loginData = new ObjectMapper().readValue(request.getInputStream(), InputUser.class);
-            // 사용자 이름과 비밀번호를 기반으로 AuthenticationToken을 생성합니다. 이 토큰은 사용자가 제공한 이메일과 비밀번호를 담고 있으며, 이후 인증 과정에서 사용됩니다.
+            User loginData = new ObjectMapper().readValue(request.getInputStream(), User.class);
+            log.info("login data: {}", loginData);
+            // 사용자 아이디와 비밀번호를 기반으로 AuthenticationToken을 생성합니다.
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                     loginData.getEmail(), loginData.getPassword());
+            log.info("authentication token: {}", authToken);
             // AuthenticationManager를 사용하여 실제 인증을 수행합니다. 이 과정에서 사용자의 이메일과 비밀번호가 검증됩니다.
             return authenticationManager.authenticate(authToken);
         } catch (AuthenticationException e) {
+            log.info("authentication exception: {}", e.getMessage());
             // 요청 본문을 읽는 과정에서 오류가 발생한 경우, AuthenticationServiceException을 던집니다.
             throw new AuthenticationServiceException("인증 처리 중 오류가 발생했습니다.", e);
         } catch (IOException e) {
+            log.info("IO exception: {}", e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -82,12 +84,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // 사용자 이름을 사용하여 JWT를 생성합니다.
         String access  = jwtUtil.generateToken(username,"access",accessExpiredMs);
         String refresh  = jwtUtil.generateToken(username,"refresh",refreshExpiredMs);
-        Optional<User> userOptional = userService.findByEmail(username);
+        Optional<User> userOptional = userService.findByUserId(username);
         if(userOptional.isPresent()){
             User user = userOptional.get();
 
             RefreshToken refreshToken = RefreshToken.builder()
-                    .id(UUID.randomUUID())
+                    //.id(UUID.randomUUID())
                     .status("activated")
                     .userAgent(request.getHeader("User-Agent"))
                     .user(user)

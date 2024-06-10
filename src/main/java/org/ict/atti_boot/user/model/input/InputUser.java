@@ -9,14 +9,14 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class InputUser {
+public class InputUser { //dto 와 같은 역할을 함
     private String email, password;
     private String userId;
     private String userName;
     private LocalDate birthDate;
 
-//    public InputUser(String userName) {
-//
-//        this.email = userName;
-//    }
+    public InputUser(String userName) {
+
+        this.email = userName;
+    }
 }

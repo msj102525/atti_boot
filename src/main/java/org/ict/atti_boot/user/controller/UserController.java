@@ -15,35 +15,24 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-
     public UserController(UserService userService){
+
         this.userService = userService;
     }
+
     @GetMapping("/hello")
         public String hello(){
         return "hello";}
 
     @PostMapping("/user")
-    public ResponseEntity<?> signUpUser(@RequestBody InputUser user) {
+    public ResponseEntity<?> signUpUser(@RequestBody User user) {
 
         User newUser = userService.signUpUser(user);
         return ResponseEntity.ok(newUser);
     }
-//    @PostMapping("/signup")
-//    public ResponseEntity<String> signUp(@RequestBody InputUser user) {
-//        log.info("user");
-//        try {
-//            userService.signUpUser(user);
-//            log.info("userName");
-//            return ResponseEntity.ok("회원가입이 완료되었습니다!");
-//
-//        } catch (Exception e) {
-//            log.info(e.getMessage());
-//            return ResponseEntity.status(500).body("회원가입에 실패했습니다.");
-//        }
-//    }
+
 @PostMapping("/signup")
-public ResponseEntity<String> signUp(@RequestBody InputUser user) {
+public ResponseEntity<String> signUp(@RequestBody User user) {
     log.info("user: {}", user);
 
     // 유효성 검사 추가
@@ -52,7 +41,7 @@ public ResponseEntity<String> signUp(@RequestBody InputUser user) {
     }
     try {
         userService.signUpUser(user);
-        log.info("userName: {}", user.getUserName());
+//        log.info("userName: {}", user.getUserName());
         return ResponseEntity.ok("회원가입이 완료되었습니다!");
 
     } catch (Exception e) {
@@ -60,6 +49,7 @@ public ResponseEntity<String> signUp(@RequestBody InputUser user) {
         return ResponseEntity.status(500).body("회원가입에 실패했습니다.");
     }
 }
+
 
 
 

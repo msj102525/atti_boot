@@ -12,8 +12,8 @@ import java.time.LocalDate;
 import java.util.Set;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
+@AllArgsConstructor //전부 다 사용한다
+@NoArgsConstructor  //전부다 사용하지 않을경우
 @Builder
 @Table(name = "USERS")
 @Entity
@@ -61,6 +61,10 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private Set<SocialLogin> socialLogins;
+
+    public User (String userName){
+        this.userName = userName;
+    }
 
     public UserDto toUserDto(){
         return UserDto.builder()

@@ -29,6 +29,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
     // 생성자를 통해 JWTUtil의 인스턴스를 주입받습니다.
     public JWTFilter(JWTUtil jwtUtil) {
+
         this.jwtUtil = jwtUtil;
     }
 
@@ -84,12 +85,12 @@ public class JWTFilter extends OncePerRequestFilter {
 
 
         // 토큰에서 사용자 이메일과 관리자 여부를 추출합니다.
-        String userEmail = jwtUtil.getUserEmailFromToken(token);
+        String userId = jwtUtil.getUserIdFromToken(token);
         boolean is_admin = jwtUtil.isAdminFromToken(token);
 
         // 인증에 사용할 임시 User 객체를 생성하고, 이메일과 관리자 여부를 설정합니다.
         User user = new User();
-        user.setEmail(userEmail);
+        user.setEmail(userId);
         user.setPassword("tempPassword"); // 실제 인증에서는 사용되지 않는 임시 비밀번호를 설정합니다.
         user.setUserType(user.getUserType());
 
@@ -98,7 +99,9 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // Spring Security의 Authentication 객체를 생성하고, SecurityContext에 설정합니다.
         // 이로써 해당 요청에 대한 사용자 인증이 완료됩니다.
-        Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        //Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        Authentication authToken = new UsernamePasswordAuthenticationToken(userId, null, customUserDetails.getAuthorities());
+
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         // 필터 체인을 계속 진행합니다.
