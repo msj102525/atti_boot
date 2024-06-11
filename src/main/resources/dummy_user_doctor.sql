@@ -74,4 +74,47 @@ INSERT INTO DOCTOR (
 ) VALUES (
     'user9', '02-5678-9012', '김태희 박사는 내과 전문의로 환자들에게 친절한 진료를 제공합니다.', '서울시 송파구 송파대로 5길 5', '태희 내과'
 );
+
+
+--전문분야 태그 더미
+-- user1에 대한 insert 쿼리
+insert into doctor_tag values ('user1','결혼/육아');
+insert into doctor_tag values ('user1','대인관계');
+insert into doctor_tag values ('user1','직장');
+-- user3에 대한 insert 쿼리
+insert into doctor_tag values ('user3','이별/이혼');
+insert into doctor_tag values ('user3','가족');
+insert into doctor_tag values ('user3','자아/성격');
+-- user5에 대한 insert 쿼리
+insert into doctor_tag values ('user5','정신건강');
+insert into doctor_tag values ('user5','성추행');
+insert into doctor_tag values ('user5','외모');
+-- user7에 대한 insert 쿼리
+insert into doctor_tag values ('user7','학업/고시');
+insert into doctor_tag values ('user7','우울');
+insert into doctor_tag values ('user7','스트레스');
+-- user9에 대한 insert 쿼리
+insert into doctor_tag values ('user9','화병');
+insert into doctor_tag values ('user9','공황');
+insert into doctor_tag values ('user9','불면');
+-- user1에 대한 insert 쿼리 (다시)
+insert into doctor_tag values ('user1','자존감');
+insert into doctor_tag values ('user1','강박');
+insert into doctor_tag values ('user1','충동/폭력');
+-- user3에 대한 insert 쿼리 (다시)
+insert into doctor_tag values ('user3','트라우마');
+insert into doctor_tag values ('user3','조울증');
+-- user5에 대한 insert 쿼리 (다시)
+insert into doctor_tag values ('user5','결혼/육아');
+insert into doctor_tag values ('user5','대인관계');
+insert into doctor_tag values ('user5','직장');
+-- user7에 대한 insert 쿼리 (다시)
+insert into doctor_tag values ('user7','이별/이혼');
+insert into doctor_tag values ('user7','가족');
+insert into doctor_tag values ('user7','자아/성격');
+-- user9에 대한 insert 쿼리 (다시)
+insert into doctor_tag values ('user9','정신건강');
+insert into doctor_tag values ('user9','성추행');
+insert into doctor_tag values ('user9','외모');
+
 commit;
