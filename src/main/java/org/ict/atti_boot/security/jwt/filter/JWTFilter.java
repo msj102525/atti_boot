@@ -91,7 +91,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
 
         // 토큰에서 사용자 이메일과 관리자 여부를 추출합니다.
-        String userId = jwtUtil.getUserIdFromToken(token);
+        String userId = jwtUtil.getUserEmailFromToken(token);
         boolean is_admin = jwtUtil.isAdminFromToken(token);
 
         // 인증에 사용할 임시 User 객체를 생성하고, 이메일과 관리자 여부를 설정합니다.
