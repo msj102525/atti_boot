@@ -26,7 +26,7 @@ public class QRefreshToken extends EntityPathBase<RefreshToken> {
 
     public final NumberPath<Long> expiresIn = createNumber("expiresIn", Long.class);
 
-    public final ComparablePath<java.util.UUID> id = createComparable("id", java.util.UUID.class);
+    public final StringPath id = createString("id");
 
     public final DateTimePath<java.time.LocalDateTime> issuedAt = createDateTime("issuedAt", java.time.LocalDateTime.class);
 

@@ -58,7 +58,7 @@ public class ReissueController {
         }
 
         // 토큰에서 사용자 아이디 추출합니다.
-        String username = jwtUtil.getUserIdFromToken(token);
+        String username = jwtUtil.getUserEmailFromToken(token);
 
         // 사용자 정보 조회
         Optional<User> userOptional = userService.findByUserId(username);

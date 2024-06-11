@@ -38,6 +38,8 @@ public class QUser extends EntityPathBase<User> {
 
     public final StringPath profileUrl = createString("profileUrl");
 
+    public final SetPath<org.ict.atti_boot.security.model.entity.RefreshToken, org.ict.atti_boot.security.model.entity.QRefreshToken> refreshTokens = this.<org.ict.atti_boot.security.model.entity.RefreshToken, org.ict.atti_boot.security.model.entity.QRefreshToken>createSet("refreshTokens", org.ict.atti_boot.security.model.entity.RefreshToken.class, org.ict.atti_boot.security.model.entity.QRefreshToken.class, PathInits.DIRECT2);
+
     public final StringPath snsAccessToken = createString("snsAccessToken");
 
     public final SetPath<SocialLogin, QSocialLogin> socialLogins = this.<SocialLogin, QSocialLogin>createSet("socialLogins", SocialLogin.class, QSocialLogin.class, PathInits.DIRECT2);

@@ -21,15 +21,7 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class JWTUtil {
-    //파싱 테스트입니다.--------------------------------------------
-     public Claims parseJwt(String jwt) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(secretKey)
-                .parseClaimsJws(jwt)
-                .getBody();
-        return claims;
-    }
-    //----------------------------------------------------------------------
+
     // JWT 생성과 검증에 사용될 비밀키와 만료 시간을 필드로 선언합니다.
     private final SecretKey secretKey;
     private final UserRepository userRepository;
@@ -42,21 +34,24 @@ public class JWTUtil {
     }
 
     // 사용자의 이메일을 기반으로 JWT를 생성합니다.
-    public String generateToken(String userId,String category, Long expiredMs) {
+    public String generateToken(String userEmail, String category, Long expiredMs) {
         // UserRepository를 사용해 사용자 정보를 조회합니다.
-        Optional<User> user = userRepository.findByUserId(userId);
+        Optional<User> user = userRepository.findByEmail(userEmail);
 
         // 사용자 정보가 없는 경우, UsernameNotFoundException을 발생시킵니다.
         if (user.isEmpty()) {
-            throw new UsernameNotFoundException("User with email " + userId + " not found");
+            throw new UsernameNotFoundException("User with email " + userEmail + " not found");
         }
 
         // 사용자의 관리자 여부를 확인합니다.
         //boolean isAdmin = "A".equals(user.get().getUserType());
         boolean isAdmin = user.get().getUserType() == 'A';
 
+        // 사용자의 로그인 유형을 확인합니다.
+        //String loginType = user.get().getLoginType();
+
         String token = Jwts.builder()
-                .setSubject(userId)
+                .setSubject(userEmail)
                 .claim("admin", isAdmin) // "admin" 클레임에 관리자 여부를 설정합니다.
                 .claim("category",category)
                 .setExpiration(new Date(System.currentTimeMillis() + expiredMs)) // 만료 시간을 설정합니다.
@@ -67,16 +62,16 @@ public class JWTUtil {
         return token;
     }
 
+
     // JWT에서 사용자 이메일을 추출합니다.
-    public String getUserIdFromToken(String token) {
+    public String getUserEmailFromToken(String token) {
         Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
         return claims.getSubject();
     }
 
     // JWT의 만료 여부를 검증합니다.
     public boolean isTokenExpired(String token) {
-        Claims claims = parseJwt(token);
-        //Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
+        Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
         return claims.getExpiration().before(new Date());
     }
 
@@ -91,5 +86,6 @@ public class JWTUtil {
         Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
         return claims.get("category", String.class);
     }
+
 
 }

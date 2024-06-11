@@ -6,10 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.sql.Timestamp;
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<User, Long> {
-
-    Optional<User> findByUserId(String userId);
+public interface UserRepository extends JpaRepository<User, String> {
     Optional<User> findByEmail(String username);
+    //Optional<User> findByEmail(String email);
+    Optional<User> findByUserId(String userId);
     Optional<User> findByEmailAndLoginType(String email, String loginType);
+
 
 }
