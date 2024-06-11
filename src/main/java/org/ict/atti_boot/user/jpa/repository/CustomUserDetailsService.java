@@ -2,6 +2,7 @@ package org.ict.atti_boot.user.jpa.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.user.jpa.entity.User;
+import org.ict.atti_boot.user.model.input.InputUser;
 import org.ict.atti_boot.user.model.output.CustomUserDetails;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
@@ -28,31 +29,29 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     // UserDetailsService 인터페이스의 메서드를 구현합니다. 사용자 이름을 기반으로 사용자 정보를 로드합니다.
     @Override
-    public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) {
         // 사용자 인증을 위한 사용자 검증 로직을 실행합니다.
-        User userData = validateUser(new User(userName));
-        log.info("loadUserByUsername");
+        User userData = validateUser(new InputUser(username));
         // CustomUserDetails 객체를 생성하여 반환합니다. 이 객체는 Spring Security에 의해 사용자 인증 과정에서 사용됩니다.
         return new CustomUserDetails(userData);
     }
 
     // 사용자의 유효성을 검증하는 메서드입니다.
-    private User validateUser(User user){
-        // 주어진 이메일로 사용자를 조회합니다. 사용자가 존재하지 않을 경우 UsernameNotFoundException 예외를 발생시킵니다.
-        User finalUser = user;
-        User finalUser1 = user;
-        user = userRepository.findByUserId(user.getUserId())
-                .orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 아이디 입니다: " + finalUser1.getUserId()));
-        log.info("validateUser");
-         //사용자 계정이 삭제된 경우 UsernameNotFoundException 예외를 발생시킵니다.
-//        if (user.getIsDelete()) {
-//            throw new DisabledException ("삭제된 계정입니다: " + inputUser.getEmail());
-//        }
-//        // 사용자 계정이 활성화되지 않은 경우 UsernameNotFoundException 예외를 발생시킵니다.
-//        if (user.getIsActivated()) {
-//            throw new LockedException("활성화되지 않은 계정입니다: " + inputUser.getEmail());
-//        }
+    private User validateUser(InputUser inputUser){
+        // 주어진 사용자 ID로 사용자를 조회합니다. 사용자가 존재하지 않을 경우 UsernameNotFoundException 예외를 발생시킵니다.
+        User user = userRepository.findByUserId(inputUser.getUserId())
+                .orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 사용자 ID입니다: " + inputUser.getUserId()));
+        // 사용자 계정이 삭제된 경우 UsernameNotFoundException 예외를 발생시킵니다.
+//    if (user.getIsDelete()) {
+//        throw new DisabledException("삭제된 계정입니다: " + inputUser.getUserId());
+//    }
+//    // 사용자 계정이 활성화되지 않은 경우 UsernameNotFoundException 예외를 발생시킵니다.
+//    if (user.getIsActivated()) {
+//        throw new LockedException("활성화되지 않은 계정입니다: " + inputUser.getUserId());
+//    }
         return user; // 유효한 사용자 정보를 반환합니다.
     }
 
+
 }
+

@@ -5,17 +5,20 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Check;
+import org.hibernate.annotations.GenericGenerator;
+import org.ict.atti_boot.security.model.entity.RefreshToken;
 import org.ict.atti_boot.user.model.dto.UserDto;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.Set;
 
 @Data
-@AllArgsConstructor //전부 다 사용한다
-@NoArgsConstructor  //전부다 사용하지 않을경우
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 @Table(name = "USERS")
+@Check(constraints = "USER_TYPE IN ('U', 'A', 'D')")
 @Entity
 public class User {
 
@@ -62,11 +65,20 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private Set<SocialLogin> socialLogins;
 
-    public User (String userName){
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<RefreshToken> refreshTokens;
+
+    public User(String userName) {
         this.userName = userName;
     }
 
-    public UserDto toUserDto(){
+
+    public User(String userId, String password) {
+        this.userId = userId;
+        this.password = password;
+    }
+
+    public UserDto toUserDto() {
         return UserDto.builder()
                 .userId(userId)
                 .password(password)

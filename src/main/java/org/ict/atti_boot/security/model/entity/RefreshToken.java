@@ -18,9 +18,10 @@ import java.util.UUID;
 @Table(name = "refresh_tokens")
 public class RefreshToken {
 
+
     @Id
     @Column(length = 36)
-    private UUID id;
+    private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
