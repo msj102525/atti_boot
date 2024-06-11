@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.ict.atti_boot.oneword.model.dto.OnewordDto;
 
 import java.util.Date;
 
@@ -34,4 +35,21 @@ public class OnewordEntity {
 
     @Column(name="OW_WRITE_DATE")
     private Date owWriteDate;
+
+    @PrePersist     //// jpa 로 넘어가기 전에 작동하라는 어노테이션임
+    public void prePersist(){
+        owWriteDate = new Date(System.currentTimeMillis());   /// 현재 날짜, 시간 적용
+    }
+
+    public OnewordDto toDto(){
+        return OnewordDto.builder()
+                .owNum(owNum)
+                .owsjNum(owsjNum)
+                .owContent(owContent)
+                .owRcount(owRcount)
+                .owWriter(owWriter)
+                .owWriteDate(owWriteDate.toString())
+                .build();
+    }
+
 }

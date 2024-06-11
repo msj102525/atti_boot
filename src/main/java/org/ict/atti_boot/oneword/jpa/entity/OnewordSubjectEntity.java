@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.ict.atti_boot.oneword.model.dto.OnewordSubjectDto;
 
 import java.util.Date;
 
@@ -28,5 +29,14 @@ public class OnewordSubjectEntity {
 
     @Column(name="OWSJ_WRITE_DATE")
     private Date owsjWriteDate;
+
+    public OnewordSubjectDto toDto(){
+        return OnewordSubjectDto.builder()
+                .owsjNum(owsjNum)
+                .owsjSubject(owsjSubject)
+                .owsjWriter(owsjWriter)
+                .owsjWriteDate(owsjWriteDate.toString())
+                .build();
+    }
 
 }
