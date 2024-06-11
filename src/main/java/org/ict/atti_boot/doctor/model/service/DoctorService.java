@@ -39,16 +39,61 @@ public class DoctorService {
         return doctorDtos;
     }
 
-    public List<DoctorDto> findAll(){
+    public Map<String,Object> findAll(Pageable pageable){
 
-        List<Doctor> doctor = doctorRepository.findAll();
-        log.info(doctor.toString());
+        Page<Doctor> doctorPage = doctorRepository.findAll(pageable);
+        return constructResponse(doctorPage);
+    }
+
+     public Map<String, Object> findByName(String name, Pageable pageable) {
+        Page<Doctor> doctorPage = doctorRepository.findByUserNameContaining(name, pageable);
+        Map<String, Object> doctors = new HashMap<>();
         List<DoctorDto> doctorDtos = new ArrayList<>();
-        for(Doctor d : doctor){
+        List<Doctor> doctorEntityList = doctorPage.getContent();
+        for(Doctor d : doctorEntityList){
             DoctorDto dto = new DoctorDto(d);
             doctorDtos.add(dto);
         }
-        return doctorDtos;
+        doctors.put("count", doctorPage.getTotalElements());
+        doctors.put("pages", doctorPage.getTotalPages());
+        doctors.put("doctors", doctorDtos);
+        return doctors;
+    }
+
+
+//    public Map<String, Object> searchByAll(Pageable pageable, String name, String gender, List<String> tags) {
+//    }
+//
+//    public Map<String, Object> searchByTagsAndGender(Pageable pageable, String gender, List<String> tags) {
+//    }
+//
+//    public Map<String, Object> searchByTagsAndName(Pageable pageable, String name, List<String> tags) {
+//    }
+//
+//    public Map<String, Object> searchByGenderAndName(Pageable pageable, String name, String gender) {
+//    }
+//
+//    public Map<String, Object> findByGender(String gender, Pageable pageable) {
+//    }
+
+    public Map<String, Object> findByTags(List<String> tags, Pageable pageable) {
+        Page<Doctor> doctorPage = doctorRepository.findByTagsIn(tags, pageable);
+        return constructResponse(doctorPage);
+    }
+
+
+        private Map<String, Object> constructResponse(Page<Doctor> doctorPage) {
+        Map<String, Object> response = new HashMap<>();
+        List<DoctorDto> doctorDtos = new ArrayList<>();
+        List<Doctor> doctorEntityList = doctorPage.getContent();
+        for (Doctor d : doctorEntityList) {
+            DoctorDto dto = new DoctorDto(d);
+            doctorDtos.add(dto);
+        }
+        response.put("count", doctorPage.getTotalElements());
+        response.put("pages", doctorPage.getTotalPages());
+        response.put("doctors", doctorDtos);
+        return response;
     }
 
     /*public NoticeBoard save(NoticeBoard noticeBoard, List<NoticeFile> noticeFiles) {

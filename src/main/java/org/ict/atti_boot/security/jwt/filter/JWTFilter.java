@@ -39,12 +39,18 @@ public class JWTFilter extends OncePerRequestFilter {
         log.debug("JWTFilter 오류");
         // 요청에서 'Authorization' 헤더를 추출합니다.
         String authorization = request.getHeader("Authorization");
-
         String requestURI = request.getRequestURI();
-        if ("/reissue".equals(requestURI) || "/users/signup".equals(requestURI) || "/doctor".startsWith(requestURI) || "/feed".startsWith(requestURI)) {
+        if ("/reissue".equals(requestURI) || "/users/signup".equals(requestURI) || "/feed".startsWith(requestURI)) {
             filterChain.doFilter(request, response);
             return;
         }
+        //의사 리스트 요청 필터 넘기기
+        if (requestURI.startsWith("/doctor")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        
+        
 
         // 'Authorization' 헤더가 없거나 Bearer 토큰이 아니면 요청을 계속 진행합니다.
         if( authorization == null || !authorization.startsWith("Bearer ")){

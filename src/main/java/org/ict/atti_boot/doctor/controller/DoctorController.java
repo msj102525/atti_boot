@@ -5,10 +5,15 @@ import org.ict.atti_boot.doctor.model.dto.DoctorDto;
 import org.ict.atti_boot.doctor.model.service.DoctorService;
 import org.ict.atti_boot.security.jwt.util.JWTUtil;
 import org.ict.atti_boot.user.jpa.repository.UserRepository;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -24,9 +29,39 @@ public class DoctorController {
 
 
     @GetMapping
-    public ResponseEntity<List<DoctorDto>> getDoctors() {
-        return ResponseEntity.ok(doctorService.findAllDoctor());
+    public ResponseEntity<Map<String, Object>> getDoctors(@PageableDefault(size = 4, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable) {
+        return ResponseEntity.ok(doctorService.findAll(pageable));
     }
+//    @GetMapping("/search")
+//    public ResponseEntity<Map<String, Object>> searchDoctorsByName(@PageableDefault(size = 4, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable, @RequestParam("keyword") String name) {
+//        return ResponseEntity.ok(doctorService.findByName(name, pageable));
+//    }
+    @GetMapping("/search")
+    public ResponseEntity<Map<String, Object>> searchDoctors(@PageableDefault(size = 4, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable, @RequestParam(name="selectedTags",required = false) List<String> tags,
+            @RequestParam(name="keyword", required = false) String name,
+            @RequestParam(name="gender", required = false) String gender) {
+//        if(name.length()>0 && gender.length()>0 && tags.size()>0) {
+//            return ResponseEntity.ok(doctorService.searchByAll(pageable, name, gender, tags));
+//        }
+//        if(gender.length()>0 && tags.size()>0) {
+//            return ResponseEntity.ok(doctorService.searchByTagsAndGender(pageable, gender, tags));
+//        }
+//        if(name.length()>0 && tags.size()>0) {
+//            return ResponseEntity.ok(doctorService.searchByTagsAndName(pageable, name, tags));
+//        }
+//        if(name.length()>0 && gender.length()>0) {
+//            return ResponseEntity.ok(doctorService.searchByGenderAndName(pageable, name, gender));
+//        }
+//        if(name.length()>0){
+//            return ResponseEntity.ok(doctorService.findByName(name, pageable));
+//        }
+//        if(gender.length()>0){
+//            return ResponseEntity.ok(doctorService.findByGender(gender, pageable));
+//        }else {
+            return ResponseEntity.ok(doctorService.findByTags(tags,pageable));
+//        }
+    }
+
 
     @GetMapping("/test")
     public ResponseEntity<List<DoctorDto>> getDoctor() {

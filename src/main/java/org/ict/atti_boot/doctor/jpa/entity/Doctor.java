@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import org.ict.atti_boot.doctor.model.dto.DoctorDto;
 import org.ict.atti_boot.user.jpa.entity.User;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -31,12 +33,16 @@ public class Doctor {
 
     @Column(name = "HOSPITAL_NAME", length = 50)
     private String hospitalName;
+
     // 유저와의 1:1 관계 설정
     @OneToOne
     @MapsId
     @JoinColumn(name = "USER_ID")
     private User user;
 
+    // 의사와 태그들의 일대다 관계 설정
+    @OneToMany(mappedBy = "doctor")
+    private List<DoctorTag> tags;
 
     public DoctorDto toDto(){
         return DoctorDto.builder()
@@ -47,5 +53,4 @@ public class Doctor {
                 .hospitalName(this.hospitalName)
         .build();
     }
-
 }

@@ -30,6 +30,8 @@ public class QDoctor extends EntityPathBase<Doctor> {
 
     public final StringPath introduce = createString("introduce");
 
+    public final ListPath<DoctorTag, QDoctorTag> tags = this.<DoctorTag, QDoctorTag>createList("tags", DoctorTag.class, QDoctorTag.class, PathInits.DIRECT2);
+
     public final org.ict.atti_boot.user.jpa.entity.QUser user;
 
     public final StringPath userId = createString("userId");
