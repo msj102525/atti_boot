@@ -2,10 +2,17 @@ package org.ict.atti_boot.oneword.model.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ict.atti_boot.oneword.jpa.entity.OnewordEntity;
+import org.ict.atti_boot.oneword.jpa.entity.OnewordSubjectEntity;
 import org.ict.atti_boot.oneword.jpa.repository.OnewordRepository;
 import org.ict.atti_boot.oneword.model.dto.OnewordDto;
+import org.ict.atti_boot.oneword.model.dto.OnewordSubjectDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
 
 @Slf4j
 @Service
@@ -13,6 +20,17 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class OnewordService {
     private final OnewordRepository onewordRepository;
+
+    public ArrayList<OnewordDto> selectList(Pageable pageable) {
+        Page<OnewordEntity> pages = onewordRepository.findAll(pageable);
+        ArrayList<OnewordDto> list = new ArrayList<>();
+
+        for (OnewordEntity entity : pages) {
+            OnewordDto onewordDto = entity.toDto();
+            list.add(onewordDto);
+        }
+        return list;
+    }
 
     @Transactional
     public void insertOneword(OnewordDto onewordDto) {
@@ -27,15 +45,8 @@ public class OnewordService {
     }
 
     @Transactional
-    public int deleteOneword(int owNum) {     //int 리턴 형태를 만든다면 아래와 같이 작성함
-        try {
-            //jpa 제공 메서드
-            onewordRepository.deleteById(owNum);
-            return 1;
-        }catch (Exception e){
-            log.error(e.getMessage());
-            return 0;
-        }
+    public void deleteOneword(int owNum) {
+        onewordRepository.deleteById(owNum);
     }
 
 }

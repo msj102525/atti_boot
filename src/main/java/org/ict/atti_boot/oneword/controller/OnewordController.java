@@ -16,28 +16,30 @@ import org.springframework.web.bind.annotation.*;
 public class OnewordController {
     private final OnewordService onewordService;
 
-
     @PostMapping
-    public ResponseEntity<Void> insertOneword(@RequestBody OnewordDto onewordDto){
+    public ResponseEntity<?> insertOneword(@RequestBody OnewordDto onewordDto){
         log.info("insertBoard : {}", onewordDto);
         onewordService.insertOneword(onewordDto);
-        return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+        //return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<Void>(HttpStatus.CREATED);  //// 글등록 성공시 생성되었다는 상태 코드를 반환함
     }
 
     @PutMapping("/{onewordNum}")  //요청 경로에 반드시 pk 에 해당하는 값을 전송해야 함 (안 보내면 에러)
-    public ResponseEntity<Void> updateOneword(
+    public ResponseEntity<OnewordDto> updateOneword(
             @PathVariable("onewordNum") int onewordNum,
             @RequestBody OnewordDto onewordDto){
         log.info("updateOnewordSubject : {}", onewordNum);
         onewordService.updateOneword(onewordDto);
-        return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+        //return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(onewordDto, HttpStatus.OK);
     }
 
     @DeleteMapping("/{onewordNum}")
-    public ResponseEntity<Void> deleteOneword(@PathVariable("onewordNum") int onewordNum){
+    public ResponseEntity<Integer> deleteOneword(@PathVariable("onewordNum") int onewordNum){
         log.info("deleteNotice : {} ", onewordNum);
         onewordService.deleteOneword(onewordNum);
-        return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+        //return new ResponseEntity<Void>(HttpStatus.NO_CONTENT); /// return 값 없으면, axios에서 오류 발생
+        return new ResponseEntity<>(onewordNum, HttpStatus.OK);
     }
 
 }
