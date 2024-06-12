@@ -15,7 +15,7 @@ import java.util.UUID;
 @Entity
 @Builder
 @Data
-@Table(name = "refresh_tokens")
+@Table(name = "refresh_token")
 public class RefreshToken {
 
 

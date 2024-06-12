@@ -57,7 +57,7 @@ public class CustomLogoutHandler implements LogoutHandler {
 
             // 만료 여부와 상관없이 사용자 정보를 조회하여 로그아웃 처리를 합니다.
             String userName = jwtUtil.getUserEmailFromToken(token);
-            Optional<User> userOptional = userService.findByUserId(Long.valueOf(userName));
+            Optional<User> userOptional = userService.findByUserId(userName);
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
 

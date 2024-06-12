@@ -34,7 +34,7 @@ public class RefreshService {
         refreshRepository.deleteByTokenValue(tokenValue);
     }
 
-    public Optional<RefreshToken> findByUserUserId(Long userid) {
+    public Optional<RefreshToken> findByUserUserId(String userid) {
         return refreshRepository.findByUserUserId(userid);
     }
 }

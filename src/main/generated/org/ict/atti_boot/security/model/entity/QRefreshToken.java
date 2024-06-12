@@ -56,7 +56,7 @@ public class QRefreshToken extends EntityPathBase<RefreshToken> {
 
     public QRefreshToken(Class<? extends RefreshToken> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.user = inits.isInitialized("user") ? new org.ict.atti_boot.user.jpa.entity.QUser(forProperty("user"), inits.get("user")) : null;
+        this.user = inits.isInitialized("user") ? new org.ict.atti_boot.user.jpa.entity.QUser(forProperty("user")) : null;
     }
 
 }

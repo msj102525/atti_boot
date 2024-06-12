@@ -23,33 +23,31 @@ public class UserController {
     public String hello(){
         return "hello";}
 
-    @PostMapping("/user")
-    public ResponseEntity<?> signUpUser(@RequestBody User user) {
-
-        User newUser = userService.signUpUser(user);
-        return ResponseEntity.ok(newUser);
-    }
+//    @PostMapping("/user")
+//    public ResponseEntity<?> signUpUser(@RequestBody User user) {
+//        User newUser = userService.signUpUser(user);
+//        log.info("New user: " + newUser);
+//        return ResponseEntity.ok(newUser);
+//    }
 
     @PostMapping("/signup")
     public ResponseEntity<String> signUp(@RequestBody(required = false) User user) {
-        log.info("user: {}!!!!!!!!!!!!!!!!!!!!", user);
-
-        // 유효성 검사 추가
-        if (user.getUserName() == null || user.getUserName().isEmpty()) {
-            return ResponseEntity.status(400).body("user_name 필드는 필수입니다.");
-        }
+        log.info("userSignup: " + user);
         try {
-            userService.signUpUser(user);
+            // 유효성 검사
+            if (user == null || user.getUserName() == null || user.getUserName().isEmpty()) {
+                return ResponseEntity.status(400).body("user_name 필드는 필수입니다.");
+            }
+            // 회원가입 처리
+            User newUser = userService.signUpUser(user);
+            log.info("New user: " + newUser);
             log.info("userName: {}", user.getUserName());
-            return ResponseEntity.ok("회원가입이 완료되었습니다!");
 
+            return ResponseEntity.ok("회원가입이 완료되었습니다!");
         } catch (Exception e) {
             log.error("회원가입 실패: {}", e.getMessage());
             return ResponseEntity.status(500).body("회원가입에 실패했습니다.");
         }
     }
-
-
-
-
 }
+

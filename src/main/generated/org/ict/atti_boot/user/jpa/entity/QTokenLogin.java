@@ -56,7 +56,7 @@ public class QTokenLogin extends EntityPathBase<TokenLogin> {
 
     public QTokenLogin(Class<? extends TokenLogin> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.user = inits.isInitialized("user") ? new QUser(forProperty("user"), inits.get("user")) : null;
+        this.user = inits.isInitialized("user") ? new QUser(forProperty("user")) : null;
     }
 
 }

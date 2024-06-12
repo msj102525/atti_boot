@@ -22,9 +22,9 @@ import java.util.Set;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "USER_ID", nullable = false)
-    private Long userId;
+    private String userId;
 
     @Column(name = "PASSWORD")
     private String password;
@@ -53,46 +53,28 @@ public class User {
     @Column(name = "PROFILE_URL")
     private String profileUrl;
 
-    @Column(name = "login_type")
+    @Column(name = "LOGIN_TYPE")
     private String loginType;
 
-    @Column(name = "sns_access_token", nullable = true)
+    @Column(name = "SNS_ACCESS_TOKEN", nullable = true)
     private String snsAccessToken;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private TokenLogin tokenLogin;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private Set<SocialLogin> socialLogins;
-
-   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<RefreshToken> refreshTokens;
+//    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+//    private TokenLogin tokenLogin;
+//
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+//    private Set<SocialLogin> socialLogin;
+//
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    private Set<RefreshToken> refreshToken;
 
     public User(String userName) {
         this.userName = userName;
     }
 
-
-    public User(Long userId, String password) {
+    public User(String userId, String password) {
         this.userId = userId;
         this.password = password;
     }
 
-    public UserDto toUserDto() {
-        return UserDto.builder()
-                .userId(userId)
-                .password(password)
-                .userName(userName)
-                .nickName(nickName)
-                .email(email)
-                .phone(phone)
-                .birthDate(birthDate)
-                .userType(userType)
-                .gender(gender)
-                .profileUrl(profileUrl)
-                .loginType(loginType)
-                .tokenLogin(tokenLogin)
-                .socialLogins(socialLogins)
-                .build();
-    }
 }

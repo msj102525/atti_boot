@@ -189,7 +189,7 @@ public class AuthController {
 
             SocialLogin socialLogin = SocialLogin.builder()
                     .socialUserId(email)
-                    .userId(String.valueOf(newUser.getUserId()))
+                    .userId(newUser.getUserId())
                     .socialsite('K')
                     .loginTime(LocalDateTime.now())
                     .build();

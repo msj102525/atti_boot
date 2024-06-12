@@ -7,7 +7,6 @@ import com.querydsl.core.types.dsl.*;
 import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
-import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
@@ -17,8 +16,6 @@ import com.querydsl.core.types.dsl.PathInits;
 public class QUser extends EntityPathBase<User> {
 
     private static final long serialVersionUID = 1209424995L;
-
-    private static final PathInits INITS = PathInits.DIRECT2;
 
     public static final QUser user = new QUser("user");
 
@@ -38,39 +35,24 @@ public class QUser extends EntityPathBase<User> {
 
     public final StringPath profileUrl = createString("profileUrl");
 
-    public final SetPath<org.ict.atti_boot.security.model.entity.RefreshToken, org.ict.atti_boot.security.model.entity.QRefreshToken> refreshTokens = this.<org.ict.atti_boot.security.model.entity.RefreshToken, org.ict.atti_boot.security.model.entity.QRefreshToken>createSet("refreshTokens", org.ict.atti_boot.security.model.entity.RefreshToken.class, org.ict.atti_boot.security.model.entity.QRefreshToken.class, PathInits.DIRECT2);
-
     public final StringPath snsAccessToken = createString("snsAccessToken");
 
-    public final SetPath<SocialLogin, QSocialLogin> socialLogins = this.<SocialLogin, QSocialLogin>createSet("socialLogins", SocialLogin.class, QSocialLogin.class, PathInits.DIRECT2);
-
-    public final QTokenLogin tokenLogin;
-
-    public final NumberPath<Long> userId = createNumber("userId", Long.class);
+    public final StringPath userId = createString("userId");
 
     public final StringPath userName = createString("userName");
 
     public final ComparablePath<Character> userType = createComparable("userType", Character.class);
 
     public QUser(String variable) {
-        this(User.class, forVariable(variable), INITS);
+        super(User.class, forVariable(variable));
     }
 
     public QUser(Path<? extends User> path) {
-        this(path.getType(), path.getMetadata(), PathInits.getFor(path.getMetadata(), INITS));
+        super(path.getType(), path.getMetadata());
     }
 
     public QUser(PathMetadata metadata) {
-        this(metadata, PathInits.getFor(metadata, INITS));
-    }
-
-    public QUser(PathMetadata metadata, PathInits inits) {
-        this(User.class, metadata, inits);
-    }
-
-    public QUser(Class<? extends User> type, PathMetadata metadata, PathInits inits) {
-        super(type, metadata, inits);
-        this.tokenLogin = inits.isInitialized("tokenLogin") ? new QTokenLogin(forProperty("tokenLogin"), inits.get("tokenLogin")) : null;
+        super(User.class, metadata);
     }
 
 }

@@ -44,7 +44,8 @@ public class UserService {
     private User createUser(User user) {
         String encodedPassword = bCryptPasswordEncoder.encode(user.getPassword());
         return User.builder()
-                .userId(user.getUserId())  // 유저 ID 생성
+                .userName(user.getUserName())
+                .userId(user.getUserId())
                 .userName(user.getUserName())
                 .email(user.getEmail())
                 .password(encodedPassword)
@@ -61,7 +62,7 @@ public class UserService {
     }
 
     @Transactional
-    public Optional<User> findByUserId(Long userId) {
+    public Optional<User> findByUserId(String userId) {
         log.debug("Finding user by userId: {}", userId);
         return userRepository.findByUserId(userId);
     }
