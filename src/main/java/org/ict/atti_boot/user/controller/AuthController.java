@@ -119,21 +119,21 @@ public class AuthController {
             refreshService.save(refreshToken);
 
             // 로그인 성공 후 URL에 토큰 정보 포함
-            String redirectUrl = String.format("http://localhost:3000/user/success?access=%s&refresh=%s&isAdmin=%s",
+            String redirectUrl = String.format("http://localhost:3000/signup/success?access=%s&refresh=%s&isAdmin=%s",
                     accessTokenJwt, refreshTokenJwt, user.getUserType());
 
             response.sendRedirect(redirectUrl);
             log.info("로그인 성공: {}", email);
         } else {
             log.info("회원가입 필요: {}", email);
-            response.sendRedirect("http://localhost:3000/user");
+            response.sendRedirect("http://localhost:3000/signup");
         }
     }
 
 
     @GetMapping("/kakao/signup/callback")
     public void kakaoSignup(@RequestParam String code, HttpServletResponse response) throws IOException, JSONException {
-        log.info("code = {}", code);
+        log.info("code singup = {}", code);
 
         // 액세스 토큰을 요청하기 위한 URL 및 헤더 설정
         String tokenUrl = "https://kauth.kakao.com/oauth/token";
@@ -173,14 +173,14 @@ public class AuthController {
 
         if (optionalUser.isPresent()) {
             log.info("이미 등록된 사용자: {}", email);
-            response.sendRedirect("http://localhost:3000/user");
+            response.sendRedirect("http://localhost:3000/login");
         } else {
             User newUser = User.builder()
                     .email(email)
-                    .loginType("kakao")
+                    .loginType("Kakao")
                     //.nickName("defaultNickName")
                     .birthDate(LocalDate.now())
-                    //.userType("U")
+                    .userType('U')
                     .password("")
                     .build();
 
@@ -190,14 +190,12 @@ public class AuthController {
             SocialLogin socialLogin = SocialLogin.builder()
                     .socialUserId(email)
                     .userId(String.valueOf(newUser.getUserId()))
-                    .socialsite("kakao")
+                    .socialsite('K')
                     .loginTime(LocalDateTime.now())
                     .build();
 
             socialLogin.setUser(newUser);
             socialLoginRepository.save(socialLogin);
-
-            response.sendRedirect("http://localhost:3000/user/login");
 
             // 카카오 로그아웃 처리
             String logoutUrl = "https://kapi.kakao.com/v1/user/logout";
@@ -208,7 +206,8 @@ public class AuthController {
             ResponseEntity<String> logoutResponse = restTemplate.exchange(logoutUrl, HttpMethod.POST, logoutRequestEntity, String.class);
             log.info("logout response = {}", logoutResponse.getBody());
 
-            response.sendRedirect("http://localhost:3000/user/login");
+            // 회원가입 성공 후 로그인 페이지로 이동
+            response.sendRedirect("http://localhost:3000/login");
         }
     }
 }

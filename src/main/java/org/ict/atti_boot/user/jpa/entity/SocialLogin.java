@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Check;
 
 import java.time.LocalDateTime;
 
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @Table(name = "SOCIALLOGINS")
+@Check(constraints = "SOCIALSITE IN ('N', 'K')")
 @Entity
 public class SocialLogin {
 
@@ -24,7 +26,7 @@ public class SocialLogin {
     private String userId;          // 유저 아이디
 
     @Column(name = "SOCIALSITE")
-    private String socialsite;      //플랫폼 아이디
+    private Character socialsite;      //플랫폼 아이디
 
     @Column(name = "LOGIN_TIME")
     private LocalDateTime loginTime;    //로그인한 시간
