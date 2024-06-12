@@ -40,12 +40,18 @@ public class JWTFilter extends OncePerRequestFilter {
         // 요청에서 'Authorization' 헤더를 추출합니다.
         String authorization = request.getHeader("Authorization");
         String requestURI = request.getRequestURI();
-        if ("/reissue".equals(requestURI) || "/users/signup".equals(requestURI) || "/feed".startsWith(requestURI)) {
+        if ("/reissue".equals(requestURI) || "/users/signup".equals(requestURI)) {
             filterChain.doFilter(request, response);
             return;
         }
         //의사 리스트 요청 필터 넘기기
         if (requestURI.startsWith("/doctor")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // 커뮤니티 리스트 요청 필터 넘기기 dev
+        if (requestURI.startsWith("/feed")) {
             filterChain.doFilter(request, response);
             return;
         }
