@@ -46,7 +46,7 @@ public class QUser extends EntityPathBase<User> {
 
     public final QTokenLogin tokenLogin;
 
-    public final StringPath userId = createString("userId");
+    public final NumberPath<Long> userId = createNumber("userId", Long.class);
 
     public final StringPath userName = createString("userName");
 

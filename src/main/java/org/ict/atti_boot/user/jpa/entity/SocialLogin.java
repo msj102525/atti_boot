@@ -18,16 +18,17 @@ public class SocialLogin {
 
     @Id
     @Column(name = "SOCIALUSERID")
-    private String socialUserId;
+    private String socialUserId;        //소셜 아이디 ==이메일
 
     @Column(name = "USER_ID")
-    private String userId;
+    private String userId;          // 유저 아이디
 
     @Column(name = "SOCIALSITE")
-    private String socialsite;
+    private String socialsite;      //플랫폼 아이디
 
     @Column(name = "LOGIN_TIME")
-    private LocalDateTime loginTime;
+    private LocalDateTime loginTime;    //로그인한 시간
+
 
     @ManyToOne
     @JoinColumn(name = "USER_ID", insertable = false, updatable = false)

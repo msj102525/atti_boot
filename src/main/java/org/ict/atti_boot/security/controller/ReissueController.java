@@ -61,7 +61,7 @@ public class ReissueController {
         String username = jwtUtil.getUserEmailFromToken(token);
 
         // 사용자 정보 조회
-        Optional<User> userOptional = userService.findByUserId(username);
+        Optional<User> userOptional = userService.findByUserId(Long.valueOf(username));
         if (userOptional.isEmpty()) {
             return new ResponseEntity<>("user not found", HttpStatus.NOT_FOUND);
         }
