@@ -1,6 +1,7 @@
 package org.ict.atti_boot.doctor.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.ict.atti_boot.doctor.jpa.entity.Education;
 import org.ict.atti_boot.doctor.model.dto.DoctorDto;
 import org.ict.atti_boot.doctor.model.service.DoctorService;
 import org.ict.atti_boot.security.jwt.util.JWTUtil;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 @RestController
@@ -66,9 +68,9 @@ public class DoctorController {
     }
 
 
-    @GetMapping("/test")
-    public ResponseEntity<List<DoctorDto>> getDoctor() {
-        return ResponseEntity.ok(doctorService.findAllDoctor());
+    @GetMapping("/educations")
+    public ResponseEntity<Set<Education>> getEducationsTest(@RequestParam(name="doctorId",required = false) String doctorId) {
+        return ResponseEntity.ok(doctorService.findAllEducationByDoctor(doctorId));
     }
 
     /*@PostMapping("")

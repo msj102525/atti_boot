@@ -49,6 +49,24 @@ public class Doctor {
     )
      private Set<DoctorTag> tags;
 
+
+    @ManyToMany
+    @JoinTable(
+        name = "CAREER",
+        joinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID"),
+        inverseJoinColumns = @JoinColumn(name = "CAREER")
+    )
+     private Set<Career> careers;
+
+
+    @ManyToMany
+    @JoinTable(
+        name = "EDUCATION",
+        joinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID"),
+        inverseJoinColumns = @JoinColumn(name = "EDUCATION")
+    )
+     private Set<Education> educations;
+
     public DoctorDto toDto(){
         return DoctorDto.builder()
                 .userId(this.userId)

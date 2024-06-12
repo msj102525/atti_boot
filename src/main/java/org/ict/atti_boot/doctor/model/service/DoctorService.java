@@ -6,6 +6,7 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.doctor.jpa.entity.Doctor;
 import org.ict.atti_boot.doctor.jpa.entity.DoctorTag;
+import org.ict.atti_boot.doctor.jpa.entity.Education;
 import org.ict.atti_boot.doctor.jpa.repository.DoctorRepository;
 import org.ict.atti_boot.doctor.jpa.specification.DoctorSpecifications;
 import org.ict.atti_boot.doctor.model.dto.DoctorDto;
@@ -35,14 +36,6 @@ public class DoctorService {
         return doctorRepository.findAllWithUsers();
     }
 
-    private List<DoctorDto> toDtoList(List<Doctor> doctors){
-        List<DoctorDto> doctorDtos = new ArrayList<>();
-        for(Doctor doctor : doctors){
-            DoctorDto dto = doctor.toDto();
-            doctorDtos.add(dto);
-        }
-        return doctorDtos;
-    }
 
     public Map<String,Object> findAll(Pageable pageable){
 
@@ -57,6 +50,12 @@ public class DoctorService {
          public Map<String, Object> findByGender(Character gender, Pageable pageable) {
         Page<Doctor> doctorPage = doctorRepository.findByGenderContaining(gender, pageable);
         return constructResponse(doctorPage);
+    }
+    //
+    public Set<Education> findAllEducationByDoctor(String doctorId) {
+        Doctor doctor = doctorRepository.findByUserId(doctorId);
+        log.info(doctor.toString());
+        return doctor.getEducations();
     }
 
 
