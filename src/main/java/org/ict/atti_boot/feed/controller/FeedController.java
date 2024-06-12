@@ -28,11 +28,6 @@ public class FeedController {
     public ResponseEntity<?> selectTop5Feeds() {
         List<FeedContentVo> top5FeedContentList = feedService.selectTop5Feed();
 
-        for (FeedContentVo feedContent : top5FeedContentList) {
-            String content = feedContent.getFeedContent();
-            System.out.println(content);
-        }
-
         return ResponseEntity.ok().body(top5FeedContentList);
     }
 
