@@ -4,10 +4,13 @@ package org.ict.atti_boot.doctor.model.service;
 import jakarta.persistence.criteria.Join;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.ict.atti_boot.doctor.jpa.entity.Career;
 import org.ict.atti_boot.doctor.jpa.entity.Doctor;
 import org.ict.atti_boot.doctor.jpa.entity.DoctorTag;
 import org.ict.atti_boot.doctor.jpa.entity.Education;
+import org.ict.atti_boot.doctor.jpa.repository.CareerRepository;
 import org.ict.atti_boot.doctor.jpa.repository.DoctorRepository;
+import org.ict.atti_boot.doctor.jpa.repository.EducationRepository;
 import org.ict.atti_boot.doctor.jpa.specification.DoctorSpecifications;
 import org.ict.atti_boot.doctor.model.dto.DoctorDto;
 import org.springframework.data.domain.Page;
@@ -27,59 +30,78 @@ import java.util.stream.Collectors;
 public class DoctorService {
 
     private final DoctorRepository doctorRepository;
+    private final EducationRepository educationRepository;
+    private final CareerRepository careerRepository;
 
-    public DoctorService(DoctorRepository doctorRepository) {
+    public DoctorService(DoctorRepository doctorRepository, EducationRepository educationRepository, CareerRepository careerRepository) {
         this.doctorRepository = doctorRepository;
+        this.educationRepository = educationRepository;
+        this.careerRepository = careerRepository;
     }
 
-    public List<DoctorDto> findAllDoctor(){
-        return doctorRepository.findAllWithUsers();
-    }
+//    public List<DoctorDto> findAllDoctor() {
+//        return doctorRepository.findAllWithUsers();
+//    }
 
 
-    public Map<String,Object> findAll(Pageable pageable){
+    public Map<String, Object> findAll(Pageable pageable) {
 
         Page<Doctor> doctorPage = doctorRepository.findAll(pageable);
         return constructResponse(doctorPage);
     }
 
-     public Map<String, Object> findByName(String name, Pageable pageable) {
-        Page<Doctor> doctorPage = doctorRepository.findByUserNameContaining(name, pageable);
-        return constructResponse(doctorPage);
-    }
-         public Map<String, Object> findByGender(Character gender, Pageable pageable) {
-        Page<Doctor> doctorPage = doctorRepository.findByGenderContaining(gender, pageable);
-        return constructResponse(doctorPage);
-    }
+//    public Map<String, Object> findByName(String name, Pageable pageable) {
+//        Page<Doctor> doctorPage = doctorRepository.findByUserNameContaining(name, pageable);
+//        return constructResponse(doctorPage);
+//    }
+//
+//    public Map<String, Object> findByGender(Character gender, Pageable pageable) {
+//        Page<Doctor> doctorPage = doctorRepository.findByGenderContaining(gender, pageable);
+//        return constructResponse(doctorPage);
+//    }
+
     //
-    public Set<Education> findAllEducationByDoctor(String doctorId) {
-        Doctor doctor = doctorRepository.findByUserId(doctorId);
-        log.info(doctor.toString());
-        return doctor.getEducations();
+    public List<String> getEducationsByDoctorId(String doctorId) {
+        List<Education> educations = educationRepository.findByUserId(doctorId);
+        List<String> eduList = new ArrayList<>();
+        for (Education education : educations) {
+            eduList.add(education.getEducation());
+        }
+        return eduList;
     }
 
+    public List<String> getCareersByDoctorId(String doctorId) {
+        List<Career> careers = careerRepository.findByUserId(doctorId);
+        List<String> careerList = new ArrayList<>();
+        for (Career career : careers) {
+            careerList.add(career.getCareer());
+        }
+        return careerList;
+    }
 
+//    public Set<Education> getEducationsByUserId(String userId) {
+//        Doctor doctor = doctorRepository.findByUserId(userId);
+//        log.info(doctor.getEducations().toString());
+//        return doctor.getEducations();
+//    }
 
 
 //Specification Test
 
-public Map<String, Object> findByAllConditions(String name, List<String> tags, long tagCount, Character gender, Pageable pageable) {
-    Specification<Doctor> spec = Specification.where(null);
-    if (name != null) {
-        spec = spec.and(DoctorSpecifications.userNameContaining(name));
+    public Map<String, Object> findByAllConditions(String name, List<String> tags, long tagCount, Character gender, Pageable pageable) {
+        Specification<Doctor> spec = Specification.where(null);
+        if (name != null) {
+            spec = spec.and(DoctorSpecifications.userNameContaining(name));
+        }
+        if (tags != null && !tags.isEmpty()) {
+            spec = spec.and(DoctorSpecifications.tagsIn(tags));
+        }
+        if (gender != null) {
+            spec = spec.and(DoctorSpecifications.genderContaining(gender));
+        }
+        return constructResponse(doctorRepository.findAll(spec, pageable));
     }
-    if (tags != null && !tags.isEmpty()) {
-        spec = spec.and(DoctorSpecifications.tagsIn(tags));
-    }
-    if (gender != null) {
-        spec = spec.and(DoctorSpecifications.genderContaining(gender));
-    }
-    return constructResponse(doctorRepository.findAll(spec, pageable));
-}
 //SpecificationTestEnd
-
-
-
 
 
 //    public Map<String, Object> searchByAll(Pageable pageable, String name, String gender, List<String> tags) {
@@ -97,15 +119,14 @@ public Map<String, Object> findByAllConditions(String name, List<String> tags, l
 //    public Map<String, Object> findByGender(String gender, Pageable pageable) {
 //    }
 
-public Map<String, Object> findByTags(List<String> tags, Pageable pageable) {
-    long tagCount = tags.size();
-    Page<Doctor> doctorPage = doctorRepository.findByTagsIn(tags, tagCount, pageable);
-    return constructResponse(doctorPage);
-}
+    public Map<String, Object> findByTags(List<String> tags, Pageable pageable) {
+        long tagCount = tags.size();
+        Page<Doctor> doctorPage = doctorRepository.findByTagsIn(tags, tagCount, pageable);
+        return constructResponse(doctorPage);
+    }
 
 
-
-        private Map<String, Object> constructResponse(Page<Doctor> doctorPage) {
+    private Map<String, Object> constructResponse(Page<Doctor> doctorPage) {
         Map<String, Object> response = new HashMap<>();
         List<DoctorDto> doctorDtos = new ArrayList<>();
         List<Doctor> doctorEntityList = doctorPage.getContent();
@@ -117,6 +138,10 @@ public Map<String, Object> findByTags(List<String> tags, Pageable pageable) {
         response.put("pages", doctorPage.getTotalPages());
         response.put("doctors", doctorDtos);
         return response;
+    }
+
+    public Doctor getDoctorById(String doctorId) {
+        return doctorRepository.findByUserId(doctorId);
     }
 
     /*public NoticeBoard save(NoticeBoard noticeBoard, List<NoticeFile> noticeFiles) {
