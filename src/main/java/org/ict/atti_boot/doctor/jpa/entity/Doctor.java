@@ -44,7 +44,7 @@ public class Doctor {
     @ManyToMany
     @JoinTable(
         name = "DOCTOR_TAG",
-        joinColumns = @JoinColumn(name = "DOCTOR_USER_ID", referencedColumnName = "USER_ID"),
+        joinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID"),
         inverseJoinColumns = @JoinColumn(name = "TAG")
     )
      private Set<DoctorTag> tags;

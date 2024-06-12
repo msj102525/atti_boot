@@ -21,6 +21,6 @@ public class Career {
     @Column(name = "CAREER", length = 50)
     private String career;
 
-    @ManyToMany(mappedBy = "careers")
-    private Set<Doctor> doctors;
+   @Column(name="user_Id")
+    private String userId;
 }

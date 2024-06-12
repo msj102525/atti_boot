@@ -13,19 +13,18 @@ import java.util.List;
 @Repository
 public interface DoctorRepository extends JpaRepository<Doctor, Long>, JpaSpecificationExecutor<Doctor> {
 
-    // Doctor 엔티티와 Users 엔티티를 왼쪽 조인하여 검색하는 쿼리 메서드
-    @Query("SELECT d FROM Doctor d LEFT JOIN d.user u")
-    List<DoctorDto> findAllWithUsers();
-
-    @Query("SELECT d FROM Doctor d JOIN d.user u WHERE u.userName LIKE %:name%")
-    Page<Doctor> findByUserNameContaining(@Param("name") String name, Pageable pageable);
+//    // Doctor 엔티티와 Users 엔티티를 왼쪽 조인하여 검색하는 쿼리 메서드
+//    @Query("SELECT d FROM Doctor d LEFT JOIN d.user u")
+//    List<DoctorDto> findAllWithUsers();
+//
+//    @Query("SELECT d FROM Doctor d JOIN d.user u WHERE u.userName LIKE %:name%")
+//    Page<Doctor> findByUserNameContaining(@Param("name") String name, Pageable pageable);
 
     @Query("SELECT d FROM Doctor d JOIN d.tags t WHERE t.tag IN :tags GROUP BY d HAVING COUNT(DISTINCT t.tag) = :tagCount")
     Page<Doctor> findByTagsIn(@Param("tags") List<String> tags, @Param("tagCount") long tagCount, Pageable pageable);
 
-    @Query("SELECT d FROM Doctor d JOIN d.user u WHERE u.gender LIKE :gender")
-    Page<Doctor> findByGenderContaining(@Param("gender") Character gender, Pageable pageable);
-
     Doctor findByUserId(String userId);
-
+//    @Query("SELECT d FROM Doctor d JOIN d.user u WHERE u.gender LIKE :gender")
+//    Page<Doctor> findByGenderContaining(@Param("gender") Character gender, Pageable pageable);
+//    Doctor findByUserId(String userId);
 }

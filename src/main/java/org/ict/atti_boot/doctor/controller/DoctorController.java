@@ -34,44 +34,21 @@ public class DoctorController {
     public ResponseEntity<Map<String, Object>> getDoctors(@PageableDefault(size = 4, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok(doctorService.findAll(pageable));
     }
-//    @GetMapping("/search")
-//    public ResponseEntity<Map<String, Object>> searchDoctorsByName(@PageableDefault(size = 4, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable, @RequestParam("keyword") String name) {
-//        return ResponseEntity.ok(doctorService.findByName(name, pageable));
-//    }
+    @GetMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> getEducationsTest(@PathVariable(name="id",required = false) String doctorId) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("doctor", doctorService.getDoctorById(doctorId));
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/search")
     public ResponseEntity<Map<String, Object>> searchDoctors(@PageableDefault(size = 4, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable, @RequestParam(name="selectedTags",required = false) List<String> tags,
             @RequestParam(name="keyword", required = false) String name,
             @RequestParam(name="gender", required = false) Character gender) {
-//        if(name.length()>0 && gender.length()>0 && tags.size()>0) {
-//            return ResponseEntity.ok(doctorService.searchByAll(pageable, name, gender, tags));
-//        }
-//        if(gender.length()>0 && tags.size()>0) {
-//            return ResponseEntity.ok(doctorService.searchByTagsAndGender(pageable, gender, tags));
-//        }
-//        if(name.length()>0 && tags.size()>0) {
-//            return ResponseEntity.ok(doctorService.searchByTagsAndName(pageable, name, tags));
-//        }
-//        if(name.length()>0 && gender.length()>0) {
-//            return ResponseEntity.ok(doctorService.searchByGenderAndName(pageable, name, gender));
-//        }
-//       if(name.length()>0){
-//            return ResponseEntity.ok(doctorService.findByName(name, pageable));
-//       }
-//       if(gender.length()>0){
-//           Character genderc = gender.charAt(0);
-//           return ResponseEntity.ok(doctorService.findByGender(genderc, pageable));
-//        }else {
-//            return ResponseEntity.ok(doctorService.findByTags(tags,pageable));
-//        }
         long tagCount = tags.size();
         return ResponseEntity.ok(doctorService.findByAllConditions(name, tags, tagCount, gender,pageable));
     }
 
-
-    @GetMapping("/educations")
-    public ResponseEntity<Set<Education>> getEducationsTest(@RequestParam(name="doctorId",required = false) String doctorId) {
-        return ResponseEntity.ok(doctorService.findAllEducationByDoctor(doctorId));
-    }
 
     /*@PostMapping("")
     public ResponseEntity<?> boardWriting(HttpServletRequest request, @RequestBody Notice_Input noticeInput) {

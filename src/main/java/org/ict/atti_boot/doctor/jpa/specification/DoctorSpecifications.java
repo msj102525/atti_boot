@@ -1,13 +1,11 @@
 package org.ict.atti_boot.doctor.jpa.specification;
 
-import jakarta.persistence.criteria.Root;
-import jakarta.persistence.criteria.Subquery;
+import jakarta.persistence.criteria.*;
+import org.ict.atti_boot.doctor.jpa.entity.Education;
 import org.springframework.data.jpa.domain.Specification;
 import org.ict.atti_boot.doctor.jpa.entity.Doctor;
 import org.ict.atti_boot.doctor.jpa.entity.DoctorTag;
 
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.Predicate;
 import java.util.List;
 
 public class DoctorSpecifications {
@@ -45,4 +43,8 @@ public class DoctorSpecifications {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.join("user").get("gender"), gender);
     }
+
+
+
+
 }

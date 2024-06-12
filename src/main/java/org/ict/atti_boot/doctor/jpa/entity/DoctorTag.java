@@ -17,12 +17,17 @@ import java.util.Set;
 @Builder
 @Entity
 @Table(name = "DOCTOR_TAG")
-public class DoctorTag implements Serializable {
+public class DoctorTag{
 
     @Id
     @Column(name = "TAG", length = 50)
     private String tag;
 
-    @ManyToMany(mappedBy = "tags")
-    private Set<Doctor> doctors;
+    @Column(name="user_Id")
+    private String userId;
+
+
+//    @ManyToMany(mappedBy = "tags")
+//    private Set<Doctor> doctors;
+
 }
