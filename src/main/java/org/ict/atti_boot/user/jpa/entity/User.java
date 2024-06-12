@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Check;
-import org.hibernate.annotations.GenericGenerator;
 import org.ict.atti_boot.security.model.entity.RefreshToken;
 import org.ict.atti_boot.user.model.dto.UserDto;
 
@@ -23,8 +22,9 @@ import java.util.Set;
 public class User {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "USER_ID", nullable = false)
-    private String userId;
+    private Long userId;
 
     @Column(name = "PASSWORD")
     private String password;
@@ -65,15 +65,17 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private Set<SocialLogin> socialLogins;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<RefreshToken> refreshTokens;
+/*    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<RefreshToken> refreshTokens;*/
+
+
 
     public User(String userName) {
         this.userName = userName;
     }
 
 
-    public User(String userId, String password) {
+    public User(Long userId, String password) {
         this.userId = userId;
         this.password = password;
     }

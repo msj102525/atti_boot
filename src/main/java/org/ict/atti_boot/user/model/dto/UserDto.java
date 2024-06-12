@@ -20,7 +20,7 @@ import java.util.Set;
 @Component
 public class UserDto {
 
-    private String userId;
+    private Long userId;
     private String password;
     private String userName;
     private String nickName;
@@ -51,7 +51,6 @@ public class UserDto {
                 .loginType(loginType)
                 .tokenLogin(tokenLogin)
                 .socialLogins(socialLogins)
-                .snsAccessToken(snsAccessToken)
                 .build();
 
     }

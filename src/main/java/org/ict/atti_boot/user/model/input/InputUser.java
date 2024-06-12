@@ -11,12 +11,14 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class InputUser {
     private String email, password;
-    private String userId;
+    private Long userId;
     private String userName;
     private LocalDate birthDate;
 
-    public InputUser(String username) {
-
+    public InputUser(Long username) {
         this.userId = username;
+    }
+
+    public InputUser(String username) {
     }
 }

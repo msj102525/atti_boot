@@ -3,6 +3,7 @@ package org.ict.atti_boot.security.config;
 // Spring Framework 설정 관련 클래스들을 import 합니다.
 
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.security.handler.CustomLogoutHandler;
 import org.ict.atti_boot.security.jwt.filter.JWTFilter;
 import org.ict.atti_boot.security.jwt.filter.LoginFilter;
@@ -20,7 +21,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
+@Slf4j
 @Configuration // 스프링의 설정 정보를 담는 클래스임을 나타내는 어노테이션입니다.
 @EnableWebSecurity // 스프링 시큐리티 설정을 활성화합니다.
 public class SecurityConfig {
@@ -55,7 +56,7 @@ public class SecurityConfig {
                 // HTTP 요청에 대한 접근 권한을 설정합니다.
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/notice").hasRole("ADMIN") // '/notice' 경로에 대한 POST 요청은 ADMIN 역할을 가진 사용자만 가능합니다.
-                        .requestMatchers("/users/signup", "/login", "/notice", "/reissue", "/auth/kakao/callback","/auth/kakao/signup/callback","/file/view/*","/file/download/*","/doctor/**", "/feed/*", "/feed", "/doctor/**").permitAll() // 해당 경로들은 인증 없이 접근 가능합니다.
+                        .requestMatchers("/users/signup", "/login", "/notice", "/reissue", "/auth/kakao/callback","/auth/kakao/signup/callback","/file/view/*","/file/download/*","/doctor/*","/doctor/educations","/doctor", "/feed/*", "/feed").permitAll() // 해당 경로들은 인증 없이 접근 가능합니다.
                         .anyRequest().authenticated()) // 그 외의 모든 요청은 인증을 요구합니다.
                 // JWTFilter와 LoginFilter를 필터 체인에 등록합니다.
                 .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class)
