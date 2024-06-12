@@ -74,7 +74,7 @@ public class CustomLogoutHandler implements LogoutHandler {
                     log.info("Kakao logout response = {}", kakaoResponse.getBody());
                 }
 
-                Optional<RefreshToken> refresh = refreshService.findByUserUserId(UUID.fromString(userName));
+                Optional<RefreshToken> refresh = refreshService.findByUserUserId(user.getUserId());
                 refresh.ifPresent(refreshToken -> refreshService.deleteByRefresh(refreshToken.getTokenValue()));
             }
         }

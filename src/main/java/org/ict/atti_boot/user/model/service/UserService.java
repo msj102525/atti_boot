@@ -63,7 +63,7 @@ public class UserService {
     @Transactional
     public Optional<User> findByUserId(Long userId) {
         log.debug("Finding user by userId: {}", userId);
-        return userRepository.findByUserId(String.valueOf(userId));
+        return userRepository.findByUserId(userId);
     }
     @Transactional
     public void saveUser(User user) {
