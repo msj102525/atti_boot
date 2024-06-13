@@ -1,6 +1,8 @@
 package org.ict.atti_boot.doctor.model.service;
 
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.persistence.criteria.Join;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -13,14 +15,19 @@ import org.ict.atti_boot.doctor.jpa.repository.DoctorRepository;
 import org.ict.atti_boot.doctor.jpa.repository.EducationRepository;
 import org.ict.atti_boot.doctor.jpa.specification.DoctorSpecifications;
 import org.ict.atti_boot.doctor.model.dto.DoctorDto;
+import org.ict.atti_boot.doctor.model.dto.EmailRequest;
+import org.ict.atti_boot.user.jpa.repository.UserRepository;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.ict.atti_boot.doctor.jpa.specification.DoctorSpecifications;
-
+import org.springframework.mail.javamail.JavaMailSender;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,11 +39,14 @@ public class DoctorService {
     private final DoctorRepository doctorRepository;
     private final EducationRepository educationRepository;
     private final CareerRepository careerRepository;
-
-    public DoctorService(DoctorRepository doctorRepository, EducationRepository educationRepository, CareerRepository careerRepository) {
+    private final UserRepository userRepository;
+    private final JavaMailSender mailSender;
+    public DoctorService(DoctorRepository doctorRepository, EducationRepository educationRepository, CareerRepository careerRepository, JavaMailSender mailSender, UserRepository userRepository) {
         this.doctorRepository = doctorRepository;
         this.educationRepository = educationRepository;
         this.careerRepository = careerRepository;
+        this.mailSender = mailSender;
+        this.userRepository = userRepository;
     }
 
 //    public List<DoctorDto> findAllDoctor() {
@@ -142,6 +152,52 @@ public class DoctorService {
 
     public Doctor getDoctorById(String doctorId) {
         return doctorRepository.findByUserId(doctorId);
+    }
+
+
+      public void sendEmail(EmailRequest request) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            log.info(request.toString());
+            helper.setTo(request.getEmail());
+            helper.setSubject("Atti에 방문하신걸 진심으로 환영합니다." + request.getDoctorName()+"님");
+
+            // HTML 콘텐츠 작성
+            String htmlContent = "<div style=\"background-color: #8ab68a; padding: 40px; margin: 20px auto; border-radius: 40px; max-width: 800px;\">"
+                + "<div style=\"text-align: center; margin-bottom: 40px; color: white;\">"
+                + "<h1>저희 Atti 회원가입을 환영합니다!</h1>"
+                + "</div>"
+                + "<div style=\"display: flex; flex-wrap: wrap; align-items: center;\">"
+                + "<div style=\"flex: 1; padding: 10px; text-align: center;\">"
+                + "<div style=\"background-color: #ffffff; padding: 20px; border-radius: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);\">"
+                + "<p style=\"font-size: 18px; color: #333;\">"
+                + "지금 <strong style=\"color: #ff6f61;\">"+request.getNumberOfMembers()+"</strong>명의 회원이 전문가님의 도움을 기다리고 있어요!"
+                + "</p>"
+                + "<h3 style=\"font-size: 24px; margin-top: 20px;\">"
+                + "인증코드: <strong>"+request.getCode()+"</strong>"
+                + "</h3>"
+                + "</div>"
+                + "</div>"
+                + "<div style=\"flex: 1; text-align: center;\">"
+               + "<img src=\"cid:mailForDoctor\" style=\"width: 80%; height: auto;\" />"
+                + "</div>"
+                + "</div>"
+                + "</div>";
+
+            helper.setText(htmlContent, true);
+            // 이미지 첨부 (이미지를 인라인으로 추가)
+            helper.addInline("mailForDoctor", new FileSystemResource("src/main/img/mailForDoctor.png"));
+
+            mailSender.send(message);
+            log.info("메일전송 완료!");
+        } catch (MessagingException e) {
+            throw new RuntimeException("Failed to send email", e);
+        }
+    }
+
+    public long findAllUserCount() {
+        return userRepository.count();
     }
 
     /*public NoticeBoard save(NoticeBoard noticeBoard, List<NoticeFile> noticeFiles) {
