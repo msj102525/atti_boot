@@ -43,6 +43,7 @@ public class JWTFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
+
         //의사 리스트 요청 필터 넘기기
         if (requestURI.startsWith("/doctor")) {
             log.info(requestURI);
@@ -55,8 +56,13 @@ public class JWTFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        
-        
+
+        // 오늘 한 줄 리스트 요청 필터 넘기기 dev(onewordsubject)
+        if (requestURI.startsWith("/onewordsubject")) {
+            log.info(requestURI);
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         // 'Authorization' 헤더가 없거나 Bearer 토큰이 아니면 요청을 계속 진행합니다.
         if( authorization == null || !authorization.startsWith("Bearer ")){
