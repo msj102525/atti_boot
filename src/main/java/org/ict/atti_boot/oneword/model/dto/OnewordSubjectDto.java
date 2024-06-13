@@ -25,7 +25,7 @@ public class OnewordSubjectDto {
                 .owsjNum(owsjNum)
                 .owsjSubject(owsjSubject)
                 .owsjWriter(owsjWriter)
-                .owsjWriteDate(java.sql.Date.valueOf(owsjWriteDate))
+                .owsjWriteDate(owsjWriteDate != null ? java.sql.Date.valueOf(owsjWriteDate) : null)
                 .build();
     }
 }

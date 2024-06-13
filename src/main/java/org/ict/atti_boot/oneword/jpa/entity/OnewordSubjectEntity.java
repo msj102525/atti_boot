@@ -16,8 +16,10 @@ import java.util.Date;
 @Table(name="ONEWORDSUBJECT")
 @Entity    //jpa 가 관리함, repository 와 연결됨
 public class OnewordSubjectEntity {
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)  //primary key 지정하는 어노테이션(자동 채번)
     @Id     //JPA 가 객체를 관리할 때 식별할 기본키 지정하는 어노테이션임
-    @GeneratedValue(strategy = GenerationType.IDENTITY)  //primary key 지정하는 어노테이션(자동 채번)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_ONEWORDSUBJECT_OWSJ_NUM")
+    @SequenceGenerator(name = "SEQ_ONEWORDSUBJECT_OWSJ_NUM", sequenceName = "SEQ_ONEWORDSUBJECT_OWSJ_NUM", allocationSize = 1)
     @Column(name="OWSJ_NUM")
     private int owsjNum;
 
