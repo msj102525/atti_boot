@@ -11,6 +11,7 @@ import org.ict.atti_boot.feed.service.FeedService;
 import org.ict.atti_boot.security.jwt.util.JWTUtil;
 import org.ict.atti_boot.user.jpa.entity.User;
 import org.ict.atti_boot.user.jpa.repository.UserRepository;
+import org.ict.atti_boot.user.model.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,7 +31,7 @@ import java.util.Optional;
 public class FeedController {
     private final FeedService feedService;
     private final JWTUtil jwtUtil;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @GetMapping("/top5")
     public ResponseEntity<?> selectTop5Feeds() {
@@ -65,7 +66,7 @@ public class FeedController {
     public ResponseEntity<FeedSaveOutput> insertFeed(@RequestBody FeedSaveInputDto feedSaveInputDto) {
         log.info(feedSaveInputDto.toString());
 
-        Optional<User> optionalUser = userRepository.findByUserId("user5");
+        Optional<User> optionalUser = userService.findByUserId("user5");
 
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
