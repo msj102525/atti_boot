@@ -76,5 +76,11 @@ public class User {
         this.userId = userId;
         this.password = password;
     }
+    public User(String userId, String password, String userName) {
+        this.userId = userId;
+        this.password = password;
+        this.userName = userName;
+    }
+
 
 }
