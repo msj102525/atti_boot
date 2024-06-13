@@ -30,6 +30,8 @@ public class SocialLogin {
     @Column(name = "LOGIN_TIME")
     private LocalDateTime loginTime;    //로그인한 시간
 
+    @Column(name = "SNS_ACCESS_TOKEN", nullable = true)
+    private String snsAccessToken;
 
     @ManyToOne
     @JoinColumn(name = "USER_ID", insertable = false, updatable = false)
