@@ -7,12 +7,21 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public interface BoardRepository extends JpaRepository<BoardEntity, Integer> {
+import java.util.Date;
+import java.util.List;
 
-    @Query("SELECT b FROM BoardEntity b ORDER BY " +
-           "CASE WHEN b.importance = 2 THEN 0 ELSE 1 END, " +
-           "CASE WHEN b.importance = 2 THEN b.boardNum END DESC, " +
-           "b.boardNum DESC")
+@Repository
+public interface
+BoardRepository extends JpaRepository<BoardEntity, Integer> {
+
+    @Query("SELECT b FROM BoardEntity b ORDER BY " +"b.boardNum DESC")
     Page<BoardEntity> findAllOrdered(Pageable pageable);
+
+    List<BoardEntity> findByBoardTitleContaining(String keyword);
+
+    List<BoardEntity> findByBoardWriterContaining(String keyword);
+
+    List<BoardEntity> findByBoardDateBetween(Date beginDate, Date endDate);
+
+
 }
