@@ -59,14 +59,20 @@ public class User{
     @Column(name = "SNS_ACCESS_TOKEN", nullable = true)
     private String snsAccessToken;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+//    private Set<SocialLogin> socialLogin;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<SocialLogin> socialLogin;
-//
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<RefreshToken> refreshToken;
 //    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 //    private Set<RefreshToken> refreshToken;
+
 //    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
 //    private TokenLogin tokenLogin;
-//
+
     public User(String userName) {
         this.userName = userName;
     }
@@ -81,5 +87,12 @@ public class User{
         this.userName = userName;
     }
 
-
+    @Override
+    public String toString() {
+        return "User{" +
+                "userId='" + userId + '\'' +
+                ", userName='" + userName + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
 }

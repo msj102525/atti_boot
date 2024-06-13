@@ -77,7 +77,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) throws IOException {
         // 인증 객체에서 CustomUserDetails를 추출합니다.
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-
+        log.info("Successfully authenticated user: {}", customUserDetails);
         // CustomUserDetails에서 사용자 이름(이메일)을 추출합니다.
         String username = customUserDetails.getUsername();
 
@@ -119,9 +119,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         // 응답 컨텐츠 타입을 설정합니다.
         response.setContentType("application/json");
+        log.info("Response body: {}", responseBodyJson);
 
         // 응답 바디에 JSON 문자열을 작성합니다.
         response.getWriter().write(responseBodyJson);
+        log.info("Successfully logged in user: {}", customUserDetails);
         response.getWriter().flush();
     }
 
@@ -166,6 +168,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             String jsonResponse = new ObjectMapper().writeValueAsString(responseData);
             response.getWriter().write(jsonResponse);
             response.getWriter().flush();
+            log.info("Unsuccessful authentication: {}", jsonResponse);
         } catch (IOException ignored) {
         }
     }
