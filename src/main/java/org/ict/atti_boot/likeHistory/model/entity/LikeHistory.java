@@ -16,7 +16,10 @@ import java.util.List;
 @Builder
 @Table(name = "LIKE_HISTORY")
 public class LikeHistory {
+
     @Id
+//    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "LIKE_HISTORY_SEQ_GENERATOR")
+//    @SequenceGenerator(name = "LIKE_HISTORY_SEQ_GENERATOR", sequenceName = "LIKE_HISTORY_SEQ", allocationSize = 1)
     @Column(name = "LIKE_HISTORY_ID")
     private int likeHistoryId;
 

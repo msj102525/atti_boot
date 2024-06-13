@@ -220,4 +220,25 @@ public class AuthController {
         }
     }
 
+
+    @GetMapping("/kakao/logout")
+    public void kakaoLogout(@RequestParam String accessToken, HttpServletResponse response) throws IOException {
+        log.info("accessToken for logout = {}", accessToken);
+
+        // 카카오 로그아웃 처리
+        String logoutUrl = "https://kapi.kakao.com/v1/user/logout";
+        HttpHeaders logoutHeaders = new HttpHeaders();
+        logoutHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        logoutHeaders.set("Authorization", "Bearer " + accessToken);
+
+        HttpEntity<String> logoutRequestEntity = new HttpEntity<>(logoutHeaders);
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> logoutResponse = restTemplate.exchange(logoutUrl, HttpMethod.POST, logoutRequestEntity, String.class);
+        log.info("logout response = {}", logoutResponse.getBody());
+
+        // 로그아웃 성공 후 리다이렉트
+        response.sendRedirect("http://localhost:3000/logout-success");
+    }
+
+
 }

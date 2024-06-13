@@ -9,6 +9,7 @@ import org.ict.atti_boot.security.jwt.filter.JWTFilter;
 import org.ict.atti_boot.security.jwt.filter.LoginFilter;
 import org.ict.atti_boot.security.jwt.util.JWTUtil;
 import org.ict.atti_boot.security.service.RefreshService;
+import org.ict.atti_boot.user.jpa.repository.TokenLoginRepository;
 import org.ict.atti_boot.user.model.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,7 +48,7 @@ public class SecurityConfig {
     // HTTP 보안 관련 설정을 정의합니다.
     // SecurityFilterChain Bean을 등록하여 HTTP 요청에 대한 보안을 구성합니다.
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, TokenLoginRepository tokenLoginRepository) throws Exception {
         http
                 // CSRF, Form Login, Http Basic 인증을 비활성화합니다.
                 .csrf(AbstractHttpConfigurer::disable)
@@ -61,7 +62,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()) // 그 외의 모든 요청은 인증을 요구합니다.
                 // JWTFilter와 LoginFilter를 필터 체인에 등록합니다.
                 .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class)
-                .addFilterAt(new LoginFilter(userService, refreshService, authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(new LoginFilter(userService, refreshService ,authenticationManager(authenticationConfiguration) ,jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 // 로그아웃 처리를 커스터마이징합니다.
                 .logout(logout -> logout
                         .addLogoutHandler(new CustomLogoutHandler(jwtUtil, refreshService, userService))
