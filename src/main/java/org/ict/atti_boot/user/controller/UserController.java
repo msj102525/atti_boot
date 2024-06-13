@@ -1,9 +1,7 @@
 package org.ict.atti_boot.user.controller;
 
-
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.user.jpa.entity.User;
-import org.ict.atti_boot.user.model.input.InputUser;
 import org.ict.atti_boot.user.model.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +40,7 @@ public class UserController {
             User newUser = userService.signUpUser(user);
             log.info("New user: " + newUser);
             log.info("userName: {}", user.getUserName());
+
             return ResponseEntity.ok("회원가입이 완료되었습니다!");
 
         } catch (Exception e) {
@@ -50,4 +49,3 @@ public class UserController {
         }
     }
 }
-
