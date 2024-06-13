@@ -3,12 +3,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.doctor.jpa.entity.Education;
 import org.ict.atti_boot.doctor.model.dto.DoctorDto;
+import org.ict.atti_boot.doctor.model.dto.EmailRequest;
 import org.ict.atti_boot.doctor.model.service.DoctorService;
 import org.ict.atti_boot.security.jwt.util.JWTUtil;
 import org.ict.atti_boot.user.jpa.repository.UserRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,6 +51,16 @@ public class DoctorController {
         return ResponseEntity.ok(doctorService.findByAllConditions(name, tags, tagCount, gender,pageable));
     }
 
+    @PostMapping("/mail")
+    public ResponseEntity<String> sendEmail(@RequestBody EmailRequest request) {
+        try {
+            request.setNumberOfMembers(doctorService.findAllUserCount());
+            doctorService.sendEmail(request);
+            return ResponseEntity.ok("Email sent successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error sending email");
+        }
+    }
 
     /*@PostMapping("")
     public ResponseEntity<?> boardWriting(HttpServletRequest request, @RequestBody Notice_Input noticeInput) {
