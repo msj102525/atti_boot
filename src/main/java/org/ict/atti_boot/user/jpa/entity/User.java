@@ -19,7 +19,7 @@ import java.util.Set;
 @Table(name = "USERS")
 @Check(constraints = "USER_TYPE IN ('U', 'A', 'D')")
 @Entity
-public class User {
+public class User{
 
     @Id
     //@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -59,15 +59,14 @@ public class User {
     @Column(name = "SNS_ACCESS_TOKEN", nullable = true)
     private String snsAccessToken;
 
-//    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-//    private TokenLogin tokenLogin;
-//
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-//    private Set<SocialLogin> socialLogin;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<SocialLogin> socialLogin;
 //
 //    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 //    private Set<RefreshToken> refreshToken;
-
+//    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+//    private TokenLogin tokenLogin;
+//
     public User(String userName) {
         this.userName = userName;
     }

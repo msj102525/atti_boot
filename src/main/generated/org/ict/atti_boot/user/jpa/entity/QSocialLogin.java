@@ -24,6 +24,8 @@ public class QSocialLogin extends EntityPathBase<SocialLogin> {
 
     public final DateTimePath<java.time.LocalDateTime> loginTime = createDateTime("loginTime", java.time.LocalDateTime.class);
 
+    public final StringPath snsAccessToken = createString("snsAccessToken");
+
     public final StringPath socialsite = createString("socialsite");
 
     public final StringPath socialUserId = createString("socialUserId");

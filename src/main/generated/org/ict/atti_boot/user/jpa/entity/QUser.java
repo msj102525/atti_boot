@@ -7,6 +7,7 @@ import com.querydsl.core.types.dsl.*;
 import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
+import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
@@ -36,6 +37,8 @@ public class QUser extends EntityPathBase<User> {
     public final StringPath profileUrl = createString("profileUrl");
 
     public final StringPath snsAccessToken = createString("snsAccessToken");
+
+    public final SetPath<SocialLogin, QSocialLogin> socialLogin = this.<SocialLogin, QSocialLogin>createSet("socialLogin", SocialLogin.class, QSocialLogin.class, PathInits.DIRECT2);
 
     public final StringPath userId = createString("userId");
 
