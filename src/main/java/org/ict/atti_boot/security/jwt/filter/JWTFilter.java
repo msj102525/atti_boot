@@ -1,7 +1,6 @@
 package org.ict.atti_boot.security.jwt.filter;
 
 // 필요한 클래스와 인터페이스를 import 합니다.
-
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

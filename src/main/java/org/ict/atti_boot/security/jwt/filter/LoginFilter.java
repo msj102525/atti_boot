@@ -89,7 +89,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             User user = userOptional.get();
             log.info("Successfully logged in user: {}", user);
             RefreshToken refreshToken = RefreshToken.builder()
-                    //.id(UUID.randomUUID())
+                    .id(user.getUserId())
                     .status("activated")
                     .userAgent(request.getHeader("User-Agent"))
                     .user(user)
