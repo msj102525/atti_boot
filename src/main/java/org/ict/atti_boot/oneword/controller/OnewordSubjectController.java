@@ -22,11 +22,12 @@ public class OnewordSubjectController {
     private final OnewordSubjectService onewordSubjectService;
 
     @GetMapping("/list")
-    public ResponseEntity<List<OnewordSubjectDto>> selectList(@RequestParam(name="page") int page,
-                                                     @RequestParam(name="limit") int limit) {
-        log.info("/onewordsubject/list : {}", page + ",  " + limit);
+    public ResponseEntity<List<OnewordSubjectDto>> selectList(@RequestParam(name="page", defaultValue = "0") int page,
+                                                             @RequestParam(name="size", defaultValue = "10") int size) {
+        log.info("/onewordsubject/list : {}", page + ",  " + size);
         //JPA 가 제공하는 Pageable 객체를 사용함
-        Pageable pageable = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.DESC, "owsjNum"));
+        //Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "owsjNum"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "owsjNum"));
         //페이지에 출력할 목록 조회해 옴 => 응답 처리
         return new ResponseEntity<>(onewordSubjectService.selectList(pageable), HttpStatus.OK);
     }
