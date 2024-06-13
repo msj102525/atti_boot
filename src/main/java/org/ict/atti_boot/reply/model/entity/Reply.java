@@ -23,8 +23,8 @@ public class Reply {
     @Column(name = "REPLY_NUM")
     private int replyNum;
 
-    @Column(name = "USER_ID", nullable = false)
-    private String userId;
+//    @Column(name = "USER_ID", nullable = false)
+//    private String userId;
 
     @Column(name = "FEED_NUM", nullable = false)
     private int feedNum;
@@ -46,6 +46,10 @@ public class Reply {
     // 답글 순번
     @Column(name = "REPLY_SEQ", columnDefinition = "DEFAULT 1")
     private int replySeq;
+
+    @ManyToOne
+    @JoinColumn(name = "USER_ID", nullable = false)
+    private User user;
 
 
     @PrePersist

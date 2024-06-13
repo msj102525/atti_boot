@@ -11,7 +11,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -36,4 +41,48 @@ public class BoardService {
             throw new IllegalArgumentException("Invalid boardNum: " + boardNum);
         }
     }
+
+    public void updateBoard(int boardNum, BoardDto boardDto) {
+        BoardEntity existingBoard = boardRepository.findById(boardNum)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid board number: " + boardNum));
+
+        existingBoard.setBoardTitle(boardDto.getBoardTitle());
+        existingBoard.setBoardContent(boardDto.getBoardContent());
+        existingBoard.setImportance(boardDto.getImportance());
+
+        boardRepository.save(existingBoard);
+    }
+
+
+    public void deleteBoard(int boardNum) {
+        boardRepository.deleteById(boardNum);
+    }
+
+    public List<BoardDto> searchBoards(String action, String keyword, String beginDate, String endDate) {
+    List<BoardEntity> boardEntities;
+
+    switch (action) {
+        case "title":
+            boardEntities = boardRepository.findByBoardTitleContaining(keyword);
+            break;
+        case "writer":
+            boardEntities = boardRepository.findByBoardWriterContaining(keyword);
+            break;
+        case "date":
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            try {
+                Date startDate = dateFormat.parse(beginDate);
+                Date eDate = dateFormat.parse(endDate);
+                boardEntities = boardRepository.findByBoardDateBetween(startDate, eDate);
+            } catch (ParseException e) {
+                throw new IllegalArgumentException("Invalid date format: " + e.getMessage());
+            }
+            break;
+        default:
+            throw new IllegalArgumentException("Invalid search action: " + action);
+    }
+
+    return boardEntities.stream().map(BoardEntity::toDto).collect(Collectors.toList());
+}
+
 }
