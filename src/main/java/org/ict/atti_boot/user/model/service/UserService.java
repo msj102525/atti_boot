@@ -50,7 +50,7 @@ public class UserService {
                 .email(user.getEmail())
                 .password(encodedPassword)
                 .gender(user.getGender())
-                .userType('U')
+                .userType(user.getUserType())
                 .birthDate(user.getBirthDate())
                 .build();
     }
