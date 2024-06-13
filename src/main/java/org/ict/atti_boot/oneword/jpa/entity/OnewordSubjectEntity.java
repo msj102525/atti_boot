@@ -30,6 +30,11 @@ public class OnewordSubjectEntity {
     @Column(name="OWSJ_WRITE_DATE")
     private Date owsjWriteDate;
 
+    @PrePersist     //// jpa 로 넘어가기 전에 작동하라는 어노테이션임
+    public void prePersist(){
+        owsjWriteDate = new Date(System.currentTimeMillis());   /// 현재 날짜, 시간 적용
+    }
+
     public OnewordSubjectDto toDto(){
         return OnewordSubjectDto.builder()
                 .owsjNum(owsjNum)
