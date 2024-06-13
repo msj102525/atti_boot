@@ -42,8 +42,8 @@ public class UserController {
             User newUser = userService.signUpUser(user);
             log.info("New user: " + newUser);
             log.info("userName: {}", user.getUserName());
-
             return ResponseEntity.ok("회원가입이 완료되었습니다!");
+
         } catch (Exception e) {
             log.error("회원가입 실패: {}", e.getMessage());
             return ResponseEntity.status(500).body("회원가입에 실패했습니다.");
