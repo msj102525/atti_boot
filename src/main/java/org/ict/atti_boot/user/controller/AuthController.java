@@ -121,7 +121,7 @@ public class AuthController {
             log.info("refresh token = {}", refreshToken);
 
             // 로그인 성공 후 URL에 토큰 정보 포함
-            String redirectUrl = String.format("http://localhost:3000/",
+            String redirectUrl = String.format("\"http://localhost:3000/login/success?access=%s&refresh=%s&isAdmin=%s",
                     accessTokenJwt, refreshTokenJwt, user.getUserId(),user.getEmail());
 
             response.sendRedirect(redirectUrl);

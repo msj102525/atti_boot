@@ -1,6 +1,7 @@
 package org.ict.atti_boot.security.jwt.util;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
@@ -75,13 +76,25 @@ public class JWTUtil {
         return claims.getExpiration().before(new Date());
     }
 
-    // JWT에서 사용자의 관리자 여부를 확인합니다.
+//    // JWT에서 사용자의 관리자 여부를 확인합니다.
+//    public boolean isAdminFromToken(String token) {
+//        Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
+//        return claims.get("admin", Boolean.class);
+//    }
     public boolean isAdminFromToken(String token) {
-        Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
-        return claims.get("admin", Boolean.class);
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            return Boolean.TRUE.equals(claims.get("admin", Boolean.class));
+        } catch (JwtException | IllegalArgumentException e) {
+            // 로그를 남기거나 예외를 처리하는 로직 추가
+            return false;  // 예외 발생 시 false 반환
+        }
     }
-
-    // JWT에서 사용자의 카테고리를 확인합니다.
+   // JWT에서 사용자의 카테고리를 확인합니다.
     public String getCategoryFromToken(String token) {
         Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
         return claims.get("category", String.class);

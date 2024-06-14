@@ -87,6 +87,14 @@ public class User{
         this.userName = userName;
     }
 
+    public void setUserType(String userType) {
+        if (userType != null && !userType.isEmpty()) {
+            this.userType = userType.charAt(0);
+        } else {
+            this.userType = 'U';  // 기본값 설정
+        }
+    }
+
     @Override
     public String toString() {
         return "User{" +

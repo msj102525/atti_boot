@@ -110,7 +110,7 @@ public class JWTFilter extends OncePerRequestFilter {
         User user = new User();
         user.setEmail(userId);
         user.setPassword("tempPassword"); // 실제 인증에서는 사용되지 않는 임시 비밀번호를 설정합니다.
-        user.setUserType(user.getUserType());
+        user.setUserType(String.valueOf(user.getUserType()));
 
         // User 객체를 기반으로 CustomUserDetails 객체를 생성합니다.
         CustomUserDetails customUserDetails = new CustomUserDetails(user);
@@ -124,5 +124,6 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // 필터 체인을 계속 진행합니다.
         filterChain.doFilter(request,response);
+        log.info(userId);
     }
 }
