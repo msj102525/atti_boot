@@ -1,6 +1,7 @@
 package org.ict.atti_boot.user.model.output;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.user.jpa.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+@Slf4j
 // Spring Security의 UserDetails 인터페이스를 구현한 CustomUserDetails 클래스입니다.
 public class CustomUserDetails implements UserDetails {
 
@@ -28,6 +30,7 @@ public class CustomUserDetails implements UserDetails {
         // 사용자의 isAdmin 값에 따라 ROLE_ADMIN 또는 ROLE_USER 권한을 부여합니다.
         if (this.user.getUserType() == 'A') {
             authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+            log.info("SimpleGrantedAuthority:{}", authorities);
         } else {
             authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
         }

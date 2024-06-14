@@ -57,6 +57,7 @@ public class CustomLogoutHandler implements LogoutHandler {
 
             // 만료 여부와 상관없이 사용자 정보를 조회하여 로그아웃 처리를 합니다.
             String userName = jwtUtil.getUserEmailFromToken(token);
+            log.info("Logged out user: {}", userName);
             Optional<User> userOptional = userService.findByUserId(userName);
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
@@ -75,11 +76,13 @@ public class CustomLogoutHandler implements LogoutHandler {
                 }
 
                 Optional<RefreshToken> refresh = refreshService.findByUserUserId(user.getUserId());
+                log.info("Refresh token = {}", refresh.isPresent());
                 refresh.ifPresent(refreshToken -> refreshService.deleteByRefresh(refreshToken.getTokenValue()));
             }
         }
 
         // 성공적인 로그아웃 응답을 설정합니다.
         response.setStatus(HttpServletResponse.SC_OK);
+        log.info("Logged out successfully");
     }
 }
