@@ -3,6 +3,7 @@ package org.ict.atti_boot.feed.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.feed.model.entity.Feed;
+import org.ict.atti_boot.feed.model.output.FeedListOutput;
 import org.ict.atti_boot.reply.model.entity.Reply;
 import org.ict.atti_boot.feed.model.input.FeedSaveInputDto;
 import org.ict.atti_boot.feed.model.output.FeedSaveOutput;
@@ -12,6 +13,7 @@ import org.ict.atti_boot.security.jwt.util.JWTUtil;
 import org.ict.atti_boot.user.jpa.entity.User;
 import org.ict.atti_boot.user.jpa.repository.UserRepository;
 import org.ict.atti_boot.user.model.service.UserService;
+import org.json.JSONObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,9 +22,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/feed")
@@ -46,6 +50,8 @@ public class FeedController {
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size
     ) {
+        String loginUserId = "JWT를 통해서 가져온 userId";
+
         log.info("selectAllFeeds called : {}, {}, {}", page, size, category);
 
         Sort sort = Sort.by(Sort.Direction.DESC, "feedDate");
@@ -55,12 +61,50 @@ public class FeedController {
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<Feed> feeds = feedService.selectAllFeeds(pageable, category);
 
+        List<FeedListOutput> feedListOutputList = new ArrayList<>();
+
         feeds.getContent().forEach(feed -> {
             feed.getReplies().sort(Comparator.comparing(Reply::getReplyDate).reversed());
+
+            FeedListOutput feedListOutput = FeedListOutput.builder()
+                    .feedWriterId(feed.getUser().getUserId())
+                    .feedWriterProfileUrl(feed.getUser().getProfileUrl())
+                    .category(feed.getCategory())
+                    .feedNum(feed.getFeedNum())
+                    .feedContent(feed.getFeedContent())
+                    .feedDate(feed.getFeedDate())
+                    .inPublic(feed.getInPublic())
+                    .replyCount(feed.getReplies().size())
+                    .loginUserIsLiked(feed.getLikeHistories().stream()
+                            .anyMatch(reply -> reply.getUserId().equals(loginUserId)))
+                    .isDocterComment(feed.getReplies().stream()
+                            .anyMatch(reply -> reply.getUser().getUserType() == 'D'))
+                    .docterName(feed.getReplies().stream()
+                            .filter(reply -> reply.getUser().getUserType() == 'D')
+                            .map(reply -> reply.getUser().getUserName())
+                            .findFirst()
+                            .orElse("No doctor user found"))
+                    .docterImgUrl(feed.getReplies().stream()
+                            .filter(reply -> reply.getUser().getUserType() == 'D')
+                            .map(reply -> reply.getUser().getProfileUrl())
+                            .findFirst()
+                            .orElse("No doctor user found"))
+                    .docterComment(feed.getReplies().stream()
+                            .filter(reply -> reply.getUser().getUserType() == 'D')
+                            .map(Reply::getReplyContent)
+                            .findFirst()
+                            .orElse("No doctor user found"))
+                    .build();
+            feedListOutputList.add(feedListOutput);
         });
 
-        return ResponseEntity.ok().body(feeds);
+
+        log.info("!!!!!!!!!!!!!!!!!!!!" + feedListOutputList.toString());
+
+//        return ResponseEntity.ok().body(feeds);
+        return ResponseEntity.ok().body(feedListOutputList);
     }
+
 
     @PostMapping("")
     public ResponseEntity<FeedSaveOutput> insertFeed(@RequestBody FeedSaveInputDto feedSaveInputDto) {

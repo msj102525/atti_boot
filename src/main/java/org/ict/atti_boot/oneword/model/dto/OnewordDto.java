@@ -29,7 +29,7 @@ public class OnewordDto {
                 .owContent(owContent)
                 .owRcount(owRcount)
                 .owWriter(owWriter)
-                .owWriteDate(java.sql.Date.valueOf(owWriteDate))
+                .owWriteDate(owWriteDate != null ? java.sql.Date.valueOf(owWriteDate) : null)
                 .build();
     }
 

@@ -28,6 +28,11 @@ public class OnewordSubjectController {
         //JPA 가 제공하는 Pageable 객체를 사용함
         //Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "owsjNum"));
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "owsjNum"));
+
+//        response.put("totalItems", noticePageDto.getTotalElements());
+//        response.put("totalPages", noticePageDto.getTotalPages());
+        log.info("page 갯수 : {}", pageable.getPageNumber());
+
         //페이지에 출력할 목록 조회해 옴 => 응답 처리
         return new ResponseEntity<>(onewordSubjectService.selectList(pageable), HttpStatus.OK);
     }
