@@ -29,12 +29,20 @@ public class OnewordSubjectController {
         //Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "owsjNum"));
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "owsjNum"));
 
-//        response.put("totalItems", noticePageDto.getTotalElements());
-//        response.put("totalPages", noticePageDto.getTotalPages());
+        //response.put("totalItems", noticePageDto.getTotalElements());
+        //response.put("totalPages", noticePageDto.getTotalPages());
+
         log.info("page 갯수 : {}", pageable.getPageNumber());
 
         //페이지에 출력할 목록 조회해 옴 => 응답 처리
         return new ResponseEntity<>(onewordSubjectService.selectList(pageable), HttpStatus.OK);
+    }
+
+    @GetMapping("/onesjdetail/{owsjNum}")
+    public ResponseEntity<OnewordSubjectDto> selectOnewordSubjectDetail(@PathVariable("owsjNum") int owsjNum){
+        //log.info("/boards/boardNum => selectBoardDetail()");
+        log.info("onewordsubject/{} 요청", owsjNum);
+        return new ResponseEntity<>(onewordSubjectService.selectOnewordSubjectDetail(owsjNum), HttpStatus.OK);
     }
 
     @PostMapping
@@ -45,11 +53,11 @@ public class OnewordSubjectController {
         return new ResponseEntity<Void>(HttpStatus.CREATED);  //// 글등록 성공시 생성되었다는 상태 코드를 반환함
     }
 
-    @PutMapping("/{onewordSubjectNum}")  //요청 경로에 반드시 pk 에 해당하는 값을 전송해야 함 (안 보내면 에러)
+    @PutMapping("/{owsjNum}")  //요청 경로에 반드시 pk 에 해당하는 값을 전송해야 함 (안 보내면 에러)
     public ResponseEntity<OnewordSubjectDto> updateOnewordSubject(
-            @PathVariable("onewordSubjectNum") int onewordSubjectNum,
+            @PathVariable("owsjNum") int owsjNum,
             @RequestBody OnewordSubjectDto onewordSubjectDto){
-        log.info("updateOnewordSubject : " + onewordSubjectNum);
+        log.info("updateOnewordSubject : " + owsjNum);
         onewordSubjectService.updateOnewordSubject(onewordSubjectDto);
         //return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
         return new ResponseEntity<>(onewordSubjectDto, HttpStatus.OK);

@@ -45,6 +45,7 @@ public class FeedController {
     }
 
     @GetMapping("")
+//    public ResponseEntity<List<FeedListOutput>> selectAllFeeds(
     public ResponseEntity<?> selectAllFeeds(
             @RequestParam(name = "category", required = false) String category,
             @RequestParam(name = "page", defaultValue = "0") int page,
@@ -56,7 +57,6 @@ public class FeedController {
 
         Sort sort = Sort.by(Sort.Direction.DESC, "feedDate");
 
-        log.info("selectAllFeeds called : ", page, size, category);
 
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<Feed> feeds = feedService.selectAllFeeds(pageable, category);
@@ -67,6 +67,7 @@ public class FeedController {
             feed.getReplies().sort(Comparator.comparing(Reply::getReplyDate).reversed());
 
             FeedListOutput feedListOutput = FeedListOutput.builder()
+                    .totalPage(feeds.getTotalPages())
                     .feedWriterId(feed.getUser().getUserId())
                     .feedWriterProfileUrl(feed.getUser().getProfileUrl())
                     .category(feed.getCategory())
@@ -77,7 +78,7 @@ public class FeedController {
                     .replyCount(feed.getReplies().size())
                     .loginUserIsLiked(feed.getLikeHistories().stream()
                             .anyMatch(reply -> reply.getUserId().equals(loginUserId)))
-                    .isDocterComment(feed.getReplies().stream()
+                    .dComentExist(feed.getReplies().stream()
                             .anyMatch(reply -> reply.getUser().getUserType() == 'D'))
                     .docterName(feed.getReplies().stream()
                             .filter(reply -> reply.getUser().getUserType() == 'D')
@@ -97,11 +98,7 @@ public class FeedController {
                     .build();
             feedListOutputList.add(feedListOutput);
         });
-
-
-        log.info("!!!!!!!!!!!!!!!!!!!!" + feedListOutputList.toString());
-
-//        return ResponseEntity.ok().body(feeds);
+        log.info(feeds.toString());
         return ResponseEntity.ok().body(feedListOutputList);
     }
 

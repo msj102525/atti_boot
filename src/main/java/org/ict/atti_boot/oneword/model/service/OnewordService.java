@@ -3,16 +3,15 @@ package org.ict.atti_boot.oneword.model.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.oneword.jpa.entity.OnewordEntity;
-import org.ict.atti_boot.oneword.jpa.entity.OnewordSubjectEntity;
 import org.ict.atti_boot.oneword.jpa.repository.OnewordRepository;
 import org.ict.atti_boot.oneword.model.dto.OnewordDto;
-import org.ict.atti_boot.oneword.model.dto.OnewordSubjectDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -30,6 +29,20 @@ public class OnewordService {
             list.add(onewordDto);
         }
         return list;
+    }
+
+    //// 상세 조회 처리용
+    public OnewordDto selectOnewordDetail(Integer owNum) {
+        Optional<OnewordEntity> optionalOnewordEntity = onewordRepository.findById(owNum);
+        return optionalOnewordEntity.get().toDto();
+
+        //Optional<OnewordEntity> optionalOnewordEntity = onewordRepository.findById(owNum);
+        //OnewordEntity onewordEntity  = optionalOnewordEntity.get();
+
+        // 게시글 조회수 1증가 처리
+        //onewordEntity.setOnewordReadcount(onewordEntity.getOnewordReadcount() + 1);
+        //onewordRepository.save(onewordEntity); //// 존재하는 글에 save 하면 수정됨
+        //return onewordEntity.toDto();
     }
 
     @Transactional

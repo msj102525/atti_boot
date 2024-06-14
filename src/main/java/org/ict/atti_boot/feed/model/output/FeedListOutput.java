@@ -14,6 +14,9 @@ import java.util.Date;
 @AllArgsConstructor
 public class FeedListOutput {
 
+    @NotBlank(message = "totalPage output caant be empty")
+    private int totalPage;
+
     @NotBlank(message = "feedWriterId output cannot be empty")
     private String feedWriterId;
 
@@ -41,7 +44,7 @@ public class FeedListOutput {
     private boolean loginUserIsLiked;
 
     @NotBlank(message = "isDocterComment output cannot be empty")
-    private boolean isDocterComment;
+    private boolean dComentExist;
 
     private String docterName;
 

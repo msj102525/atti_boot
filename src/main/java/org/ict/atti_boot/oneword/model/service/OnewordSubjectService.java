@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -28,6 +29,20 @@ public class OnewordSubjectService {
             list.add(onewordSubjectDto);
         }
         return list;
+    }
+
+    //// 상세 조회 처리용
+    public OnewordSubjectDto selectOnewordSubjectDetail(Integer owsjNum) {
+        Optional<OnewordSubjectEntity> optionalOnewordSubjectEntity = onewordSubjectRepository.findById(owsjNum);
+        return optionalOnewordSubjectEntity.get().toDto();
+
+        //Optional<OnewordSubjectEntity> optionalOnewordSubjectEntity = onewordSubjectRepository.findById(owsjNum);
+        //OnewordSubjectEntity onewordSubjectEntity  = optionalOnewordSubjectEntity.get();
+
+        // 게시글 조회수 1증가 처리
+        //onewordSubjectEntity.setOnewordSubjectReadcount(onewordSubjectEntity.getOnewordSubjectReadcount() + 1);
+        //onewordSubjectRepository.save(onewordSubjectEntity); //존재하는 글에 save 하면 수정됨
+        //return onewordSubjectEntity.toDto();
     }
 
     @Transactional

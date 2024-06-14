@@ -87,7 +87,9 @@ public class BoardService {
 
     @Transactional
     public void insertBoard(BoardDto boardDto) {
+        log.info("디티오" + boardDto + "wegwe");
         BoardEntity boardEntity = boardDto.toEntity();
+        log.info(boardEntity + "wegwe");
         boardRepository.save(boardEntity);
     }
 
