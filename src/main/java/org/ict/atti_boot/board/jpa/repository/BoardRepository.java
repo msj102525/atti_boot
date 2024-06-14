@@ -11,8 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 @Repository
-public interface
-BoardRepository extends JpaRepository<BoardEntity, Integer> {
+public interface BoardRepository extends JpaRepository<BoardEntity, Integer> {
 
     @Query("SELECT b FROM BoardEntity b ORDER BY " +"b.boardNum DESC")
     Page<BoardEntity> findAllOrdered(Pageable pageable);
