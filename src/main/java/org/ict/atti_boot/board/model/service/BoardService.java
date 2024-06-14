@@ -85,4 +85,11 @@ public class BoardService {
     return boardEntities.stream().map(BoardEntity::toDto).collect(Collectors.toList());
 }
 
+    @Transactional
+    public void insertBoard(BoardDto boardDto) {
+        BoardEntity boardEntity = boardDto.toEntity();
+        boardRepository.save(boardEntity);
+    }
+
+
 }

@@ -67,8 +67,12 @@ public class BoardController {
         return ResponseEntity.ok(boards);
     }
 
-
-
+    // 등록 처리
+    @PostMapping
+    public ResponseEntity<Void> insertBoard(@RequestBody BoardDto boardDto) {
+        boardService.insertBoard(boardDto);
+        return ResponseEntity.noContent().build();
+    }
 
 
 }
