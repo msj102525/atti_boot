@@ -19,7 +19,7 @@ public class LikeHistoryController {
         log.info("feedNum : {}", feed);
 
         LikeHistory likeHistory = LikeHistory.builder()
-                .userId("JWT를 통해서 가져온 userId")
+                .userId("user01")
                 .feedNum(feed)
                 .build();
 

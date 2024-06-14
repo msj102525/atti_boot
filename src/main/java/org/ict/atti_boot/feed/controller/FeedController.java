@@ -51,7 +51,7 @@ public class FeedController {
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size
     ) {
-        String loginUserId = "JWT를 통해서 가져온 userId";
+        String loginUserId = "user01";
 
         log.info("selectAllFeeds called : {}, {}, {}", page, size, category);
 
