@@ -20,8 +20,8 @@ import java.util.Date;
 public class BoardEntity {
 
     @Id
-     @SequenceGenerator(name = "board_seq_gen", sequenceName = "BOARD_SEQ", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)  //primary key 지정하는 어노테이션(자동 채번)
+    @SequenceGenerator(name = "board_seq_gen", sequenceName = "BOARD_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "board_seq_gen")  //primary key 지정하는 어노테이션(자동 채번)
     @Column(name="BOARD_NUM")
     private int boardNum;
 
@@ -35,10 +35,10 @@ public class BoardEntity {
     private String boardContent;
 
     @Column(name="READ_COUNT", nullable = true)
-    private int readCount = 1;
+    private int readCount;
 
     @Column(name="BOARD_DATE", nullable = true)
-    private Date boardDate = new Date(System.currentTimeMillis());
+    private Date boardDate;
 
     @Column(name="IMPORTANCE", nullable = true)
     private int importance;

@@ -30,7 +30,7 @@ public class BoardDto {
                 .boardWriter(boardWriter)
                 .readCount(readCount)
                 .importance(importance)
-                .boardDate(java.sql.Date.valueOf(boardDate))
+                .boardDate(new java.sql.Date(System.currentTimeMillis())) // 현재 시스템 날짜로 설정
                 .build();
     }
 }
