@@ -53,9 +53,10 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
+        log.info ("attemptAuthentication: " + request.getRequestURI());
         try {
             // 요청 본문에서 사용자의 로그인 데이터를 InputUser 객체로 변환합니다.
-            InputUser loginData = new ObjectMapper().readValue(request.getInputStream(), InputUser.class);
+            User loginData = new ObjectMapper().readValue(request.getInputStream(), User.class);
             log.info("Attempting to authenticate user: {}", loginData);
             // 사용자 이름과 비밀번호를 기반으로 AuthenticationToken을 생성합니다. 이 토큰은 사용자가 제공한 이메일과 비밀번호를 담고 있으며, 이후 인증 과정에서 사용됩니다.
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(

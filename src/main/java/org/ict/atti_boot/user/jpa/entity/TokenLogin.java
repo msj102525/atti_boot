@@ -20,10 +20,10 @@ public class TokenLogin {
     @Column(name = "USER_ID")
     private String userId;
 
-    @Column(name = "ACCESSTOKEN")
+    @Column(name = "ACCESS_TOKEN")
     private String accessToken;
 
-    @Column(name = "REFRESHTOKEN")
+    @Column(name = "REFRESH_TOKEN")
     private String refreshToken;
 
     @Column(name = "ACCESS_CREATED")

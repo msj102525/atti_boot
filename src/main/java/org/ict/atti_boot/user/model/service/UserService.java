@@ -1,6 +1,7 @@
 package org.ict.atti_boot.user.model.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.ict.atti_boot.user.jpa.entity.TokenLogin;
 import org.ict.atti_boot.user.jpa.entity.User;
 import org.ict.atti_boot.user.jpa.repository.UserRepository;
 import org.springframework.http.HttpStatus;
@@ -79,4 +80,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public void saveTokenLogin(TokenLogin tokenLogin) {
+
+    }
 }
