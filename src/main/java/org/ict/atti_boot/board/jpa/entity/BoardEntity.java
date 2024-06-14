@@ -45,7 +45,6 @@ public class BoardEntity {
 
     @PrePersist     //// jpa 로 넘어가기 전에 작동하라는 어노테이션임
     public void prePersist(){
-
         boardDate = new Date(System.currentTimeMillis());   /// 현재 날짜, 시간 적용
     }
 

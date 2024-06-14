@@ -1,0 +1,11 @@
+insert into Education values('user1','가천대학교 졸업');
+insert into Education values('user1','방송통신대학원 졸업');
+insert into Education values('user1','불곡고등학교 졸업');
+insert into Education values('user1','하버드대학교 졸업');
+insert into Education values('user1','와플대학교 졸업');
+insert into Career values('일본 유학 3년','user1');
+insert into Career values('서울대병원 3년','user1');
+insert into Career values('세브란스 5년','user1');
+insert into Career values('독일유학2년','user1');
+insert into Career values('한림대병원 3년','user1');
+commit;
