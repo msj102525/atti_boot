@@ -90,7 +90,7 @@ public class JWTUtil {
                     .getBody();
             return Boolean.TRUE.equals(claims.get("admin", Boolean.class));
         } catch (JwtException | IllegalArgumentException e) {
-            // 로그를 남기거나 예외를 처리하는 로직 추가
+          log.info("isAdminFromToken : "+e.getMessage());
             return false;  // 예외 발생 시 false 반환
         }
     }

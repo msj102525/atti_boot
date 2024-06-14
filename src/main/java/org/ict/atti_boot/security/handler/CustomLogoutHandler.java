@@ -65,8 +65,10 @@ public class CustomLogoutHandler implements LogoutHandler {
                 // 카카오 로그아웃 처리
                 if ("kakao".equals(user.getLoginType())) {
                     String kakaoAccessToken = user.getSnsAccessToken(); // 저장된 카카오 액세스 토큰 사용
+                    log.info("Kakao access token: {}", kakaoAccessToken);
                     String kakaoLogoutUrl = "https://kapi.kakao.com/v1/user/logout";
                     HttpHeaders headers = new HttpHeaders();
+                    log.info("Logged out user: {}", userName);
                     headers.set("Authorization", "Bearer " + kakaoAccessToken);
 
                     HttpEntity<String> kakaoRequestEntity = new HttpEntity<>(headers);
