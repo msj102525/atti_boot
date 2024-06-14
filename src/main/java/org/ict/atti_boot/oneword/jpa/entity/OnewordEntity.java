@@ -36,9 +36,14 @@ public class OnewordEntity {
     @Column(name="OW_WRITE_DATE")
     private Date owWriteDate;
 
-    @PrePersist     //// jpa 로 넘어가기 전에 작동하라는 어노테이션임
+    @PrePersist     //// jpa 로 넘어가기 전에 작동하라는 어노테이션임(insert)
     public void prePersist(){
         owWriteDate = new Date(System.currentTimeMillis());   /// 현재 날짜, 시간 적용
+    }
+
+    @PreUpdate //// jpa 로 넘어가기 전에 작동하라는 어노테이션임(update)
+    public void preUpdate() {
+        owWriteDate = new Date(System.currentTimeMillis());
     }
 
     public OnewordDto toDto(){
