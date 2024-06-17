@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -22,16 +23,39 @@ public class FAQService {
     @Autowired
     private FAQRepository faqRepository;
 
-    public List<FAQDto> selectList() {
-
-        List<FAQDto> answerList = faqRepository.findAll().stream()
-                .map(FAQEntity::toDto)
-                .collect(Collectors.toList());
-
-        log.info("fqwegq" + answerList.size());
-
-        return faqRepository.findAll().stream()
-                .map(FAQEntity::toDto)
-                .collect(Collectors.toList());
+    public List<FAQDto> getAllFAQs() {
+        return faqRepository.findAll().stream().map(FAQEntity::toDto).collect(Collectors.toList());
     }
+
+    public Optional<FAQDto> getFAQById(int faqNum) {
+        return faqRepository.findById(faqNum).map(FAQEntity::toDto);
+    }
+
+    public FAQDto createFAQ(FAQDto faqDto) {
+        FAQEntity faqEntity = faqDto.toEntity();
+        FAQEntity savedEntity = faqRepository.save(faqEntity);
+        return savedEntity.toDto();
+    }
+
+    public Optional<FAQDto> updateFAQ(int faqNum, FAQDto faqDto) {
+        return faqRepository.findById(faqNum).map(existingFAQ -> {
+            existingFAQ.setFaqTitle(faqDto.getFaqTitle());
+            existingFAQ.setFaqContent(faqDto.getFaqContent());
+            existingFAQ.setFaqCategory(faqDto.getFaqCategory());
+            FAQEntity updatedEntity = faqRepository.save(existingFAQ);
+            return updatedEntity.toDto();
+        });
+    }
+
+    public boolean deleteFAQ(int faqNum) {
+        if (faqRepository.existsById(faqNum)) {
+            faqRepository.deleteById(faqNum);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+
 }
