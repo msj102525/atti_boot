@@ -1,10 +1,11 @@
-package org.ict.atti_boot.user.jpa.entity;
+package org.ict.atti_boot.security.model.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.ict.atti_boot.user.jpa.entity.User;
 
 import java.time.LocalDateTime;
 
@@ -38,9 +39,19 @@ public class TokenLogin {
     @Column(name = "REFRESH_CREATED")
     private LocalDateTime refreshCreated;
 
-    @OneToOne
-    @MapsId
-    @JoinColumn(name = "USER_ID", referencedColumnName = "user_id")
+    @Column(length = 50)
+    private String status;
+
+    @ManyToOne
+    @JoinColumn(name = "USER_ID", insertable = false, updatable = false)
     private User user;
 
+    @PrePersist
+    public void prePersist() {
+        LocalDateTime now = LocalDateTime.now();
+        if (accessCreated == null) accessCreated = now;
+        if (accessExpires == null) accessExpires = now.plusSeconds(600); // 600초(10분) 설정
+        if (refreshExpires == null) refreshExpires = now.plusSeconds(86400); // 86400초(24시간) 설정
+        if (refreshCreated == null) refreshCreated = now;
+    }
 }

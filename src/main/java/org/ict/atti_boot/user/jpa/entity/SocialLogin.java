@@ -33,7 +33,7 @@ public class SocialLogin {
     @Column(name = "SNS_ACCESS_TOKEN", nullable = true)
     private String snsAccessToken;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID", insertable = false, updatable = false)
     private User user;
 

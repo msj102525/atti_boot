@@ -3,8 +3,8 @@ package org.ict.atti_boot.user.controller;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.security.jwt.util.JWTUtil;
-import org.ict.atti_boot.security.model.entity.RefreshToken;
-import org.ict.atti_boot.security.service.RefreshService;
+import org.ict.atti_boot.security.model.entity.TokenLogin;
+import org.ict.atti_boot.security.service.TokenLoginService;
 import org.ict.atti_boot.user.jpa.entity.SocialLogin;
 import org.ict.atti_boot.user.jpa.entity.User;
 import org.ict.atti_boot.user.jpa.repository.SocialLoginRepository;
@@ -22,10 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/auth")
@@ -44,13 +42,13 @@ public class AuthController {
     private final UserRepository userRepository;
     private final SocialLoginRepository socialLoginRepository;
     private final UserService userService;
-    private final RefreshService refreshService;
+    private final TokenLoginService tokenLoginService;
     private final JWTUtil jwtUtil;
 
-    public AuthController(UserRepository userRepository, SocialLoginRepository socialLoginRepository, UserService userService, RefreshService refreshService, AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
+    public AuthController(UserRepository userRepository, SocialLoginRepository socialLoginRepository, UserService userService, TokenLoginService tokenLoginService, AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
         this.userRepository = userRepository;
         this.userService = userService;
-        this.refreshService = refreshService;
+        this.tokenLoginService = tokenLoginService;
         this.socialLoginRepository = socialLoginRepository;
         this.jwtUtil = jwtUtil;
     }
@@ -90,48 +88,54 @@ public class AuthController {
 
         JSONObject userJson = new JSONObject(userInfoResponse.getBody());
         String email = userJson.getJSONObject("kakao_account").has("email") ?
-                userJson.getJSONObject("kakao_account").getString("email") : "이메일 정보가 없습니다.";
+                userJson.getJSONObject("kakao_account").getString("email") : null;
         log.info("email = {}", email);
+
+        if (email == null) {
+            log.error("카카오에서 이메일 정보를 제공하지 않습니다.");
+            response.sendRedirect("http://localhost:3000/login"); // 실패 시 로그인 페이지로 리다이렉트
+            return;
+        }
 
         Optional<User> optionalUser = userRepository.findByEmailAndLoginType(email, "kakao");
 
         if (optionalUser.isPresent()) {
-            //User user = optionalUser.get();
-            User user = (User) userRepository.getReferenceById(userJson.getJSONObject("kakao_account").getString("email"));
-            user.getSocialLogin();
+            User user = optionalUser.get();
+
+            // 사용자의 카카오 액세스 토큰 업데이트
             user.setSnsAccessToken(accessToken);
             userRepository.save(user);
 
             // JWT 토큰 발급
-            Long accessExpiredMs = 600000L;
+            Long accessExpiredMs = 600000L; // 10분
             String accessTokenJwt = jwtUtil.generateToken(email, "access", accessExpiredMs);
-            Long refreshExpiredMs = 86400000L;
+            Long refreshExpiredMs = 86400000L; // 24시간
             String refreshTokenJwt = jwtUtil.generateToken(email, "refresh", refreshExpiredMs);
 
-            RefreshToken refreshToken = RefreshToken.builder()
-                    .id(String.valueOf(user.getUserId()))
-                    .status("activated")
-                    .userAgent(response.getHeader("User-Agent"))
+            // TokenLogin 엔티티 저장
+            TokenLogin tokenLogin = TokenLogin.builder()
+                    .userId(user.getUserId())
+                    .accessToken(accessTokenJwt)
+                    .refreshToken(refreshTokenJwt)
+                    .accessCreated(LocalDateTime.now())
+                    .accessExpires(LocalDateTime.now().plusMonths(accessExpiredMs))
+                    .refreshCreated(LocalDateTime.now())
+                    .refreshExpires(LocalDateTime.now().plusMonths(refreshExpiredMs))
                     .user(user)
-                    .tokenValue(refreshTokenJwt)
-                    .expiresIn(refreshExpiredMs)
                     .build();
+            tokenLoginService.save(tokenLogin);
 
-            refreshService.save(refreshToken);
-            log.info("refresh token = {}", refreshToken);
-
-            // 로그인 성공 후 URL에 토큰 정보 포함
-            String redirectUrl = String.format("\"http://localhost:3000/login/success?access=%s&refresh=%s&isAdmin=%s",
-                    accessTokenJwt, refreshTokenJwt, user.getUserId(),user.getEmail());
-
+            // 로그인 성공 후 URL에 토큰 정보 포함하여 리다이렉트
+            String redirectUrl = String.format("http://localhost:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s",
+                    accessTokenJwt, refreshTokenJwt, user.getUserId(), user.getEmail());
             response.sendRedirect(redirectUrl);
             log.info("로그인 성공: {}", email);
-            //response.sendRedirect("http://localhost:3000/");
         } else {
             log.info("회원가입 필요: {}", email);
-            response.sendRedirect("http://localhost:3000/signup");
+            response.sendRedirect("http://localhost:3000/signup"); // 회원가입 페이지로 리다이렉트
         }
     }
+
 
 
 
@@ -170,15 +174,20 @@ public class AuthController {
 
         JSONObject userJson = new JSONObject(userInfoResponse.getBody());
         String email = userJson.getJSONObject("kakao_account").has("email") ?
-                userJson.getJSONObject("kakao_account").getString("email") : "이메일 정보가 없습니다.";
+                userJson.getJSONObject("kakao_account").getString("email") : null;
         log.info("email = {}", email);
-        log.info("kakaoClientId={}", kakaoClientId);
+
+        if (email == null) {
+            log.error("카카오에서 이메일 정보를 제공하지 않습니다.");
+            response.sendRedirect("http://localhost:3000/login"); // 실패 시 로그인 페이지로 리다이렉트
+            return;
+        }
 
         Optional<User> optionalUser = userRepository.findByEmailAndLoginType(email, "kakao");
 
         if (optionalUser.isPresent()) {
             log.info("이미 등록된 사용자: {}", email);
-            response.sendRedirect("http://localhost:3000/login");
+            response.sendRedirect("http://localhost:3000/login"); // 이미 등록된 사용자는 로그인 페이지로 리다이렉트
         } else {
             User newUser = User.builder()
                     .userId(email)  // 이메일을 userId로 설정
@@ -199,24 +208,11 @@ public class AuthController {
                     .socialsite("kakao")
                     .loginTime(LocalDateTime.now())
                     .build();
-            // 회원가입 성공 후 로그인 페이지로 이동
-            response.sendRedirect("http://localhost:3000/login");
-
             socialLogin.setUser(newUser);
             socialLoginRepository.save(socialLogin);
-            log.info("socalilLogin={}",socialLogin.toString());
 
-            // 카카오 로그아웃 처리
-            String logoutUrl = "https://kapi.kakao.com/v1/user/logout";
-            HttpHeaders logoutHeaders = new HttpHeaders();
-            logoutHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-            logoutHeaders.set("Authorization", "Bearer " + accessToken);
-
-            HttpEntity<String> logoutRequestEntity = new HttpEntity<>(logoutHeaders);
-            log.info("logoutRequestEntity = {}", logoutRequestEntity.toString());
-            ResponseEntity<String> logoutResponse = restTemplate.exchange(logoutUrl, HttpMethod.POST, logoutRequestEntity, String.class);
-            log.info("logout response = {}", logoutResponse.getBody());
-
+            // 회원가입 성공 후 로그인 페이지로 이동
+            response.sendRedirect("http://localhost:3000/login");
         }
     }
 
@@ -239,6 +235,7 @@ public class AuthController {
         // 로그아웃 성공 후 리다이렉트
         response.sendRedirect("http://localhost:3000/logout-success");
     }
+
 
 
 }

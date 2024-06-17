@@ -35,12 +35,15 @@ public class JWTFilter extends OncePerRequestFilter {
     // 필터의 주요 로직을 구현하는 메서드입니다.
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        log.debug("JWTFilter 오류");
+        log.debug("JWTFilter 오류={}", request.getRequestURI());
         // 요청에서 'Authorization' 헤더를 추출합니다.
         String authorization = request.getHeader("Authorization");
         String requestURI = request.getRequestURI();
+        log.info("requestURI={}", requestURI);
+        log.debug("requestURI: {}", requestURI);
         if ("/reissue".equals(requestURI) || "/users/signup".equals(requestURI)) {
             filterChain.doFilter(request, response);
+            log.info("/reissue={}", requestURI);
             return;
         }
 
@@ -85,11 +88,26 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
+//        // token에서 category 가져오기
+//        String category = jwtUtil.getCategoryFromToken(token);
+//        // 토큰 category 가 access 가 아니 라면 만료 된 토큰 이라고 판단
+//        if (!category.equals("access")) {
+//
+//            //response body
+//            PrintWriter writer = response.getWriter();
+//            writer.print("invalid access token");
+//
+//            //response status code
+//            // 응답 코드를 프론트와 맞추는 부분 401 에러 외 다른 코드로 맞춰서
+//            // 진행하면 리프레시 토큰 발급 체크를 빠르게 할수 있음
+//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//            return;
+//        }
+
         // token에서 category 가져오기
         String category = jwtUtil.getCategoryFromToken(token);
         // 토큰 category 가 access 가 아니 라면 만료 된 토큰 이라고 판단
-        if (!category.equals("access")) {
-
+        if (category == null || !category.equals("access")) {
             //response body
             PrintWriter writer = response.getWriter();
             writer.print("invalid access token");
