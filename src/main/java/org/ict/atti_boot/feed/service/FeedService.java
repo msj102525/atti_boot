@@ -3,11 +3,8 @@ package org.ict.atti_boot.feed.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.feed.model.entity.Feed;
-import org.ict.atti_boot.feed.model.input.FeedSaveInputDto;
 import org.ict.atti_boot.feed.repository.FeedContentVo;
 import org.ict.atti_boot.feed.repository.FeedRepository;
-import org.ict.atti_boot.user.jpa.entity.User;
-import org.ict.atti_boot.user.model.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -37,5 +34,9 @@ public class FeedService {
         } else {
             return feedRepository.findByCategory(category, pageable);
         }
+    }
+
+    public Optional<Feed> selectFeedById(int feedNum) {
+        return feedRepository.findById(feedNum);
     }
 }

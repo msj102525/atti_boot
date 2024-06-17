@@ -45,8 +45,7 @@ public class FeedController {
     }
 
     @GetMapping("")
-//    public ResponseEntity<List<FeedListOutput>> selectAllFeeds(
-    public ResponseEntity<?> selectAllFeeds(
+    public ResponseEntity<List<FeedListOutput>> selectAllFeeds(
             @RequestParam(name = "category", required = false) String category,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size
@@ -76,6 +75,7 @@ public class FeedController {
                     .feedDate(feed.getFeedDate())
                     .inPublic(feed.getInPublic())
                     .replyCount(feed.getReplies().size())
+                    .likeCount(feed.getLikeHistories().size())
                     .loginUserIsLiked(feed.getLikeHistories().stream()
                             .anyMatch(reply -> reply.getUserId().equals(loginUserId)))
                     .dComentExist(feed.getReplies().stream()
@@ -102,12 +102,62 @@ public class FeedController {
         return ResponseEntity.ok().body(feedListOutputList);
     }
 
+    @GetMapping("/{feedNum}")
+    public ResponseEntity<FeedListOutput> selectFeedByFeedNum(
+            @PathVariable(name = "feedNum") int feedNum
+    ) {
+        String loginUserId = "user01";
+
+        log.info("selectFeedByFeedNum called : {}", feedNum);
+
+        Optional<Feed> feedOptional = feedService.selectFeedById(feedNum);
+
+        if (feedOptional.isPresent()) {
+
+            Feed feed = feedOptional.get();
+
+            FeedListOutput feedListOutput = FeedListOutput.builder()
+                    .feedWriterId(feed.getUser().getUserId())
+                    .feedWriterProfileUrl(feed.getUser().getProfileUrl())
+                    .category(feed.getCategory())
+                    .feedNum(feed.getFeedNum())
+                    .feedContent(feed.getFeedContent())
+                    .feedDate(feed.getFeedDate())
+                    .inPublic(feed.getInPublic())
+                    .replyCount(feed.getReplies().size())
+                    .likeCount(feed.getLikeHistories().size())
+                    .loginUserIsLiked(feed.getLikeHistories().stream()
+                            .anyMatch(reply -> reply.getUserId().equals(loginUserId)))
+                    .dComentExist(feed.getReplies().stream()
+                            .anyMatch(reply -> reply.getUser().getUserType() == 'D'))
+                    .docterName(feed.getReplies().stream()
+                            .filter(reply -> reply.getUser().getUserType() == 'D')
+                            .map(reply -> reply.getUser().getUserName())
+                            .findFirst()
+                            .orElse("No doctor user found"))
+                    .docterImgUrl(feed.getReplies().stream()
+                            .filter(reply -> reply.getUser().getUserType() == 'D')
+                            .map(reply -> reply.getUser().getProfileUrl())
+                            .findFirst()
+                            .orElse("No doctor user found"))
+                    .docterComment(feed.getReplies().stream()
+                            .filter(reply -> reply.getUser().getUserType() == 'D')
+                            .map(Reply::getReplyContent)
+                            .findFirst()
+                            .orElse("No doctor user found"))
+                    .build();
+            return ResponseEntity.ok().body(feedListOutput);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 
     @PostMapping("")
     public ResponseEntity<FeedSaveOutput> insertFeed(@RequestBody FeedSaveInputDto feedSaveInputDto) {
         log.info(feedSaveInputDto.toString());
 
-        Optional<User> optionalUser = userService.findByUserId("user5");
+        Optional<User> optionalUser = userService.findByUserId("user01");
 
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
