@@ -5,10 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.ict.atti_boot.doctor.model.dto.DoctorDto;
+import org.ict.atti_boot.doctor.model.outputVo.DoctorDto;
 import org.ict.atti_boot.user.jpa.entity.User;
 
-import java.util.List;
 import java.util.Set;
 
 @Data

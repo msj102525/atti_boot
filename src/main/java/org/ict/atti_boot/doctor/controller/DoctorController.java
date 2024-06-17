@@ -1,12 +1,9 @@
 package org.ict.atti_boot.doctor.controller;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.ict.atti_boot.doctor.jpa.entity.Education;
-import org.ict.atti_boot.doctor.model.dto.DoctorDto;
 import org.ict.atti_boot.doctor.model.dto.EmailRequest;
 import org.ict.atti_boot.doctor.model.service.DoctorService;
-import org.ict.atti_boot.security.jwt.util.JWTUtil;
-import org.ict.atti_boot.user.jpa.repository.UserRepository;
+import org.ict.atti_boot.review.model.ReviewService;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -26,20 +23,24 @@ import java.util.Set;
 public class DoctorController {
 
     private final DoctorService doctorService;
+    private final ReviewService reviewService;
 
-    public DoctorController(DoctorService doctorService) {
+    public DoctorController(DoctorService doctorService, ReviewService reviewService) {
         this.doctorService = doctorService;
+        this.reviewService = reviewService;
     }
 
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> getDoctors(@PageableDefault(size = 4, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable) {
+        log.info(pageable.toString());
         return ResponseEntity.ok(doctorService.findAll(pageable));
     }
     @GetMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> getEducationsTest(@PathVariable(name="id",required = false) String doctorId) {
+    public ResponseEntity<Map<String, Object>> getDoctorDetail(@PageableDefault(sort = "writeDate", direction = Sort.Direction.ASC) Pageable pageable,@PathVariable(name="id",required = false) String doctorId) {
         Map<String, Object> response = new HashMap<>();
         response.put("doctor", doctorService.getDoctorById(doctorId));
+        response.put("reviews", reviewService.findAllByDoctorId(doctorId, pageable));
         return ResponseEntity.ok(response);
     }
 

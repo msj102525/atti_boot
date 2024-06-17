@@ -1,13 +1,13 @@
-package org.ict.atti_boot.doctor.model.dto;
-
+package org.ict.atti_boot.doctor.model.outputVo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.ict.atti_boot.user.jpa.entity.User;
 import org.springframework.stereotype.Component;
 import org.ict.atti_boot.doctor.jpa.entity.Doctor;
+
+import java.util.List;
 
 
 @Data
@@ -15,28 +15,24 @@ import org.ict.atti_boot.doctor.jpa.entity.Doctor;
 @AllArgsConstructor
 @Builder
 @Component
-public class DoctorDto {
-    private String userId;
+public class DoctorDetail {
+    private String doctorId;
     private String hospitalPhone;
     private String introduce;
     private String hospitalAddress;
     private String hospitalName;
     private String userName;
+    private String profileUrl;
+    private List<String> careers;
+    private List<String> educations;
+    private List<String> tags;
+    private Double averageStarPoint;
 
 
 
-    public Doctor toEntity(){
-        return Doctor.builder()
-                .userId(userId)
-                .hospitalPhone(hospitalPhone)
-                .introduce(introduce)
-                .hospitalAddress(hospitalAddress)
-                .hospitalName(hospitalName)
-                .build();
-    }
 
-    public DoctorDto(Doctor doctor){
-        this.userId = doctor.getUserId();
+    public DoctorDetail(Doctor doctor){
+        this.doctorId = doctor.getUserId();
         this.userName= doctor.getUser().getUserName();
         this.hospitalPhone = doctor.getHospitalPhone();
         this.introduce = doctor.getIntroduce();
@@ -44,3 +40,4 @@ public class DoctorDto {
         this.hospitalName = doctor.getHospitalName();
     }
 }
+

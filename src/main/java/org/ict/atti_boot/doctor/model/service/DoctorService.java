@@ -3,33 +3,26 @@ package org.ict.atti_boot.doctor.model.service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import jakarta.persistence.criteria.Join;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.doctor.jpa.entity.Career;
 import org.ict.atti_boot.doctor.jpa.entity.Doctor;
-import org.ict.atti_boot.doctor.jpa.entity.DoctorTag;
 import org.ict.atti_boot.doctor.jpa.entity.Education;
 import org.ict.atti_boot.doctor.jpa.repository.CareerRepository;
 import org.ict.atti_boot.doctor.jpa.repository.DoctorRepository;
 import org.ict.atti_boot.doctor.jpa.repository.EducationRepository;
 import org.ict.atti_boot.doctor.jpa.specification.DoctorSpecifications;
-import org.ict.atti_boot.doctor.model.dto.DoctorDto;
+import org.ict.atti_boot.doctor.model.outputVo.DoctorDto;
 import org.ict.atti_boot.doctor.model.dto.EmailRequest;
 import org.ict.atti_boot.user.jpa.repository.UserRepository;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import org.ict.atti_boot.doctor.jpa.specification.DoctorSpecifications;
 import org.springframework.mail.javamail.JavaMailSender;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
