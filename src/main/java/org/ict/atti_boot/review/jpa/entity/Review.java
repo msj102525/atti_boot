@@ -17,11 +17,28 @@ import java.sql.Date;
 @Builder
 @Entity
 @Table(name = "DOCTOR_REVIEW")
-public class reviewEntity {
+public class Review {
 
     @Id
-    @Column(name = "TAG", length = 50)
+    @Column(name = "REVIEW_ID", length = 50)
     private String reviewId;
+
+    @Column(name="WRITE_DATE")
     private Date writeDate;
 
+    @Column(name="STAR_POINT")
+    private int startPoint;
+
+    @Column(name="CONTENT")
+    private String content;
+
+    @Column(name="DOCTOR_ID")
+    private String doctorId;
+
+    @Column(name="USER_ID")
+    private String userId;
+
+    public int getStarPoint() {
+        return startPoint;
+    }
 }

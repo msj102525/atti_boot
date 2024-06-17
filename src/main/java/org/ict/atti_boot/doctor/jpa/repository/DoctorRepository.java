@@ -1,7 +1,6 @@
 package org.ict.atti_boot.doctor.jpa.repository;
 
 import org.ict.atti_boot.doctor.jpa.entity.Doctor;
-import org.ict.atti_boot.doctor.model.dto.DoctorDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

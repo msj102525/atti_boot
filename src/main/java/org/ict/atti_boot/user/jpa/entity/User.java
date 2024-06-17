@@ -6,8 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Check;
-import org.ict.atti_boot.security.model.entity.RefreshToken;
-import org.ict.atti_boot.user.model.dto.UserDto;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -22,7 +20,6 @@ import java.util.Set;
 public class User{
 
     @Id
-    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "USER_ID", nullable = false)
     private String userId;
 
@@ -65,8 +62,6 @@ public class User{
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<SocialLogin> socialLogin;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<RefreshToken> refreshToken;
 //    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 //    private Set<RefreshToken> refreshToken;
 
