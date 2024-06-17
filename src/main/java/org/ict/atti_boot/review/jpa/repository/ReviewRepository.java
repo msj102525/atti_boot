@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Set;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
-    @Query("SELECT r, u.userName FROM Review r JOIN User u ON r.userId = u.userId WHERE r.doctorId = :doctorId")
-    Page<Review> findByDoctorId(String doctorId, Pageable pageable);
+    @Query("SELECT r, u.nickName FROM Review r JOIN User u ON r.userId = u.userId WHERE r.doctorId = :doctorId")
+    Page<Object[]> findByDoctorId(String doctorId, Pageable pageable);
+
+    List<Review> findByDoctorId(String doctorId);
 }

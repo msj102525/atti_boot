@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.review.jpa.entity.Review;
 import org.ict.atti_boot.review.jpa.repository.ReviewRepository;
+import org.ict.atti_boot.review.model.output.OutputReview;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,8 +25,12 @@ public class ReviewService {
         this.reviewRepository = reviewRepository;
     }
 
-    public List<Review> findAllByDoctorId(String doctorId, Pageable pageable) {
-        return reviewRepository.findByDoctorId(doctorId, pageable).getContent();
+    public Page<Object[]> findByDoctorId(String doctorId, Pageable pageable) {
+        return reviewRepository.findByDoctorId(doctorId, pageable);
+    }
+
+    public List<Review> findByDoctorId(String doctorId) {
+        return reviewRepository.findByDoctorId(doctorId);
     }
 
 }

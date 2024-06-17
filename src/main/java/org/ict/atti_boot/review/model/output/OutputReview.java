@@ -13,7 +13,8 @@ import org.springframework.stereotype.Component;
 @Builder
 @Component
 public class OutputReview {
-    private String userNickName;
+    private String nickName;
     private String content;
-    
+    private int starPoint;
 }
+
