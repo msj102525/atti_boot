@@ -74,7 +74,8 @@ public class SecurityConfig {
                                 "/oneword/**",
                                 "/onewordsubject/**",
                                 "/admin/**",
-                                "/like/**"
+                                "/like/**",
+                                "/reply/**"
                         )
                         .permitAll() // 해당 경로들은 인증 없이 접근 가능합니다.
                         .anyRequest().authenticated()) // 그 외의 모든 요청은 인증을 요구합니다.
