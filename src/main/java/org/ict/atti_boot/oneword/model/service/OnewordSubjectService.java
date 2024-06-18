@@ -62,4 +62,15 @@ public class OnewordSubjectService {
         onewordSubjectRepository.deleteById(owsjNum);
     }
 
+    public ArrayList<OnewordSubjectDto> selectSearchSubjectTitle(String keyword, Pageable pageable) {
+        Page<OnewordSubjectEntity> pages = onewordSubjectRepository.findSearchTitle(keyword, pageable);
+        ArrayList<OnewordSubjectDto> list = new ArrayList<>();
+
+        for (OnewordSubjectEntity entity : pages) {
+            OnewordSubjectDto onewordSubjectDto = entity.toDto();
+            list.add(onewordSubjectDto);
+        }
+        return list;
+    }
+
 }
