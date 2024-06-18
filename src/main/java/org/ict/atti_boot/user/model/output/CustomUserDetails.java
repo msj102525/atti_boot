@@ -2,6 +2,7 @@ package org.ict.atti_boot.user.model.output;
 
 
 import lombok.extern.slf4j.Slf4j;
+import org.ict.atti_boot.admin.repository.SuspensionRepository;
 import org.ict.atti_boot.user.jpa.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,10 +17,12 @@ import java.util.List;
 public class CustomUserDetails implements UserDetails {
 
     private final User user; // 사용자 정보를 담고 있는 User 엔티티의 인스턴스입니다.
+    private final SuspensionRepository suspensionRepository;
 
     // 클래스 생성자에서 User 엔티티의 인스턴스를 받아 멤버 변수에 할당합니다.
-    public CustomUserDetails(User user) {
+    public CustomUserDetails(User user, SuspensionRepository suspensionRepository) {
         this.user = user;
+        this.suspensionRepository = suspensionRepository;
     }
 
     // 사용자의 권한 목록을 반환하는 메서드입니다.
@@ -56,10 +59,12 @@ public class CustomUserDetails implements UserDetails {
     }
 
     // 계정이 잠겨있지 않은지를 반환합니다.
-//    @Override
-//    public boolean isAccountNonLocked() {
-//        return !this.user.getIsDelete(); // isDelete가 false이면 계정이 잠겨있지 않은 것으로 간주합니다.
-//    }
+    @Override
+    public boolean isAccountNonLocked() {
+        //return !this.user.getIsDelete(); // isDelete가 false이면 계정이 잠겨있지 않은 것으로 간주합니다.
+        boolean isLocked = suspensionRepository.findByUserIdAndSuspensionStatus(user.getUserId(), "unactive").isPresent();
+        return !isLocked;
+    }
 
     // 사용자의 크리덴셜(비밀번호 등)이 만료되지 않았는지를 반환합니다.
     @Override

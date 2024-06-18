@@ -4,6 +4,7 @@ package org.ict.atti_boot.security.config;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.ict.atti_boot.admin.repository.SuspensionRepository;
 import org.ict.atti_boot.security.handler.CustomLogoutHandler;
 import org.ict.atti_boot.security.jwt.filter.JWTFilter;
 import org.ict.atti_boot.security.jwt.filter.LoginFilter;
@@ -31,13 +32,16 @@ public class SecurityConfig {
     private final TokenLoginService tokenLoginService;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
+    private final SuspensionRepository suspensionRepository;
 
     // 생성자를 통한 의존성 주입으로, 필요한 서비스와 설정을 초기화합니다.
-    public SecurityConfig(UserService userService, TokenLoginService tokenLoginService, AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil) {
+    public SecurityConfig(UserService userService, TokenLoginService tokenLoginService, AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, SuspensionRepository suspensionRepository) {
         this.userService = userService;
         this.tokenLoginService = tokenLoginService;
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
+        this.suspensionRepository = suspensionRepository;
+
     }
 
     // 인증 관리자를 스프링 컨테이너에 Bean으로 등록합니다. 인증 과정에서 중요한 역할을 합니다.
@@ -59,20 +63,25 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/notice").hasRole("ADMIN") // '/notice' 경로에 대한 POST 요청은 ADMIN 역할을 가진 사용자만 가능합니다.
                         .requestMatchers(
-                                "/users/signup", "/login", "/reissue", "/auth/**","users/type",
+                                "/users/**", "/login", "/reissue", "/auth/**",
                                 "/file/**",
                                 "/notice/**",
                                 "/doctor/**",
                                 "/feed/**",
                                 "/board/**",
+                                "/pay/**",
                                 "/faq/**",
                                 "/oneword/**",
                                 "/onewordsubject/**",
-                                "/review/**")
+                                "/review/**",
+                                "/admin/**",
+                                "/like/**",
+                                "/reply/**"
+                        )
                         .permitAll() // 해당 경로들은 인증 없이 접근 가능합니다.
                         .anyRequest().authenticated()) // 그 외의 모든 요청은 인증을 요구합니다.
                 // JWTFilter와 LoginFilter를 필터 체인에 등록합니다.
-                .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class)
+                .addFilterBefore(new JWTFilter(jwtUtil, suspensionRepository), LoginFilter.class)
                 .addFilterAt(new LoginFilter(userService, tokenLoginService, authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 // 로그아웃 처리를 커스터마이징합니다.
                 .logout(logout -> logout

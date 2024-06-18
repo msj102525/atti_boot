@@ -79,4 +79,9 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Transactional
+    public Optional<User> findById(String userId) {
+        log.debug("Finding user by id: {}", userId);
+        return userRepository.findByUserId(userId);
+    }
 }

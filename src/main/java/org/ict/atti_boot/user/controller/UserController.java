@@ -6,6 +6,8 @@ import org.ict.atti_boot.user.model.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @Slf4j
 @RestController
 @RequestMapping("/users")
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+
 
     public UserController(UserService userService){
         this.userService = userService;
@@ -27,6 +30,16 @@ public class UserController {
 //        log.info("New user: " + newUser);
 //        return ResponseEntity.ok(newUser);
 //    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<User> getUserById(@PathVariable String userId) {
+        Optional<User> user = userService.findById(userId);
+        if (user.isPresent()) {
+            return ResponseEntity.ok(user.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
     @PostMapping("/signup")
     public ResponseEntity<String> signUp(@RequestBody(required = false) User user) {
@@ -47,15 +60,6 @@ public class UserController {
             log.error("회원가입 실패: {}", e.getMessage());
             return ResponseEntity.status(500).body("회원가입에 실패했습니다.");
         }
-    }
-
-
-     @GetMapping("/type")
-    public User getUserType() {
-        // 로그인 유저 타입 'admin'으로 바꿈
-        User userEntity = new User();
-        userEntity.setUserType("A"); // 유저 타입을 설정
-        return userEntity;
     }
 
 
