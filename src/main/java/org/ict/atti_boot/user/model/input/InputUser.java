@@ -12,6 +12,8 @@ import java.time.LocalDate;
 public class InputUser {
     private String email, password;
     private String userId;
+    private String nickName;
+    private Character gender;
     private String userName;
     private LocalDate birthDate;
 
