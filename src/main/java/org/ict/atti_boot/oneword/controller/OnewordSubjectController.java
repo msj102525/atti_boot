@@ -26,8 +26,8 @@ public class OnewordSubjectController {
                                                              @RequestParam(name="size", defaultValue = "10") int size) {
         log.info("/onewordsubject/list : {}", page + ",  " + size);
         //JPA 가 제공하는 Pageable 객체를 사용함
-        //Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "owsjNum"));
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "owsjNum"));
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "owsjNum"));
+        //Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "owsjNum"));
 
         //response.put("totalItems", noticePageDto.getTotalElements());
         //response.put("totalPages", noticePageDto.getTotalPages());

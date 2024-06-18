@@ -34,9 +34,14 @@ public class BoardService {
     }
 
     public BoardDto getBoardDetail(int boardNum) {
-        Optional<BoardEntity> boardEntity = boardRepository.findById(boardNum);
-        if (boardEntity.isPresent()) {
-            return boardEntity.get().toDto();
+        Optional<BoardEntity> boardEntityOptional = boardRepository.findById(boardNum);
+        if (boardEntityOptional.isPresent()) {
+            BoardEntity boardEntity = boardEntityOptional.get();
+            // 조회수 증가
+            boardEntity.setReadCount(boardEntity.getReadCount() + 1);
+            boardRepository.save(boardEntity); // 변경사항 저장
+
+            return boardEntity.toDto();
         } else {
             throw new IllegalArgumentException("Invalid boardNum: " + boardNum);
         }
