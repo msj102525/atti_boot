@@ -40,8 +40,8 @@ public class OnewordSubjectController {
 
     // 총 건수
     @GetMapping("/list/count")
-    public ResponseEntity<Long> getCount() {
-        long count = onewordSubjectService.getCount();
+    public ResponseEntity<Long> getCountOwsjSubjectList() {
+        long count = onewordSubjectService.getCountOwsjSubjectList();
         return ResponseEntity.ok(count);
     }
 
@@ -52,18 +52,24 @@ public class OnewordSubjectController {
         return new ResponseEntity<>(onewordSubjectService.selectOnewordSubjectDetail(owsjNum), HttpStatus.OK);
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<OnewordSubjectDto>> selectSearchSubjectTitle(
+    @GetMapping("/searchowsjsubject")
+    public ResponseEntity<List<OnewordSubjectDto>> selectSearchOwsjSubject(
             @RequestParam(name="keyword") String keyword,
             @RequestParam(name="page") int page,
             @RequestParam(name="size") int size) {
-        log.info("/boards/title : " + keyword + ", " + page + ",  " + size);
+        log.info("/onewordsubject/searchowsjsubject : {} ", keyword + ", " + page + ",  " + size);
         //JPA 가 제공하는 Pageable 객체를 사용함
-        //Pageable pageable = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.DESC, "boardNum"));
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "owsjNum"));
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "owsjNum"));
 
         //페이지에 출력할 목록 조회해 옴 => 응답 처리
-        return new ResponseEntity<>(onewordSubjectService.selectSearchSubjectTitle(keyword, pageable), HttpStatus.OK);
+        return new ResponseEntity<>(onewordSubjectService.selectSearchOwsjSubject(keyword, pageable), HttpStatus.OK);
+    }
+
+    //// 제목 검색 목록 건수
+    @GetMapping("/searchowsjsubject/count")
+    public ResponseEntity<Long> getCountSearchOwsjSubject(@RequestParam(name="keyword") String keyword) {
+        long count = onewordSubjectService.getCountSearchOwsjSubject(keyword);
+        return ResponseEntity.ok(count);
     }
 
     @PostMapping // insert

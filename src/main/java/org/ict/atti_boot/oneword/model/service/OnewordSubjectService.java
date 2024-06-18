@@ -31,7 +31,7 @@ public class OnewordSubjectService {
         return list;
     }
 
-    public long getCount() {
+    public long getCountOwsjSubjectList() {
         return onewordSubjectRepository.count();
     }
 
@@ -66,8 +66,9 @@ public class OnewordSubjectService {
         onewordSubjectRepository.deleteById(owsjNum);
     }
 
-    public ArrayList<OnewordSubjectDto> selectSearchSubjectTitle(String keyword, Pageable pageable) {
-        Page<OnewordSubjectEntity> pages = onewordSubjectRepository.findSearchTitle(keyword, pageable);
+    /// 제목 검색 목록 조회
+    public ArrayList<OnewordSubjectDto> selectSearchOwsjSubject(String keyword, Pageable pageable) {
+        Page<OnewordSubjectEntity> pages = onewordSubjectRepository.findSearchSearchOwsjSubject(keyword, pageable);
         ArrayList<OnewordSubjectDto> list = new ArrayList<>();
 
         for (OnewordSubjectEntity entity : pages) {
@@ -75,6 +76,11 @@ public class OnewordSubjectService {
             list.add(onewordSubjectDto);
         }
         return list;
+    }
+
+    //// 제목 검색에 대한 목록 갯수
+    public long getCountSearchOwsjSubject(String keyword) {
+        return onewordSubjectRepository.countSearchSearchOwsjSubject(keyword);
     }
 
 }
