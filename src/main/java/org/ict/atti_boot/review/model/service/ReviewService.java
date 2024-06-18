@@ -1,17 +1,15 @@
-package org.ict.atti_boot.review.model;
+package org.ict.atti_boot.review.model.service;
 
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.review.jpa.entity.Review;
 import org.ict.atti_boot.review.jpa.repository.ReviewRepository;
-import org.ict.atti_boot.review.model.output.OutputReview;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
 
 @Service
 @Transactional

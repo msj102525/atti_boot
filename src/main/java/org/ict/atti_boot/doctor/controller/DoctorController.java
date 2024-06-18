@@ -5,7 +5,7 @@ import org.ict.atti_boot.doctor.model.dto.EmailRequest;
 import org.ict.atti_boot.doctor.model.outputVo.DoctorDetail;
 import org.ict.atti_boot.doctor.model.service.DoctorService;
 import org.ict.atti_boot.review.jpa.entity.Review;
-import org.ict.atti_boot.review.model.ReviewService;
+import org.ict.atti_boot.review.model.service.ReviewService;
 
 import org.ict.atti_boot.review.model.output.OutputReview;
 import org.springframework.data.domain.Page;
@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -39,15 +38,14 @@ public class DoctorController {
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> getDoctors(@PageableDefault(size = 4, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable) {
-
         return ResponseEntity.ok(doctorService.findAll(pageable));
     }
     @GetMapping("/{id}")
-    public ResponseEntity<DoctorDetail> getDoctorDetail(@PageableDefault(sort = "writeDate", direction = Sort.Direction.ASC) Pageable pageable,@PathVariable(name="id",required = false) String doctorId) {
-        Map<String, Object> response = new HashMap<>();
+    public ResponseEntity<DoctorDetail> getDoctorDetail(@PageableDefault(size = 4,sort = "writeDate", direction = Sort.Direction.DESC) Pageable pageable,@PathVariable(name="id",required = false) String doctorId) {
         Doctor doctor = doctorService.getDoctorById(doctorId);
         Page<Object[]> reviewData = reviewService.findByDoctorId(doctorId, pageable);
         //리뷰 아웃풋 DTO 객체로 바꾸깅
+        Boolean hasMoreReview = reviewData.hasNext();
         List<OutputReview> reviewList = reviewData.getContent().stream()
                 .map(objects -> {
                     Review review = (Review) objects[0];
@@ -75,7 +73,7 @@ public class DoctorController {
         }
         // 평균 점수 계산
         double averageScore = totalReviewList.isEmpty() ? 0 : totalScore / totalReviewList.size();
-        DoctorDetail doctorDetail = new DoctorDetail(doctor, reviewList, ratingCount, averageScore);
+        DoctorDetail doctorDetail = new DoctorDetail(doctor, reviewList, ratingCount, averageScore, hasMoreReview);
         return ResponseEntity.ok(doctorDetail);
     }
 

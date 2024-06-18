@@ -36,8 +36,9 @@ public class DoctorDetail {
     private Double averageStarPoint;
     private List<OutputReview> reviews;
     private Map<Integer, Integer> ratingCount;
+    private Boolean hasMoreReview;
 
-    public DoctorDetail(Doctor doctor, List<OutputReview> reviews, Map<Integer,Integer> ratingCount, double averageStarPoint) {
+    public DoctorDetail(Doctor doctor, List<OutputReview> reviews, Map<Integer,Integer> ratingCount, Double averageStarPoint, Boolean hasMoreReview) {
         this.doctorId = doctor.getUserId();
         this.hospitalPhone = doctor.getHospitalPhone();
         this.introduce = doctor.getIntroduce();
@@ -67,6 +68,7 @@ public class DoctorDetail {
         this.reviews=reviews;
         this.averageStarPoint=averageStarPoint;
         this.ratingCount=ratingCount;
+        this.hasMoreReview=hasMoreReview;
     }
 
 
