@@ -84,4 +84,28 @@ public class UserService {
         log.debug("Finding user by id: {}", userId);
         return userRepository.findByUserId(userId);
     }
+
+    @Transactional
+    public User updateUser(User user) {
+        Optional<User> existingUserOpt = userRepository.findById(user.getUserId());
+        if (existingUserOpt.isPresent()) {
+            User existingUser = existingUserOpt.get();
+            existingUser.setNickName(user.getNickName());
+            existingUser.setPhone(user.getPhone());
+            existingUser.setGender(user.getGender());
+            existingUser.setBirthDate(user.getBirthDate());
+            return userRepository.save(existingUser);
+        } else {
+            throw new RuntimeException("User not found");
+        }
+    }
+
+    @Transactional
+    public void deleteUser(String userId) {
+        if (userRepository.existsById(userId)) {
+            userRepository.deleteById(userId);
+        } else {
+            throw new RuntimeException("User not found");
+        }
+    }
 }
