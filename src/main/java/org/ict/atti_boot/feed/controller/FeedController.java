@@ -3,6 +3,7 @@ package org.ict.atti_boot.feed.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.feed.model.entity.Feed;
+import org.ict.atti_boot.feed.model.input.FeedUpdateInputDto;
 import org.ict.atti_boot.feed.model.output.FeedListOutput;
 import org.ict.atti_boot.reply.model.entity.Reply;
 import org.ict.atti_boot.feed.model.input.FeedSaveInputDto;
@@ -11,9 +12,7 @@ import org.ict.atti_boot.feed.repository.FeedContentVo;
 import org.ict.atti_boot.feed.service.FeedService;
 import org.ict.atti_boot.security.jwt.util.JWTUtil;
 import org.ict.atti_boot.user.jpa.entity.User;
-import org.ict.atti_boot.user.jpa.repository.UserRepository;
 import org.ict.atti_boot.user.model.service.UserService;
-import org.json.JSONObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,11 +21,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/feed")
@@ -166,7 +165,7 @@ public class FeedController {
                     .user(user)
                     .feedContent(feedSaveInputDto.getFeedContent())
                     .category(feedSaveInputDto.getCategory())
-                    .inPublic(feedSaveInputDto.getIsPublic())
+                    .inPublic(feedSaveInputDto.getInPublic())
                     .build();
 
             log.info(saveFeed.toString());
@@ -187,6 +186,35 @@ public class FeedController {
             log.info(resultFeed.toString());
 
             return ResponseEntity.status(HttpStatus.CREATED).body(resultFeed);
+
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    @PutMapping("")
+    public ResponseEntity<Void> updateFeed(@RequestBody FeedUpdateInputDto feedUpdateInputDto) {
+        log.info(feedUpdateInputDto.toString());
+
+        Optional<User> optionalUser = userService.findByUserId("user01");
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+
+            Feed updateFeed = Feed.builder()
+                    .user(user)
+                    .feedNum(feedUpdateInputDto.getFeedNum())
+                    .feedContent(feedUpdateInputDto.getFeedContent())
+                    .category(feedUpdateInputDto.getCategory())
+                    .inPublic(feedUpdateInputDto.getInPublic())
+                    .feedDate(LocalDateTime.now())
+                    .build();
+
+            log.info(updateFeed.toString());
+
+            feedService.save(updateFeed);
+
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

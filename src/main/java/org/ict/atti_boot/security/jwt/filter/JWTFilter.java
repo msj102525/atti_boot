@@ -7,6 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.ict.atti_boot.admin.repository.SuspensionRepository;
 import org.ict.atti_boot.security.jwt.util.JWTUtil;
 import org.ict.atti_boot.user.jpa.entity.User;
 import org.ict.atti_boot.user.model.output.CustomUserDetails;
@@ -25,11 +26,13 @@ public class JWTFilter extends OncePerRequestFilter {
 
     // JWT 관련 유틸리티 메서드를 제공하는 JWTUtil 클래스의 인스턴스를 멤버 변수로 가집니다.
     private final JWTUtil jwtUtil;
+    private final SuspensionRepository suspensionRepository;
 
     // 생성자를 통해 JWTUtil의 인스턴스를 주입받습니다.
-    public JWTFilter(JWTUtil jwtUtil) {
+    public JWTFilter(JWTUtil jwtUtil, SuspensionRepository suspensionRepository) {
 
         this.jwtUtil = jwtUtil;
+        this.suspensionRepository = suspensionRepository;
     }
 
     // 필터의 주요 로직을 구현하는 메서드입니다.
@@ -62,6 +65,13 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // 오늘 한 줄 리스트 요청 필터 넘기기 dev(onewordsubject)
         if (requestURI.startsWith("/onewordsubject")) {
+            log.info(requestURI);
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // admin 리스트 요청 필터 넘기기 dev(admin)
+        if (requestURI.startsWith("/admin")) {
             log.info(requestURI);
             filterChain.doFilter(request, response);
             return;
@@ -131,7 +141,7 @@ public class JWTFilter extends OncePerRequestFilter {
         user.setUserType(String.valueOf(user.getUserType()));
 
         // User 객체를 기반으로 CustomUserDetails 객체를 생성합니다.
-        CustomUserDetails customUserDetails = new CustomUserDetails(user);
+        CustomUserDetails customUserDetails = new CustomUserDetails(user, suspensionRepository);
 
         // Spring Security의 Authentication 객체를 생성하고, SecurityContext에 설정합니다.
         // 이로써 해당 요청에 대한 사용자 인증이 완료됩니다.
