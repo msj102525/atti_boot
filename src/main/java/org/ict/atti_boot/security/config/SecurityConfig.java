@@ -73,7 +73,9 @@ public class SecurityConfig {
                                 "/faq/**",
                                 "/oneword/**",
                                 "/onewordsubject/**",
-                                "/admin/**")
+                                "/admin/**",
+                                "/like/**"
+                        )
                         .permitAll() // 해당 경로들은 인증 없이 접근 가능합니다.
                         .anyRequest().authenticated()) // 그 외의 모든 요청은 인증을 요구합니다.
                 // JWTFilter와 LoginFilter를 필터 체인에 등록합니다.

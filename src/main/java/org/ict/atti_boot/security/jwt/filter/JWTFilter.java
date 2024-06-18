@@ -57,8 +57,14 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 커뮤니티 리스트 요청 필터 넘기기 dev
+        // 커뮤니티 요청 필터 넘기기 dev
         if (requestURI.startsWith("/feed")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // 공감 요청 필터 넘기기 dev
+        if (requestURI.startsWith("/like")) {
             filterChain.doFilter(request, response);
             return;
         }

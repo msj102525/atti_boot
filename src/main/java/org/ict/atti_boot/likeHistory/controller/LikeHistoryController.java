@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/feed/like")
+@RequestMapping("/like")
 @Slf4j
 @RequiredArgsConstructor
 public class LikeHistoryController {
