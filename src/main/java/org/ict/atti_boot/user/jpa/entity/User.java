@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Check;
+import org.ict.atti_boot.security.model.entity.TokenLogin;
 
 import java.time.LocalDate;
 import java.util.Set;
