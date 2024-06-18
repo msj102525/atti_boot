@@ -6,6 +6,8 @@ import org.ict.atti_boot.user.model.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @Slf4j
 @RestController
 @RequestMapping("/users")
@@ -28,6 +30,16 @@ public class UserController {
 //        log.info("New user: " + newUser);
 //        return ResponseEntity.ok(newUser);
 //    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<User> getUserById(@PathVariable String userId) {
+        Optional<User> user = userService.findById(userId);
+        if (user.isPresent()) {
+            return ResponseEntity.ok(user.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
     @PostMapping("/signup")
     public ResponseEntity<String> signUp(@RequestBody(required = false) User user) {

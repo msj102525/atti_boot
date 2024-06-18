@@ -16,6 +16,10 @@ public class InputUser {
     private Character gender;
     private String userName;
     private LocalDate birthDate;
+    private Character userType;
+    private String profileUrl;
+    private String loginType;
+
 
     public InputUser(String username) {
         this.userId = username;

@@ -108,22 +108,30 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                         .build();
                 tokenLoginService.save(tokenLogin);
             }
+
+            // 응답 헤더에 액세스 토큰을 추가합니다.
+            response.addHeader("Authorization", "Bearer " + accessToken);
+            response.setHeader("Access-Control-Expose-Headers", "Authorization");
+
+            // 응답 본문에 사용자 정보를 JSON 형식으로 추가합니다.
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("username", username);
+            responseBody.put("isAdmin", customUserDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")));
+            responseBody.put("refreshToken", refreshToken);
+            responseBody.put("userId", user.getUserId());
+            responseBody.put("userName", user.getUserName());
+            responseBody.put("nickName", user.getNickName());
+            responseBody.put("profileUrl", user.getProfileUrl());
+            responseBody.put("userType", user.getUserType());
+            responseBody.put("gender", user.getGender());
+
+            String responseBodyJson = new ObjectMapper().writeValueAsString(responseBody);
+            response.setContentType("application/json");
+            response.getWriter().write(responseBodyJson);
+            response.getWriter().flush();
+        } else {
+            throw new UsernameNotFoundException("User not found");
         }
-
-        // 응답 헤더에 액세스 토큰을 추가합니다.
-        response.addHeader("Authorization", "Bearer " + accessToken);
-        response.setHeader("Access-Control-Expose-Headers", "Authorization");
-
-        // 응답 본문에 사용자 정보를 JSON 형식으로 추가합니다.
-        Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("username", username);
-        responseBody.put("isAdmin", customUserDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN")));
-        responseBody.put("refreshToken", refreshToken);
-
-        String responseBodyJson = new ObjectMapper().writeValueAsString(responseBody);
-        response.setContentType("application/json");
-        response.getWriter().write(responseBodyJson);
-        response.getWriter().flush();
     }
 
     @Override
