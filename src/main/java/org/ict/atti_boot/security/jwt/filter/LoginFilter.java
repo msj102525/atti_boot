@@ -98,7 +98,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                 // 새로운 TokenLogin 객체 생성 및 저장
                 TokenLogin tokenLogin = TokenLogin.builder()
                         .user(user)
-                        .userId(user.getUserId()) // Ensure the userId is set
+                        .userId(user.getUserId())
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)
                         .accessCreated(LocalDateTime.now())

@@ -24,13 +24,6 @@ public class UserController {
     public String hello(){
         return "hello";}
 
-//    @PostMapping("/user")
-//    public ResponseEntity<?> signUpUser(@RequestBody User user) {
-//        User newUser = userService.signUpUser(user);
-//        log.info("New user: " + newUser);
-//        return ResponseEntity.ok(newUser);
-//    }
-
     @GetMapping("/{userId}")
     public ResponseEntity<User> getUserById(@PathVariable String userId) {
         Optional<User> user = userService.findById(userId);

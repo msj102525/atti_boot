@@ -40,6 +40,12 @@ public class JWTUtil {
                 .setSubject(userEmail)
                 .claim("admin", isAdmin)
                 .claim("category", category)
+                .claim("userId", user.get().getUserId())
+                .claim("userName", user.get().getUserName())
+                .claim("nickName", user.get().getNickName())
+                .claim("profileUrl", user.get().getProfileUrl())
+                .claim("userType", String.valueOf(user.get().getUserType())) // Ensure userType is a String
+                .claim("gender", String.valueOf(user.get().getGender()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiredMs))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
@@ -68,15 +74,17 @@ public class JWTUtil {
 //        }
 //    }
 
+
     public boolean isTokenExpired(String token) {
         try {
+            log.debug("Received token: {}", token);  // 토큰 값 로그 출력
             Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
             return claims.getExpiration().before(new Date());
         } catch (MalformedJwtException e) {
-            log.error("Malformed JWT token", e);
+            log.error("잘못된 형식의 JWT 토큰", e);
             return true;  // 잘못된 형식의 토큰은 만료된 것으로 간주
         } catch (JwtException | IllegalArgumentException e) {
-            log.error("Invalid JWT token", e);
+            log.error("유효하지 않은 JWT 토큰", e);
             return true;  // 기타 예외 발생 시 만료된 것으로 간주
         }
     }

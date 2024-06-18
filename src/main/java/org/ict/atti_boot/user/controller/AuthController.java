@@ -118,9 +118,9 @@ public class AuthController {
                     .accessToken(accessTokenJwt)
                     .refreshToken(refreshTokenJwt)
                     .accessCreated(LocalDateTime.now())
-                    .accessExpires(LocalDateTime.now().plusMonths(accessExpiredMs))
+                    .accessExpires(LocalDateTime.now().plusMinutes(accessExpiredMs / 60000))
                     .refreshCreated(LocalDateTime.now())
-                    .refreshExpires(LocalDateTime.now().plusMonths(refreshExpiredMs))
+                    .refreshExpires(LocalDateTime.now().plusMinutes(refreshExpiredMs / 60000))
                     .user(user)
                     .build();
             tokenLoginService.save(tokenLogin);
