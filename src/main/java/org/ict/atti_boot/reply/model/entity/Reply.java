@@ -36,7 +36,7 @@ public class Reply {
     private LocalDateTime replyDate;
 
     // 참조 답글 번호
-    @Column(name = "REPLY_REPLY_REF")
+    @Column(name = "REPLY_REPLY_REF", columnDefinition = "DEFAULT 0")
     private int replyReplyRef;
 
     // 답글 단계
