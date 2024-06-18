@@ -22,8 +22,11 @@ public class OnewordSubjectController {
     private final OnewordSubjectService onewordSubjectService;
 
     @GetMapping("/list")
-    public ResponseEntity<List<OnewordSubjectDto>> selectList(@RequestParam(name="page", defaultValue = "0") int page,
-                                                             @RequestParam(name="size", defaultValue = "10") int size) {
+    public ResponseEntity<List<OnewordSubjectDto>> selectList(
+            @RequestParam(name="keyword", defaultValue = "") String keyword,
+            @RequestParam(name="page", defaultValue = "0") int page,
+            @RequestParam(name="size", defaultValue = "10") int size) {
+
         log.info("/onewordsubject/list : {}", page + ",  " + size);
         //JPA 가 제공하는 Pageable 객체를 사용함
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "owsjNum"));
@@ -34,14 +37,26 @@ public class OnewordSubjectController {
 
         log.info("/onewordsubject/list page 갯수 : {}", pageable.getPageNumber());
 
-        //페이지에 출력할 목록 조회해 옴 => 응답 처리
-        return new ResponseEntity<>(onewordSubjectService.selectList(pageable), HttpStatus.OK);
+        if (keyword.isEmpty()) {
+            //페이지에 출력할 목록 조회해 옴 => 응답 처리
+            return new ResponseEntity<>(onewordSubjectService.selectList(pageable), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(onewordSubjectService.selectSearchOwsjSubject(keyword, pageable), HttpStatus.OK);
+        }
     }
 
     // 총 건수
     @GetMapping("/list/count")
-    public ResponseEntity<Long> getCountOwsjSubjectList() {
-        long count = onewordSubjectService.getCountOwsjSubjectList();
+    public ResponseEntity<Long> getCountOwsjSubjectList(
+            @RequestParam(name="keyword", defaultValue = "") String keyword) {
+
+        long count;
+        //페이지에 출력할 목록 조회해 옴 => 응답 처리
+        if (keyword.isEmpty()) {
+            count = onewordSubjectService.getCountOwsjSubjectList();
+        } else {
+            count = onewordSubjectService.getCountSearchOwsjSubject(keyword);
+        }
         return ResponseEntity.ok(count);
     }
 
