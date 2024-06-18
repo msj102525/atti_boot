@@ -32,10 +32,17 @@ public class OnewordSubjectController {
         //response.put("totalItems", noticePageDto.getTotalElements());
         //response.put("totalPages", noticePageDto.getTotalPages());
 
-        log.info("page 갯수 : {}", pageable.getPageNumber());
+        log.info("/onewordsubject/list page 갯수 : {}", pageable.getPageNumber());
 
         //페이지에 출력할 목록 조회해 옴 => 응답 처리
         return new ResponseEntity<>(onewordSubjectService.selectList(pageable), HttpStatus.OK);
+    }
+
+    // 총 건수
+    @GetMapping("/list/count")
+    public ResponseEntity<Long> getCount() {
+        long count = onewordSubjectService.getCount();
+        return ResponseEntity.ok(count);
     }
 
     @GetMapping("/onesjdetail/{owsjNum}")
@@ -84,5 +91,4 @@ public class OnewordSubjectController {
         //return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
         return new ResponseEntity<>(owsjNum, HttpStatus.OK);
     }
-
 }

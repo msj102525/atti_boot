@@ -31,6 +31,10 @@ public class OnewordSubjectService {
         return list;
     }
 
+    public long getCount() {
+        return onewordSubjectRepository.count();
+    }
+
     //// 상세 조회 처리용
     public OnewordSubjectDto selectOnewordSubjectDetail(Integer owsjNum) {
         Optional<OnewordSubjectEntity> optionalOnewordSubjectEntity = onewordSubjectRepository.findById(owsjNum);
