@@ -58,6 +58,13 @@ public class BoardAdminVersionService {
 
     }
 
+    // 커뮤니티보드(admin ver.) 삭제 메서드
+    public void deleteCommunityAdminVersion(Long feedNum) {
+        // userId에 해당하는 회원을 삭제합니다.
+        communityAdminVersionRepository.deleteById(feedNum);
+    }
+
+
     // *******************************************
 
 }

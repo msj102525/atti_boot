@@ -5,10 +5,7 @@ import org.ict.atti_boot.admin.model.dto.CommunityAdminVersionDto;
 import org.ict.atti_boot.admin.service.BoardAdminVersionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -42,6 +39,19 @@ public class BoardAdminVersionController {
         } catch (Exception e) {
             log.error("Error while fetching members: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/api/deletecommunityAdminVersion/{feedNum}")
+    public ResponseEntity<?> deleteCommunityAdminVersion(@PathVariable Long feedNum) {
+        // 여기에 회원 삭제 로직을 추가합니다.
+        try {
+            // userId에 해당하는 회원을 삭제하고 성공 응답을 반환합니다.
+            boardAdminVersionService.deleteCommunityAdminVersion(feedNum);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            // 삭제 중 오류가 발생하면 500 Internal Server Error 응답을 반환합니다.
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
