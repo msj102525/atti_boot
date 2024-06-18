@@ -63,7 +63,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/notice").hasRole("ADMIN") // '/notice' 경로에 대한 POST 요청은 ADMIN 역할을 가진 사용자만 가능합니다.
                         .requestMatchers(
-                                "/users/signup", "/login", "/reissue", "/auth/**","users/type","users/get","users/me",
+                                "/users/signup", "/login", "/reissue", "/auth/**",
                                 "/file/**",
                                 "/notice/**",
                                 "/doctor/**",
