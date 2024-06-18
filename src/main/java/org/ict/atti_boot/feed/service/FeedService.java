@@ -36,7 +36,11 @@ public class FeedService {
         }
     }
 
-    public Optional<Feed> selectFeedById(int feedNum) {
-        return feedRepository.findById(feedNum);
+    public Feed selectFeedById(int feedNum) {
+        Feed feed = feedRepository.findById(feedNum)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid feedNum: " + feedNum));
+        feed.setFeedReadCount(feed.getFeedReadCount() + 1);
+        return feedRepository.save(feed);
+
     }
 }

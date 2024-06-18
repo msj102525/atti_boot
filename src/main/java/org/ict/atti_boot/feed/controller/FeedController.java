@@ -109,11 +109,9 @@ public class FeedController {
 
         log.info("selectFeedByFeedNum called : {}", feedNum);
 
-        Optional<Feed> feedOptional = feedService.selectFeedById(feedNum);
+        Feed feed = feedService.selectFeedById(feedNum);
 
-        if (feedOptional.isPresent()) {
-
-            Feed feed = feedOptional.get();
+        if (feed != null) {
 
             FeedListOutput feedListOutput = FeedListOutput.builder()
                     .feedWriterId(feed.getUser().getUserId())
