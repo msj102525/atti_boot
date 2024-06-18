@@ -53,22 +53,24 @@ public class OnewordSubjectController {
         return new ResponseEntity<Void>(HttpStatus.CREATED);  //// 글등록 성공시 생성되었다는 상태 코드를 반환함
     }
 
-    @PutMapping("/{owsjNum}")  //요청 경로에 반드시 pk 에 해당하는 값을 전송해야 함 (안 보내면 에러)
+//    @PutMapping("/{owsjNum}")  //요청 경로에 반드시 pk 에 해당하는 값을 전송해야 함 (안 보내면 에러)
+    @PutMapping  //요청 경로에 반드시 pk 에 해당하는 값을 전송해야 함 (안 보내면 에러)
     public ResponseEntity<OnewordSubjectDto> updateOnewordSubject(
-            @PathVariable("owsjNum") int owsjNum,
+//            @PathVariable("owsjNum") int owsjNum,
             @RequestBody OnewordSubjectDto onewordSubjectDto){
-        log.info("updateOnewordSubject : " + owsjNum);
+//        log.info("updateOnewordSubject : " + owsjNum);
+        log.info("updateOnewordSubject : {} ", onewordSubjectDto);
         onewordSubjectService.updateOnewordSubject(onewordSubjectDto);
         //return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
         return new ResponseEntity<>(onewordSubjectDto, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{onewordSubjectNum}")
-    public ResponseEntity<Integer> deleteOnewordSubject(@PathVariable("onewordSubjectNum") int onewordSubjectNum){
-        log.info("deleteNotice : {}", onewordSubjectNum);
-        onewordSubjectService.deleteOnewordSubject(onewordSubjectNum);
+    @DeleteMapping("/{owsjNum}")
+    public ResponseEntity<Integer> deleteOnewordSubject(@PathVariable("owsjNum") int owsjNum){
+        log.info("deleteNotice : {}", owsjNum);
+        onewordSubjectService.deleteOnewordSubject(owsjNum);
         //return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
-        return new ResponseEntity<>(onewordSubjectNum, HttpStatus.OK);
+        return new ResponseEntity<>(owsjNum, HttpStatus.OK);
     }
 
 }
