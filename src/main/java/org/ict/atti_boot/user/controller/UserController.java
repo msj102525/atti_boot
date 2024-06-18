@@ -14,6 +14,7 @@ public class UserController {
 
     private final UserService userService;
 
+
     public UserController(UserService userService){
         this.userService = userService;
     }
@@ -47,15 +48,6 @@ public class UserController {
             log.error("회원가입 실패: {}", e.getMessage());
             return ResponseEntity.status(500).body("회원가입에 실패했습니다.");
         }
-    }
-
-
-     @GetMapping("/type")
-    public User getUserType() {
-        // 로그인 유저 타입 'admin'으로 바꿈
-        User userEntity = new User();
-        userEntity.setUserType("A"); // 유저 타입을 설정
-        return userEntity;
     }
 
 
