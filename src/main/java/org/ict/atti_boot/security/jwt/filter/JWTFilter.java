@@ -10,7 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.admin.repository.SuspensionRepository;
 import org.ict.atti_boot.security.jwt.util.JWTUtil;
 import org.ict.atti_boot.user.jpa.entity.User;
+import org.ict.atti_boot.user.jpa.repository.UserRepository;
 import org.ict.atti_boot.user.model.output.CustomUserDetails;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,6 +20,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Optional;
 
 // Lombok의 @Slf4j 어노테이션을 사용하여 로깅 기능을 자동으로 추가합니다.
 @Slf4j
@@ -27,13 +30,17 @@ public class JWTFilter extends OncePerRequestFilter {
     // JWT 관련 유틸리티 메서드를 제공하는 JWTUtil 클래스의 인스턴스를 멤버 변수로 가집니다.
     private final JWTUtil jwtUtil;
     private final SuspensionRepository suspensionRepository;
+    private final UserRepository userRepository;
 
     // 생성자를 통해 JWTUtil의 인스턴스를 주입받습니다.
-    public JWTFilter(JWTUtil jwtUtil, SuspensionRepository suspensionRepository) {
+    public JWTFilter(JWTUtil jwtUtil, SuspensionRepository suspensionRepository, UserRepository userRepository) {
 
         this.jwtUtil = jwtUtil;
         this.suspensionRepository = suspensionRepository;
+        this.userRepository = userRepository;
     }
+
+
 
     // 필터의 주요 로직을 구현하는 메서드입니다.
     @Override
@@ -44,10 +51,17 @@ public class JWTFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
         log.info("requestURI={}", requestURI);
         log.debug("requestURI: {}", requestURI);
+
         if ("/reissue".equals(requestURI) || "/users/signup".equals(requestURI)) {
             filterChain.doFilter(request, response);
             log.info("/reissue={}", requestURI);
             return;
+        }
+
+        if(requestURI.startsWith("/user")){
+            filterChain.doFilter(request, response);
+            log.info("/user={}",requestURI);
+            return ;
         }
 
         //의사 리스트, 리뷰리스트 요청 필터 넘기기
@@ -157,13 +171,29 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // Spring Security의 Authentication 객체를 생성하고, SecurityContext에 설정합니다.
         // 이로써 해당 요청에 대한 사용자 인증이 완료됩니다.
-        //Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
-        Authentication authToken = new UsernamePasswordAuthenticationToken(userId, null, customUserDetails.getAuthorities());
+        Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        //log.info("Authenticated user: {}", customUserDetails.getUser());
+        //Authentication authToken = new UsernamePasswordAuthenticationToken(userId, null, customUserDetails.getAuthorities());
 
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         // 필터 체인을 계속 진행합니다.
         filterChain.doFilter(request,response);
         log.info(userId);
+    }
+
+    private Authentication getAuthentication(String token) {
+        String username = jwtUtil.getUserEmailFromToken(token);
+        log.info(username);
+        Optional<User> userOptional = userRepository.findByEmail(username);
+        if (userOptional.isEmpty()) {
+            return null;
+        }
+
+        User user = userOptional.get();
+        CustomUserDetails userDetails = new CustomUserDetails(user, suspensionRepository);
+        log.info("Authenticated user: {}", userDetails.getUser());
+
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 }

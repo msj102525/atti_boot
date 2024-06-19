@@ -72,9 +72,7 @@ public class CustomUserDetails implements UserDetails {
         return true; // 여기서는 크리덴셜이 만료되지 않았다고 가정합니다.
     }
 
-    // 사용자 계정이 활성화(사용 가능) 상태인지를 반환합니다.
-//    @Override
-//    public boolean isEnabled() {
-//        return !this.user.getIsActivated(); // isActivated가 false이면 활성화 상태입니다.
-//    }
+    public User getUser() {
+        return user;
+    }
 }
