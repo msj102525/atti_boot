@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional
 @Slf4j
@@ -23,4 +25,9 @@ public class ReplyService {
     public Page<Reply> selectReplyByFeedNum(Pageable pageable, int feedNum) {
         return replyRepository.findAllByFeedNumOrderByReplyDateDesc(pageable, feedNum);
     }
+
+    public List<Reply> findAllByReplyReplyRef(int replyNum) {
+        return replyRepository.findAllByReplyReplyRef(replyNum);
+    }
+
 }

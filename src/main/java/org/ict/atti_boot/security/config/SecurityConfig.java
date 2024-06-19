@@ -23,6 +23,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Slf4j
 @Configuration // 스프링의 설정 정보를 담는 클래스임을 나타내는 어노테이션입니다.
@@ -74,11 +75,11 @@ public class SecurityConfig {
                                 "/oneword/**",
                                 "/onewordsubject/**",
                                 "/review/**",
-                                "/admin/**",
                                 "/like/**",
                                 "/reply/**"
                         )
                         .permitAll() // 해당 경로들은 인증 없이 접근 가능합니다.
+                        .requestMatchers(new AntPathRequestMatcher("/admin/**")).hasRole("ADMIN") // '/admin/**' 경로는 ADMIN 역할을 가진 사용자만 접근 가능합니다
                         .anyRequest().authenticated()) // 그 외의 모든 요청은 인증을 요구합니다.
                 // JWTFilter와 LoginFilter를 필터 체인에 등록합니다.
                 .addFilterBefore(new JWTFilter(jwtUtil, suspensionRepository), LoginFilter.class)
