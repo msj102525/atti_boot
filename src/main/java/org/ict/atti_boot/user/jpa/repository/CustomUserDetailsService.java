@@ -39,7 +39,11 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (suspensionRepository.findByUserIdAndSuspensionStatus(userData.getUserId(), "unactive").isPresent()) {
             throw new LockedException("계정이 정지되어 있습니다. 관리자에게 문의하십시오.");
         }
-        return new CustomUserDetails(userData, suspensionRepository);
+
+        // 사용자가 관리자(Admin)인지 확인합니다.
+        boolean isAdmin = userData.getUserType() == 'A'; // 'A'가 관리자 유형일 경우
+
+        return new CustomUserDetails(userData, isAdmin, suspensionRepository);
     }
 
     // 사용자의 유효성을 검증하는 메서드입니다.

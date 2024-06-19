@@ -82,12 +82,6 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
-        // admin 리스트 요청 필터 넘기기 dev(admin)
-        if (requestURI.startsWith("/admin")) {
-            log.info(requestURI);
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         // 'Authorization' 헤더가 없거나 Bearer 토큰이 아니면 요청을 계속 진행합니다.
         if( authorization == null || !authorization.startsWith("Bearer ")){
@@ -153,7 +147,7 @@ public class JWTFilter extends OncePerRequestFilter {
         user.setUserType(String.valueOf(user.getUserType()));
 
         // User 객체를 기반으로 CustomUserDetails 객체를 생성합니다.
-        CustomUserDetails customUserDetails = new CustomUserDetails(user, suspensionRepository);
+        CustomUserDetails customUserDetails = new CustomUserDetails(user,is_admin, suspensionRepository);
 
         // Spring Security의 Authentication 객체를 생성하고, SecurityContext에 설정합니다.
         // 이로써 해당 요청에 대한 사용자 인증이 완료됩니다.
