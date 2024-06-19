@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.reply.model.entity.Reply;
 import org.ict.atti_boot.reply.model.input.ReplySaveInputDto;
+import org.ict.atti_boot.reply.model.output.ReplyListOutput;
 import org.ict.atti_boot.reply.service.ReplyService;
 import org.ict.atti_boot.user.jpa.entity.User;
 import org.ict.atti_boot.user.model.service.UserService;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -71,10 +73,10 @@ public class ReplyController {
 
 
     @GetMapping("")
-    public ResponseEntity<List<Reply>> selectReplyByFeedNum(
+    public ResponseEntity<List<ReplyListOutput>> selectReplyByFeedNum(
             @RequestParam("feed") int feedNum,
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "5") int size) {
+            @RequestParam(name = "size", defaultValue = "1000") int size) {
 
         log.info("feedNum: " + feedNum);
 
@@ -82,10 +84,50 @@ public class ReplyController {
 
         Page<Reply> replies = replyService.selectReplyByFeedNum(pageable, feedNum);
 
-        List<Reply> repliesList = replies.getContent();
+        List<ReplyListOutput> replyListOutputList = new ArrayList<>();
 
-        return ResponseEntity.ok(repliesList);
+        replies.getContent().forEach(reply -> {
+            if (reply.getReplyReplyRef() == 0) {
+                List<ReplyListOutput> childReplies = new ArrayList<>();
+                List<Reply> childReplyEntities = replyService.findAllByReplyReplyRef(reply.getReplyNum());
+                childReplyEntities.forEach(childReply -> {
+                    ReplyListOutput childReplyOutput = ReplyListOutput.builder()
+                            .feedNum(childReply.getFeedNum())
+                            .replyNum(childReply.getReplyNum())
+                            .replyReplyRef(childReply.getReplyReplyRef())
+                            .replyLev(childReply.getReplyLev())
+                            .replySeq(childReply.getReplySeq())
+                            .replyDate(childReply.getReplyDate())
+                            .replyContent(childReply.getReplyContent())
+                            .replyWriter(childReply.getUser().getUserId())
+                            .replyUserType(childReply.getUser().getUserType())
+                            .replyWriterProfileUrl(childReply.getUser().getProfileUrl())
+                            .replyContent(childReply.getReplyContent())
+                            .childReply(null) // 하위 댓글은 1단계만
+                            .build();
+                    childReplies.add(childReplyOutput);
+                });
+
+                ReplyListOutput replyListOutput = ReplyListOutput.builder()
+                        .feedNum(reply.getFeedNum())
+                        .replyNum(reply.getReplyNum())
+                        .replyReplyRef(reply.getReplyReplyRef())
+                        .replyLev(reply.getReplyLev())
+                        .replySeq(reply.getReplySeq())
+                        .replyDate(reply.getReplyDate())
+                        .replyContent(reply.getReplyContent())
+                        .replyWriter(reply.getUser().getUserId())
+                        .replyUserType(reply.getUser().getUserType())
+                        .replyWriterProfileUrl(reply.getUser().getProfileUrl())
+                        .replyContent(reply.getReplyContent())
+                        .childReply(childReplies)
+                        .build();
+
+                replyListOutputList.add(replyListOutput);
+            }
+        });
+
+        return ResponseEntity.ok(replyListOutputList);
     }
-
 
 }

@@ -58,6 +58,7 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
+<<<<<<< HEAD
         if(requestURI.startsWith("/user")){
             filterChain.doFilter(request, response);
             log.info("/user={}",requestURI);
@@ -66,6 +67,11 @@ public class JWTFilter extends OncePerRequestFilter {
 
         //의사 리스트, 리뷰리스트 요청 필터 넘기기
         if (requestURI.startsWith("/doctor")||requestURI.startsWith("/review")) {
+=======
+//        의사 리스트, 리뷰리스트 요청 필터 넘기기
+//        if ((requestURI.startsWith("/doctor")||requestURI.startsWith("/review"))&&!requestURI.equals("/doctor/mypage")) {
+         if (requestURI.startsWith("/doctor")||requestURI.startsWith("/review")) {
+>>>>>>> 3d8367cedaa617a24270583c53de5d765d29b350
             log.info(requestURI);
             filterChain.doFilter(request, response);
             return;
@@ -96,12 +102,6 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
-        // admin 리스트 요청 필터 넘기기 dev(admin)
-        if (requestURI.startsWith("/admin")) {
-            log.info(requestURI);
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         // 'Authorization' 헤더가 없거나 Bearer 토큰이 아니면 요청을 계속 진행합니다.
         if( authorization == null || !authorization.startsWith("Bearer ")){
@@ -160,20 +160,30 @@ public class JWTFilter extends OncePerRequestFilter {
         String userId = jwtUtil.getUserEmailFromToken(token);
         boolean is_admin = jwtUtil.isAdminFromToken(token);
 
+        //유저의 아이디
+        String userRealId = jwtUtil.getUserIdFromToken(token);
+
+
         // 인증에 사용할 임시 User 객체를 생성하고, 이메일과 관리자 여부를 설정합니다.
         User user = new User();
         user.setEmail(userId);
+        user.setUserId(userRealId);
         user.setPassword("tempPassword"); // 실제 인증에서는 사용되지 않는 임시 비밀번호를 설정합니다.
         user.setUserType(String.valueOf(user.getUserType()));
 
         // User 객체를 기반으로 CustomUserDetails 객체를 생성합니다.
-        CustomUserDetails customUserDetails = new CustomUserDetails(user, suspensionRepository);
+        CustomUserDetails customUserDetails = new CustomUserDetails(user,is_admin, suspensionRepository);
 
         // Spring Security의 Authentication 객체를 생성하고, SecurityContext에 설정합니다.
         // 이로써 해당 요청에 대한 사용자 인증이 완료됩니다.
+<<<<<<< HEAD
         Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
         //log.info("Authenticated user: {}", customUserDetails.getUser());
         //Authentication authToken = new UsernamePasswordAuthenticationToken(userId, null, customUserDetails.getAuthorities());
+=======
+        //Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+>>>>>>> 3d8367cedaa617a24270583c53de5d765d29b350
 
         SecurityContextHolder.getContext().setAuthentication(authToken);
 

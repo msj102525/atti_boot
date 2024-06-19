@@ -18,11 +18,13 @@ public class CustomUserDetails implements UserDetails {
 
     private final User user; // 사용자 정보를 담고 있는 User 엔티티의 인스턴스입니다.
     private final SuspensionRepository suspensionRepository;
+    private final boolean isAdmin; // 추가된 변수
 
     // 클래스 생성자에서 User 엔티티의 인스턴스를 받아 멤버 변수에 할당합니다.
-    public CustomUserDetails(User user, SuspensionRepository suspensionRepository) {
+    public CustomUserDetails(User user, boolean isAdmin, SuspensionRepository suspensionRepository) {
         this.user = user;
         this.suspensionRepository = suspensionRepository;
+        this.isAdmin = isAdmin; // 생성자에서 설정
     }
 
     // 사용자의 권한 목록을 반환하는 메서드입니다.
@@ -31,7 +33,7 @@ public class CustomUserDetails implements UserDetails {
         List<GrantedAuthority> authorities = new ArrayList<>();
 
         // 사용자의 isAdmin 값에 따라 ROLE_ADMIN 또는 ROLE_USER 권한을 부여합니다.
-        if (this.user.getUserType() == 'A') {
+        if (this.isAdmin) {
             authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
             log.info("SimpleGrantedAuthority:{}", authorities);
         } else {
@@ -51,6 +53,8 @@ public class CustomUserDetails implements UserDetails {
     public String getUsername() {
         return user.getEmail();
     }
+
+    public String getUserId(){return user.getUserId();}
 
     // 계정이 만료되었는지를 반환합니다. 여기서는 만료되지 않았다고 가정합니다.
     @Override

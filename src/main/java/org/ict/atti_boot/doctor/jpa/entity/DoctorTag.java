@@ -9,10 +9,10 @@ import org.ict.atti_boot.doctor.jpa.embedded.DoctorTagId;
 import org.ict.atti_boot.doctor.jpa.entity.Doctor;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.Set;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Entity
@@ -26,8 +26,23 @@ public class DoctorTag{
     @Column(name="user_Id")
     private String userId;
 
+    public DoctorTag(String tag, String userId){
+        this.tag = tag;
+        this.userId = userId;
+    }
 
-//    @ManyToMany(mappedBy = "tags")
-//    private Set<Doctor> doctors;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DoctorTag that = (DoctorTag) o;
+        return Objects.equals(tag, that.tag) &&
+                Objects.equals(userId, that.userId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(tag, userId);
+    }
 }

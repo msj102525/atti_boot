@@ -59,7 +59,29 @@ public class JWTUtil {
             return null;
         }
     }
+    //getUserIdFromToken 만들기
+    public String getUserIdFromToken(String token) {
+        try {
+            // JWT에서 클레임 추출
+            Claims claims = Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token)
+                .getBody();
 
+            // 클레임에서 userId 추출
+            return claims.get("userId", String.class);
+
+        } catch (ExpiredJwtException e) {
+            // 토큰이 만료된 경우 예외 처리
+            throw new IllegalArgumentException("Token is expired", e);
+        } catch (SignatureException e) {
+            // 서명이 잘못된 경우 예외 처리
+            throw new IllegalArgumentException("Invalid token signature", e);
+        } catch (Exception e) {
+            // 기타 예외 처리
+            throw new IllegalArgumentException("Invalid token", e);
+        }
+    }
 //    public boolean isTokenExpired(String token) {
 //        try {
 //            Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();

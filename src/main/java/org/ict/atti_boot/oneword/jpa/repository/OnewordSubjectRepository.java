@@ -25,7 +25,7 @@ public interface OnewordSubjectRepository extends JpaRepository<OnewordSubjectEn
     //// count
     ///////////////////////////////////////////////////////
     //@Query + Native Query 사용 (테이블명과 컬럼명 사용)
-    @Query(value="select count(*) from board b where b.owsj_subject like %:keyword%", nativeQuery=true)
+    @Query(value="select count(*) from ONEWORDSUBJECT b where b.owsj_subject like %:keyword%", nativeQuery=true)
     Long countSearchSearchOwsjSubject(@Param("keyword") String keyword);
 
 }

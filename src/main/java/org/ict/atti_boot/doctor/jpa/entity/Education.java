@@ -7,10 +7,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
 import java.util.Set;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Entity
@@ -23,4 +23,24 @@ public class Education {
 
     @Column(name="user_Id")
     private String userId;
+
+    public Education(String education, String userId) {
+        this.education = education;
+        this.userId = userId;
+    }
+
+        @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Education that = (Education) o;
+        return Objects.equals(education, that.education) &&
+                Objects.equals(userId, that.userId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(education, userId);
+    }
+
 }
