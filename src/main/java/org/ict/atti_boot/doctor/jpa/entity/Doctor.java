@@ -34,6 +34,24 @@ public class Doctor {
     @Column(name = "HOSPITAL_NAME", length = 50)
     private String hospitalName;
 
+    @Column(name = "POSTAL_CODE", length = 20)
+    private String postalCode;
+
+    @Column(name = "DETAIL_ADDRESS", length = 150)
+    private String detailAddress;
+
+    @Column(name = "REMAINING_ADDRESS", length = 150)
+    private String remainingAddress;
+
+    @Column(name = "LATITUDE")
+    private Double latitude;
+
+    @Column(name = "LONGITUDE")
+    private Double longitude;
+
+    @Column(name = "HOSPITALIMAGEURL", length = 255)
+    private String hospitalImageUrl;
+
     // 유저와의 1:1 관계 설정
     @OneToOne
     @MapsId
@@ -66,13 +84,4 @@ public class Doctor {
     )
      private Set<Education> educations;
 
-    public DoctorDto toDto(){
-        return DoctorDto.builder()
-                .userId(this.userId)
-                .hospitalPhone(this.hospitalPhone)
-                .introduce(this.introduce)
-                .hospitalAddress(this.hospitalAddress)
-                .hospitalName(this.hospitalName)
-        .build();
-    }
 }

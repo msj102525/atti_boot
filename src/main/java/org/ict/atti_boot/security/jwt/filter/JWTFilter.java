@@ -50,8 +50,9 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
-        //의사 리스트, 리뷰리스트 요청 필터 넘기기
-        if (requestURI.startsWith("/doctor")||requestURI.startsWith("/review")) {
+//        의사 리스트, 리뷰리스트 요청 필터 넘기기
+//        if ((requestURI.startsWith("/doctor")||requestURI.startsWith("/review"))&&!requestURI.equals("/doctor/mypage")) {
+         if (requestURI.startsWith("/doctor")||requestURI.startsWith("/review")) {
             log.info(requestURI);
             filterChain.doFilter(request, response);
             return;
@@ -146,9 +147,14 @@ public class JWTFilter extends OncePerRequestFilter {
         String userId = jwtUtil.getUserEmailFromToken(token);
         boolean is_admin = jwtUtil.isAdminFromToken(token);
 
+        //유저의 아이디
+        String userRealId = jwtUtil.getUserIdFromToken(token);
+
+
         // 인증에 사용할 임시 User 객체를 생성하고, 이메일과 관리자 여부를 설정합니다.
         User user = new User();
         user.setEmail(userId);
+        user.setUserId(userRealId);
         user.setPassword("tempPassword"); // 실제 인증에서는 사용되지 않는 임시 비밀번호를 설정합니다.
         user.setUserType(String.valueOf(user.getUserType()));
 
@@ -158,7 +164,7 @@ public class JWTFilter extends OncePerRequestFilter {
         // Spring Security의 Authentication 객체를 생성하고, SecurityContext에 설정합니다.
         // 이로써 해당 요청에 대한 사용자 인증이 완료됩니다.
         //Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
-        Authentication authToken = new UsernamePasswordAuthenticationToken(userId, null, customUserDetails.getAuthorities());
+        Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
 
         SecurityContextHolder.getContext().setAuthentication(authToken);
 

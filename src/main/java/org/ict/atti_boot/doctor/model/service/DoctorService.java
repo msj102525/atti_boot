@@ -7,13 +7,17 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.doctor.jpa.entity.Career;
 import org.ict.atti_boot.doctor.jpa.entity.Doctor;
+import org.ict.atti_boot.doctor.jpa.entity.DoctorTag;
 import org.ict.atti_boot.doctor.jpa.entity.Education;
 import org.ict.atti_boot.doctor.jpa.repository.CareerRepository;
 import org.ict.atti_boot.doctor.jpa.repository.DoctorRepository;
+import org.ict.atti_boot.doctor.jpa.repository.DoctorTagRepository;
 import org.ict.atti_boot.doctor.jpa.repository.EducationRepository;
 import org.ict.atti_boot.doctor.jpa.specification.DoctorSpecifications;
+import org.ict.atti_boot.doctor.model.DoctorUpdateInput;
 import org.ict.atti_boot.doctor.model.outputVo.DoctorDto;
 import org.ict.atti_boot.doctor.model.dto.EmailRequest;
+import org.ict.atti_boot.doctor.model.outputVo.DoctorUpdateVo;
 import org.ict.atti_boot.user.jpa.repository.UserRepository;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
@@ -22,6 +26,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.mail.javamail.JavaMailSender;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 @Service
@@ -32,14 +39,17 @@ public class DoctorService {
     private final DoctorRepository doctorRepository;
     private final EducationRepository educationRepository;
     private final CareerRepository careerRepository;
+    private final DoctorTagRepository tagRepository;
     private final UserRepository userRepository;
     private final JavaMailSender mailSender;
-    public DoctorService(DoctorRepository doctorRepository, EducationRepository educationRepository, CareerRepository careerRepository, JavaMailSender mailSender, UserRepository userRepository) {
+
+    public DoctorService(DoctorRepository doctorRepository, EducationRepository educationRepository, CareerRepository careerRepository, JavaMailSender mailSender, UserRepository userRepository, DoctorTagRepository tagRepository) {
         this.doctorRepository = doctorRepository;
         this.educationRepository = educationRepository;
         this.careerRepository = careerRepository;
         this.mailSender = mailSender;
         this.userRepository = userRepository;
+        this.tagRepository = tagRepository;
     }
 
 //    public List<DoctorDto> findAllDoctor() {
@@ -144,43 +154,43 @@ public class DoctorService {
     }
 
     public Doctor getDoctorById(String doctorId) {
-        return doctorRepository.findByUserId(doctorId);
+        return doctorRepository.findByUserId(doctorId).get();
     }
 
 
-      public void sendEmail(EmailRequest request) {
+    public void sendEmail(EmailRequest request) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             log.info(request.toString());
             helper.setTo(request.getEmail());
-            helper.setSubject("Atti에 방문하신걸 진심으로 환영합니다." + request.getDoctorName()+"님");
+            helper.setSubject("Atti에 방문하신걸 진심으로 환영합니다." + request.getDoctorName() + "님");
 
             // HTML 콘텐츠 작성
             String htmlContent = "<div style=\"background-color: #8ab68a; padding: 40px; margin: 20px auto; border-radius: 40px; max-width: 800px;\">"
-                + "<div style=\"text-align: center; margin-bottom: 40px; color: white;\">"
-                + "<h1>저희 Atti 회원가입을 환영합니다!</h1>"
-                + "</div>"
-                + "<div style=\"display: flex; flex-wrap: wrap; align-items: center;\">"
-                + "<div style=\"flex: 1; padding: 10px; text-align: center;\">"
-                + "<div style=\"background-color: #ffffff; padding: 20px; border-radius: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);\">"
-                + "<p style=\"font-size: 18px; color: #333;\">"
-                + "지금 <strong style=\"color: #ff6f61;\">"+request.getNumberOfMembers()+"</strong>명의 회원이 전문가님의 도움을 기다리고 있어요!"
-                + "</p>"
-                + "<h3 style=\"font-size: 24px; margin-top: 20px;\">"
-                + "인증코드: <strong>"+request.getCode()+"</strong>"
-                + "</h3>"
-                + "</div>"
-                + "</div>"
-                + "<div style=\"flex: 1; text-align: center;\">"
-               + "<img src=\"cid:mailForDoctor\" style=\"width: 80%; height: auto;\" />"
-                + "</div>"
-                + "</div>"
-                + "</div>";
+                    + "<div style=\"text-align: center; margin-bottom: 40px; color: white;\">"
+                    + "<h1>저희 Atti 회원가입을 환영합니다!</h1>"
+                    + "</div>"
+                    + "<div style=\"display: flex; flex-wrap: wrap; align-items: center;\">"
+                    + "<div style=\"flex: 1; padding: 10px; text-align: center;\">"
+                    + "<div style=\"background-color: #ffffff; padding: 20px; border-radius: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);\">"
+                    + "<p style=\"font-size: 18px; color: #333;\">"
+                    + "지금 <strong style=\"color: #ff6f61;\">" + request.getNumberOfMembers() + "</strong>명의 회원이 전문가님의 도움을 기다리고 있어요!"
+                    + "</p>"
+                    + "<h3 style=\"font-size: 24px; margin-top: 20px;\">"
+                    + "인증코드: <strong>" + request.getCode() + "</strong>"
+                    + "</h3>"
+                    + "</div>"
+                    + "</div>"
+                    + "<div style=\"flex: 1; text-align: center;\">"
+                    + "<img src=\"cid:mailForDoctor\" style=\"width: 80%; height: auto;\" />"
+                    + "</div>"
+                    + "</div>"
+                    + "</div>";
 
             helper.setText(htmlContent, true);
             // 이미지 첨부 (이미지를 인라인으로 추가)
-            helper.addInline("mailForDoctor", new FileSystemResource("src/main/img/mailForDoctor.png"));
+            helper.addInline("mailForDoctor", new FileSystemResource("src/main/resources/img/mailForDoctor.png"));
 
             mailSender.send(message);
             log.info("메일전송 완료!");
@@ -188,6 +198,112 @@ public class DoctorService {
             throw new RuntimeException("Failed to send email", e);
         }
     }
+
+    //--------------------------- 의사 업데이트 관련
+    public void updateDoctor(DoctorUpdateInput doctorUpdateInput, String imageFileName) {
+        String doctorId = doctorUpdateInput.getDoctorId();
+        Doctor doctor = doctorRepository.findByUserId(doctorId).orElseThrow(() -> new RuntimeException("Doctor not found"));
+
+        // Update Doctor details
+        doctor.setHospitalName(doctorUpdateInput.getHospitalName());
+        doctor.setIntroduce(doctorUpdateInput.getIntroduce());
+        doctor.setHospitalPhone(doctorUpdateInput.getHospitalPhone());
+        doctor.setLatitude(roundToSixDecimals(doctorUpdateInput.getLatitude()));
+        doctor.setLongitude(roundToSixDecimals(doctorUpdateInput.getLongitude()));
+        doctor.setHospitalAddress(doctorUpdateInput.getAddress());
+        doctor.setDetailAddress(doctorUpdateInput.getDetailAddress());
+        doctor.setPostalCode(doctorUpdateInput.getZonecode());
+        doctor.setRemainingAddress(doctorUpdateInput.getExtraAddress());
+        doctor.setHospitalImageUrl(imageFileName);
+        doctorRepository.save(doctor);
+        //의사/병원 정보 는 수정 완료
+        log.info("의사, 병원 정보 수정완료");
+        //Career
+        Set<String> addCareers = doctorUpdateInput.getAddCareerList();
+        Set<String> deleteCareers = doctorUpdateInput.getDeleteCareerList();
+        if (addCareers.size() + deleteCareers.size() > 0) {
+            Set<Career> originalCareer = careerRepository.findAllByUserId(doctorId);
+            if (!addCareers.isEmpty()) {
+                for (String careerName : addCareers) {
+                    Career career = new Career(careerName, doctorId);
+                    log.info(originalCareer.toString());
+                    if (!originalCareer.contains(career)) {
+                        careerRepository.save(career);  // Save to DB
+                    }
+                }
+            }
+            if (!deleteCareers.isEmpty()) {
+                for (String careerName : deleteCareers) {
+                    Career career = new Career(careerName, doctorId);
+                    if (originalCareer.contains(career)) {
+                        careerRepository.delete(career);
+                    }
+                }
+            }
+        }
+        //Education
+        Set<String> addEducations = doctorUpdateInput.getAddEducationList();
+        Set<String> deleteEducations = doctorUpdateInput.getDeleteEducationList();
+        log.info(addEducations.toString());
+        log.info(deleteEducations.toString());
+        if (addEducations.size() + deleteEducations.size() > 0) {
+            Set<Education> originalEducation = educationRepository.findAllByUserId(doctorId);
+            if (!addEducations.isEmpty()) {
+                for (String edu : addEducations) {
+                    Education education = new Education(edu, doctorId);
+                    if (!originalEducation.contains(education)) {
+                        educationRepository.save(education);  // Save to DB
+                    }
+                }
+            }
+            if (!deleteEducations.isEmpty()) {
+                for (String edu : deleteEducations) {
+                    Education education = new Education(edu, doctorId);
+                    if (originalEducation.contains(education)) {
+                        educationRepository.delete(education);
+                    }
+                }
+            }
+        }
+        //Tag
+        Set<String> addTags = doctorUpdateInput.getAddTagList();
+        Set<String> deleteTags = doctorUpdateInput.getDeleteTagList();
+        log.info("추가되는 태그 !!!! : " + addTags.toString());
+        log.info("삭제되는 태그 !!!!! : " + deleteTags.toString());
+        if (addTags.size() + deleteTags.size() > 0) {
+            Set<DoctorTag> originalTag = tagRepository.findAllByUserId(doctorId);
+            log.info("원래 태그 !!!!! : " + originalTag.toString());
+            if (!deleteTags.isEmpty()) {
+                for (String tagName : deleteTags) {
+                    DoctorTag tag = new DoctorTag(tagName, doctorId);
+                    if (originalTag.contains(tag)) {
+                        tagRepository.delete(tag);
+                    }
+                }
+            }
+            if (!addTags.isEmpty()) {
+                for (String tagName : addTags) {
+                    DoctorTag tag = new DoctorTag(tagName, doctorId);
+                    log.info("세이브 직전 !! :" + tag.toString());
+                    if (!originalTag.contains(tag)) {
+                        tagRepository.customSaveDoctorTag(tag);
+                    }
+                }
+            }
+        }
+
+
+    }
+
+    public static double roundToSixDecimals(double value) {
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(6, RoundingMode.HALF_UP); // 소수점 여섯 자리에서 반올림
+        return bd.doubleValue();
+    }
+
+
+//////////의사 업데이트 -----------------------------------------------------------------------------------
+
 
     public long findAllUserCount() {
         return userRepository.count();
