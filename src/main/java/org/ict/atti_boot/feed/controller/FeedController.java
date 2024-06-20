@@ -50,7 +50,7 @@ public class FeedController {
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size
     ) {
-        String loginUserId = "user01";
+        String loginUserId = "door123";
 
         log.info("selectAllFeeds called : " + page + size + category + subCategory);
 
@@ -122,7 +122,7 @@ public class FeedController {
     public ResponseEntity<FeedListOutput> selectFeedByFeedNum(
             @PathVariable(name = "feedNum") int feedNum
     ) {
-        String loginUserId = "user01";
+        String loginUserId = "door123";
 
         log.info("selectFeedByFeedNum called : {}", feedNum);
 
@@ -171,7 +171,7 @@ public class FeedController {
     public ResponseEntity<FeedSaveOutput> insertFeed(@RequestBody FeedSaveInputDto feedSaveInputDto) {
         log.info(feedSaveInputDto.toString());
 
-        Optional<User> optionalUser = userService.findByUserId("user01");
+        Optional<User> optionalUser = userService.findByUserId("door123");
 
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
@@ -211,7 +211,7 @@ public class FeedController {
     public ResponseEntity<Void> updateFeed(@RequestBody FeedUpdateInputDto feedUpdateInputDto) {
         log.info(feedUpdateInputDto.toString());
 
-        Optional<User> optionalUser = userService.findByUserId("user01");
+        Optional<User> optionalUser = userService.findByUserId("door123");
 
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
