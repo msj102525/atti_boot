@@ -22,6 +22,12 @@ public class InputUser {
 
 
     public InputUser(String username) {
+
         this.userId = username;
     }
+    public  InputUser(String email, String userId){
+        this.email = email;
+        this.userId = userId;
+    }
+
 }
