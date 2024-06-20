@@ -46,18 +46,36 @@ public class FeedController {
     @GetMapping("")
     public ResponseEntity<List<FeedListOutput>> selectAllFeeds(
             @RequestParam(name = "category", required = false) String category,
+            @RequestParam(name = "subCategory", required = false) String subCategory,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size
     ) {
         String loginUserId = "user01";
 
-        log.info("selectAllFeeds called : {}, {}, {}", page, size, category);
+        log.info("selectAllFeeds called : " + page + size + category + subCategory);
 
-        Sort sort = Sort.by(Sort.Direction.DESC, "feedDate");
+        Sort sort = null;
+        Page<Feed> feeds = null;
+        Pageable pageable = null;
 
+        if ("공감순".equals(subCategory)) {
+            log.info("공감순 : " + subCategory);
+//            sort = Sort.by(Sort.Direction.DESC, "feedDate");
+            pageable = PageRequest.of(page, size);
+            feeds = feedService.selectAllFeedsByLikeCount(pageable, category);
 
-        Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Feed> feeds = feedService.selectAllFeeds(pageable, category);
+        } else if ("전문 답변".equals(subCategory)) {
+            log.info("전문 답변 : " + subCategory);
+//            sort = Sort.by(Sort.Direction.DESC, "feedDate");
+            pageable = PageRequest.of(page, size);
+            feeds = feedService.selectAllFeeds(pageable, category);
+        } else {
+            log.info("최신순 : " + subCategory);
+            sort = Sort.by(Sort.Direction.DESC, "feedDate");
+            pageable = PageRequest.of(page, size, sort);
+            feeds = feedService.selectAllFeeds(pageable, category);
+        }
+
 
         List<FeedListOutput> feedListOutputList = new ArrayList<>();
 
@@ -65,7 +83,7 @@ public class FeedController {
             feed.getReplies().sort(Comparator.comparing(Reply::getReplyDate).reversed());
 
             FeedListOutput feedListOutput = FeedListOutput.builder()
-                    .totalPage(feeds.getTotalPages())
+//                    .totalPage(feeds.getTotalPages())
                     .feedWriterId(feed.getUser().getUserId())
                     .feedWriterProfileUrl(feed.getUser().getProfileUrl())
                     .category(feed.getCategory())
@@ -97,7 +115,6 @@ public class FeedController {
                     .build();
             feedListOutputList.add(feedListOutput);
         });
-        log.info(feeds.toString());
         return ResponseEntity.ok().body(feedListOutputList);
     }
 
