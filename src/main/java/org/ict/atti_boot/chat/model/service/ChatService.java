@@ -10,6 +10,7 @@ import org.ict.atti_boot.chat.model.dto.ChatSessionDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,12 +40,12 @@ public class ChatService {
         }
     }
 
-
     // doctor 아이디로 값 찾기
     public ChatSessionDto getChatSessionByReceiverId(String receiverId) {
         ChatSessionEntity chatSessionEntity = chatSessionRepository.findTopByReceiverIdOrderByStartTimeDesc(receiverId);
         return chatSessionEntity != null ? chatSessionEntity.toDto() : null;
     }
+
 
     public ChatMessageDto saveChatMessage(ChatMessageDto chatMessageDto) {
         ChatSessionEntity chatSession = chatSessionRepository.findById(chatMessageDto.getChatId())
@@ -59,6 +60,21 @@ public class ChatService {
         return messages.stream()
                 .map(ChatMessageEntity::toDto)
                 .collect(Collectors.toList());
+    }
+
+
+
+    // 알람 테스트용
+    public List<ChatSessionEntity> getRecentChatSessionsBySender(String senderId) {
+        LocalDateTime endTime = LocalDateTime.now();
+        LocalDateTime startTime = endTime.minusDays(1);
+        return chatSessionRepository.findRecentSessionsBySenderId(senderId, startTime, endTime);
+    }
+
+    public List<ChatSessionEntity> getRecentChatSessionsByReceiver(String receiverId) {
+        LocalDateTime endTime = LocalDateTime.now();
+        LocalDateTime startTime = endTime.minusDays(1);
+        return chatSessionRepository.findRecentSessionsByReceiverId(receiverId, startTime, endTime);
     }
 
 

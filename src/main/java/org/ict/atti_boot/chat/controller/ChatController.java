@@ -1,6 +1,7 @@
 package org.ict.atti_boot.chat.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.ict.atti_boot.chat.jpa.entity.ChatSessionEntity;
 import org.ict.atti_boot.chat.model.dto.ChatMessageDto;
 import org.ict.atti_boot.chat.model.dto.ChatSessionDto;
 import org.ict.atti_boot.chat.model.service.ChatService;
@@ -48,11 +49,26 @@ public class ChatController {
         return ResponseEntity.ok(savedMessage);
     }
 
-    // 메시지 불러오ㄱ;
+    // 메시지 불러오기;
     @GetMapping("/messages/{chatId}")
     public ResponseEntity<List<ChatMessageDto>> getMessages(@PathVariable Long chatId) {
         List<ChatMessageDto> messages = chatService.getChatMessages(chatId);
         return ResponseEntity.ok(messages);
+    }
+
+    // 알람 테스트용
+    @GetMapping("/session/alarm/{userId}")
+    public ResponseEntity<List<ChatSessionEntity>> getChatSessionByUserIdAlarm(@PathVariable String userId, @RequestParam String type) {
+        List<ChatSessionEntity> chatSessions;
+        if ("sender".equals(type)) {
+            chatSessions = chatService.getRecentChatSessionsBySender(userId);
+        } else if ("receiver".equals(type)) {
+            // Implement receiver logic if needed
+            chatSessions = chatService.getRecentChatSessionsByReceiver(userId); // Placeholder
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(chatSessions);
     }
 
 
