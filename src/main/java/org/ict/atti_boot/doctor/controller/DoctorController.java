@@ -3,11 +3,16 @@ package org.ict.atti_boot.doctor.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.doctor.jpa.entity.Career;
 import org.ict.atti_boot.doctor.jpa.entity.Doctor;
+import org.ict.atti_boot.doctor.jpa.entity.DoctorTag;
+import org.ict.atti_boot.doctor.jpa.entity.Education;
 import org.ict.atti_boot.doctor.model.DoctorUpdateInput;
 import org.ict.atti_boot.doctor.model.dto.EmailRequest;
 import org.ict.atti_boot.doctor.model.outputVo.DoctorDetail;
 import org.ict.atti_boot.doctor.model.outputVo.DoctorUpdateVo;
+import org.ict.atti_boot.doctor.model.service.CareerService;
 import org.ict.atti_boot.doctor.model.service.DoctorService;
+import org.ict.atti_boot.doctor.model.service.EducationService;
+import org.ict.atti_boot.doctor.model.service.TagService;
 import org.ict.atti_boot.review.jpa.entity.Review;
 import org.ict.atti_boot.review.model.service.ReviewService;
 
@@ -37,10 +42,16 @@ public class DoctorController {
 
     private final DoctorService doctorService;
     private final ReviewService reviewService;
+    private final CareerService careerService;
+    private final EducationService educationService;
+    private final TagService tagService;
 
-    public DoctorController(DoctorService doctorService, ReviewService reviewService) {
+    public DoctorController(DoctorService doctorService, ReviewService reviewService,CareerService careerService,EducationService educationService,TagService tagService) {
         this.doctorService = doctorService;
         this.reviewService = reviewService;
+        this.careerService = careerService;
+        this.educationService = educationService;
+        this.tagService = tagService;
     }
 
 
@@ -82,7 +93,12 @@ public class DoctorController {
         }
         // 평균 점수 계산
         double averageScore = totalReviewList.isEmpty() ? 0 : totalScore / totalReviewList.size();
-        DoctorDetail doctorDetail = new DoctorDetail(doctor, reviewList, ratingCount, averageScore, hasMoreReview);
+        Set<Career> careers = careerService.getCareersById(doctorId);
+        Set<Education> educations = educationService.getEducationsById(doctorId);
+        Set<DoctorTag> tags = tagService.getTagsById(doctorId);
+
+        DoctorDetail doctorDetail = new DoctorDetail(doctor, reviewList, ratingCount, averageScore, hasMoreReview,careers,educations,tags);
+        log.info(doctorDetail.toString());
         return ResponseEntity.ok(doctorDetail);
     }
 
@@ -99,9 +115,10 @@ public class DoctorController {
 //        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 //         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 //        String doctorId = userDetails.getUserId();
-        String doctorId = "user003";
+        String doctorId = "doc2";
         DoctorUpdateVo doctorUpdateVo = doctorService.getDoctorMyPageById(doctorId);
-        log.info(doctorUpdateVo.toString());
+
+
         return ResponseEntity.ok(doctorUpdateVo);
     }
 
@@ -116,7 +133,7 @@ public class DoctorController {
         // 파일 저장 경로 설정
         String uploadDir = "src/main/resources/hospitalprofile/";
         //테스트용
-        String doctorId = "user003";
+        String doctorId = "doc2";
         doctorUpdateInput.setDoctorId(doctorId);
         Doctor doctor = doctorService.getDoctorById(doctorId);
         String originalFile = doctor.getHospitalImageUrl();

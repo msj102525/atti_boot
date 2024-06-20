@@ -11,6 +11,7 @@ import org.ict.atti_boot.review.model.output.OutputReview;
 import org.springframework.stereotype.Component;
 import org.ict.atti_boot.doctor.jpa.entity.Doctor;
 
+import javax.print.Doc;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,7 @@ public class DoctorDetail {
     private Map<Integer, Integer> ratingCount;
     private Boolean hasMoreReview;
 
-    public DoctorDetail(Doctor doctor, List<OutputReview> reviews, Map<Integer,Integer> ratingCount, Double averageStarPoint, Boolean hasMoreReview) {
+    public DoctorDetail(Doctor doctor, List<OutputReview> reviews, Map<Integer, Integer> ratingCount, Double averageStarPoint, Boolean hasMoreReview, Set<Career> careers, Set<Education> educations, Set<DoctorTag> tags) {
         this.doctorId = doctor.getUserId();
         this.hospitalPhone = doctor.getHospitalPhone();
         this.introduce = doctor.getIntroduce();
@@ -47,28 +48,25 @@ public class DoctorDetail {
         this.userName = doctor.getUser().getUserName();
         this.profileUrl = doctor.getUser().getProfileUrl();
         //캐리어 리스트 만들기
-        Set<Career> careers=  doctor.getCareers();
-         List<String> careerList = new ArrayList<>();
+        List<String> careerList = new ArrayList<>();
         for (Career career : careers) {
             careerList.add(career.getCareer());
         }
         this.careers = careerList;
-        Set<Education> educations= doctor.getEducations();
         List<String> educationList = new ArrayList<>();
         for (Education education : educations) {
             educationList.add(education.getEducation());
         }
         this.educations = educationList;
-        Set<DoctorTag> tags= doctor.getTags();
         List<String> tagList = new ArrayList<>();
         for (DoctorTag tag : tags) {
             tagList.add(tag.getTag());
         }
         this.tags = tagList;
-        this.reviews=reviews;
-        this.averageStarPoint=averageStarPoint;
-        this.ratingCount=ratingCount;
-        this.hasMoreReview=hasMoreReview;
+        this.reviews = reviews;
+        this.averageStarPoint = averageStarPoint;
+        this.ratingCount = ratingCount;
+        this.hasMoreReview = hasMoreReview;
     }
 
 
