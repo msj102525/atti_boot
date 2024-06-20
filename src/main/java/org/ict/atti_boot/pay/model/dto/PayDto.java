@@ -8,6 +8,10 @@ import lombok.NoArgsConstructor;
 import org.ict.atti_boot.pay.jpa.entity.PayEntity;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 @Data  // @ToString, @EqualsAndHashCode, @Getter, @Setter, @RequiredArgsConstructor
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,14 +25,18 @@ public class PayDto {
     private int payAmount;
     private String payMethod;
 
-    public PayEntity toEntity(){
+
+    public PayEntity toEntity() {
+        Instant instant = Instant.parse(payDate);
+        LocalDateTime parsedPayDate = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
         return PayEntity.builder()
                 .payNum(payNum)
                 .userId(userId)
                 .payAmount(payAmount)
                 .payMethod(payMethod)
-                .payDate(new java.sql.Date(System.currentTimeMillis())) // 현재 시스템 날짜로 설정
+                .payDate(parsedPayDate)
                 .build();
     }
+
 
 }
