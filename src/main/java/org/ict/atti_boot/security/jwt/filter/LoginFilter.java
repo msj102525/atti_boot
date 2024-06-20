@@ -123,8 +123,10 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             responseBody.put("userId", user.getUserId());
             responseBody.put("userName", user.getUserName());
             responseBody.put("nickName", user.getNickName());
+            responseBody.put("email", user.getEmail());
             responseBody.put("profileUrl", user.getProfileUrl());
             responseBody.put("userType", user.getUserType());
+            responseBody.put("loginType", user.getLoginType());
             responseBody.put("birthDate", user.getBirthDate());
             responseBody.put("gender", user.getGender());
             responseBody.put("phone", user.getPhone());

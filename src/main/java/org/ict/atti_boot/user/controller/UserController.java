@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.user.jpa.entity.User;
 import org.ict.atti_boot.user.model.output.CustomUserDetails;
 import org.ict.atti_boot.user.model.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,10 +24,6 @@ public class UserController {
     public UserController(UserService userService){
         this.userService = userService;
     }
-
-    //    @GetMapping("/hello")
-//    public String hello(){
-//        return "hello";}
 
     // 유저정보
     @GetMapping()
@@ -63,11 +60,16 @@ public class UserController {
     //유저 정보 수정
     @PutMapping("/update")
     public ResponseEntity<User> updateUser(@RequestBody User user, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        if (userDetails.getUsername().equals(user.getUserId())) {
+        log.info("Authenticated user: {}", userDetails.getUsername());
+        log.info("Request user ID: {}", user.getUserId());
+        log.info("Request user data: {}", user);
+
+        if (userDetails.getUsername().equals(user.getEmail())) {
             User updatedUser = userService.updateUser(user);
             return ResponseEntity.ok(updatedUser);
         } else {
-            return ResponseEntity.status(403).build();
+            log.warn("Forbidden request: authenticated user {} does not match request user ID {}", userDetails.getUsername(), user.getUserId());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
     }
 

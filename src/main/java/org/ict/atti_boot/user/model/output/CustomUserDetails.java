@@ -54,7 +54,9 @@ public class CustomUserDetails implements UserDetails {
         return user.getEmail();
     }
 
-    public String getUserId(){return user.getUserId();}
+    public String getUserId(){
+        return user.getUserId();
+    }
 
     // 계정이 만료되었는지를 반환합니다. 여기서는 만료되지 않았다고 가정합니다.
     @Override
