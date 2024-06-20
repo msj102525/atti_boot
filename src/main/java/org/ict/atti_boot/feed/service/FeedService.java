@@ -36,6 +36,14 @@ public class FeedService {
         }
     }
 
+    public Page<Feed> selectAllFeedsByLikeCount(Pageable pageable, String category) {
+        if (category == null || category.isEmpty()) {
+            return feedRepository.findAllByOrderByLikeHistoriesDescAndFeedDateDesc(pageable);
+        } else {
+            return feedRepository.findByCategoryOrderByLikeHistoriesDescAndFeedDateDesc(category, pageable);
+        }
+    }
+
     public Feed selectFeedById(int feedNum) {
         Feed feed = feedRepository.findById(feedNum)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid feedNum: " + feedNum));
