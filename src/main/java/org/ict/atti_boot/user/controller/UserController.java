@@ -2,6 +2,7 @@ package org.ict.atti_boot.user.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.user.jpa.entity.User;
+import org.ict.atti_boot.user.model.output.CustomUserDetails;
 import org.ict.atti_boot.user.model.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,11 +23,13 @@ public class UserController {
     public UserController(UserService userService){
         this.userService = userService;
     }
-    @GetMapping("/hello")
-    public String hello(){
-        return "hello";}
 
-    @GetMapping("/{userId}")
+    //    @GetMapping("/hello")
+//    public String hello(){
+//        return "hello";}
+
+    // 유저정보
+    @GetMapping()
     public ResponseEntity<User> getUserById(@PathVariable String userId) {
         Optional<User> user = userService.findById(userId);
         if (user.isPresent()) {
@@ -57,8 +60,9 @@ public class UserController {
         }
     }
 
-    @PutMapping
-    public ResponseEntity<User> updateUser(@RequestBody User user, @AuthenticationPrincipal UserDetails userDetails) {
+    //유저 정보 수정
+    @PutMapping("/update")
+    public ResponseEntity<User> updateUser(@RequestBody User user, @AuthenticationPrincipal CustomUserDetails userDetails) {
         if (userDetails.getUsername().equals(user.getUserId())) {
             User updatedUser = userService.updateUser(user);
             return ResponseEntity.ok(updatedUser);
@@ -67,8 +71,9 @@ public class UserController {
         }
     }
 
+    //유정 정보 삭제
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deleteUser(@PathVariable String userId, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Void> deleteUser(@PathVariable String userId, @AuthenticationPrincipal CustomUserDetails userDetails) {
         if (userDetails.getUsername().equals(userId)) {
             userService.deleteUser(userId);
             return ResponseEntity.noContent().build();

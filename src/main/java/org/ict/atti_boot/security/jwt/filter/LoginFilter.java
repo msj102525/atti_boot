@@ -2,6 +2,8 @@
 package org.ict.atti_boot.security.jwt.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -123,9 +125,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             responseBody.put("nickName", user.getNickName());
             responseBody.put("profileUrl", user.getProfileUrl());
             responseBody.put("userType", user.getUserType());
+            responseBody.put("birthDate", user.getBirthDate());
             responseBody.put("gender", user.getGender());
 
-            String responseBodyJson = new ObjectMapper().writeValueAsString(responseBody);
+            // ObjectMapper를 사용하여 JSON으로 직렬화
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JavaTimeModule());
+            objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+            String responseBodyJson = objectMapper.writeValueAsString(responseBody);
             response.setContentType("application/json");
             response.getWriter().write(responseBodyJson);
             response.getWriter().flush();
@@ -133,6 +141,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             throw new UsernameNotFoundException("User not found");
         }
     }
+
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
