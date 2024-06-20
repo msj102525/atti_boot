@@ -36,6 +36,9 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5' // JJWT 구현체를 런타임 시 의존성으로 추가합니다.
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5' // JSON 처리를 위한 Jackson과 연동되는 JJWT 의존성을 런타임 시 추가합니다.
     implementation 'org.json:json:20210307' // JSON 파싱을 위한 org.json 라이브러리를 추가합니다.
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310' //날짜
+
+
 
     // querydsl
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'

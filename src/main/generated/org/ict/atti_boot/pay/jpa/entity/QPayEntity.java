@@ -27,6 +27,8 @@ public class QPayEntity extends EntityPathBase<PayEntity> {
 
     public final StringPath payNum = createString("payNum");
 
+    public final StringPath toDoctor = createString("toDoctor");
+
     public final StringPath userId = createString("userId");
 
     public QPayEntity(String variable) {

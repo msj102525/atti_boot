@@ -41,11 +41,11 @@ public class JWTUtil {
                 .claim("admin", isAdmin)
                 .claim("category", category)
                 .claim("userId", user.get().getUserId())
-                .claim("userName", user.get().getUserName())
-                .claim("nickName", user.get().getNickName())
-                .claim("profileUrl", user.get().getProfileUrl())
-                .claim("userType", String.valueOf(user.get().getUserType())) // Ensure userType is a String
-                .claim("gender", String.valueOf(user.get().getGender()))
+                //.claim("userName", user.get().getUserName())
+                //.claim("nickName", user.get().getNickName())
+                //.claim("profileUrl", user.get().getProfileUrl())
+                //.claim("userType", String.valueOf(user.get().getUserType())) // Ensure userType is a String
+                //.claim("gender", String.valueOf(user.get().getGender()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiredMs))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
@@ -86,16 +86,6 @@ public class JWTUtil {
             throw new IllegalArgumentException("Invalid token", e);
         }
     }
-//    public boolean isTokenExpired(String token) {
-//        try {
-//            Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
-//            return claims.getExpiration().before(new Date());
-//        } catch (JwtException | IllegalArgumentException e) {
-//            log.error("Invalid JWT token", e);
-//            return true;  // 예외 발생 시 만료된 것으로 간주
-//        }
-//    }
-
 
     public boolean isTokenExpired(String token) {
         try {

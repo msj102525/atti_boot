@@ -19,7 +19,7 @@ public class LikeHistoryController {
         log.info("feedNum : {}", feed);
 
         LikeHistory likeHistory = LikeHistory.builder()
-                .userId("user01")
+                .userId("door123")
                 .feedNum(feed)
                 .build();
 

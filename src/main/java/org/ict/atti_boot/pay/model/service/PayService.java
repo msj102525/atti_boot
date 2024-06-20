@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Slf4j
 @Service
 @Transactional
@@ -21,9 +24,20 @@ public class PayService {
     public int savePayment(PayDto payDto) {
         PayEntity paymentEntity = payDto.toEntity();
         payRepository.save(paymentEntity);
-        return 1; // Assuming the save is always successful
+        log.info(payRepository.save(paymentEntity) + "asdasdasd");
+
+        if (payRepository.save(paymentEntity).toString().length() > 0) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
+    public List<PayEntity> getRecentPayments(String userId) {
+        LocalDateTime endTime = LocalDateTime.now();
+        LocalDateTime startTime = endTime.minusDays(1);
+        return payRepository.findRecentPayments(userId, startTime, endTime);
+    }
 
 
 }

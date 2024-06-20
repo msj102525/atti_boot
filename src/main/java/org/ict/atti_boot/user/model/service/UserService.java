@@ -52,6 +52,7 @@ public class UserService {
                 .gender(user.getGender())
                 .userType(user.getUserType())
                 .birthDate(user.getBirthDate())
+                .phone(user.getPhone())
                 .build();
     }
 

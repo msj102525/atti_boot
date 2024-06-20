@@ -6,9 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Check;
-import org.ict.atti_boot.security.model.entity.TokenLogin;
 
-import java.time.LocalDate;
+
+import java.util.Date;
 import java.util.Set;
 
 @Data
@@ -40,7 +40,7 @@ public class User{
     private String phone;
 
     @Column(name = "BIRTH_DATE")
-    private LocalDate birthDate;
+    private Date birthDate;
 
     @Column(name = "USER_TYPE")
     private Character userType;
