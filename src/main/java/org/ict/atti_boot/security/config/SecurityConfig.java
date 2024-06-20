@@ -11,7 +11,6 @@ import org.ict.atti_boot.security.jwt.filter.LoginFilter;
 import org.ict.atti_boot.security.jwt.util.JWTUtil;
 import org.ict.atti_boot.security.service.TokenLoginService;
 
-import org.ict.atti_boot.user.jpa.repository.UserRepository;
 import org.ict.atti_boot.user.model.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,16 +34,14 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
     private final SuspensionRepository suspensionRepository;
-    private final UserRepository userRepository;
 
     // 생성자를 통한 의존성 주입으로, 필요한 서비스와 설정을 초기화합니다.
-    public SecurityConfig(UserService userService, TokenLoginService tokenLoginService, AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, SuspensionRepository suspensionRepository, UserRepository userRepository) {
+    public SecurityConfig(UserService userService, TokenLoginService tokenLoginService, AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, SuspensionRepository suspensionRepository) {
         this.userService = userService;
         this.tokenLoginService = tokenLoginService;
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
         this.suspensionRepository = suspensionRepository;
-        this.userRepository = userRepository;
 
     }
 
@@ -85,7 +82,7 @@ public class SecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/admin/**")).hasRole("ADMIN") // '/admin/**' 경로는 ADMIN 역할을 가진 사용자만 접근 가능합니다
                         .anyRequest().authenticated()) // 그 외의 모든 요청은 인증을 요구합니다.
                 // JWTFilter와 LoginFilter를 필터 체인에 등록합니다.
-                .addFilterBefore(new JWTFilter(jwtUtil, suspensionRepository, userRepository), LoginFilter.class)
+                .addFilterBefore(new JWTFilter(jwtUtil, suspensionRepository), LoginFilter.class)
                 .addFilterAt(new LoginFilter(userService, tokenLoginService, authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 // 로그아웃 처리를 커스터마이징합니다.
                 .logout(logout -> logout

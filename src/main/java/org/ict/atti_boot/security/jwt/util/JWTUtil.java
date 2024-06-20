@@ -39,9 +39,13 @@ public class JWTUtil {
         String token = Jwts.builder()
                 .setSubject(userEmail)
                 .claim("admin", isAdmin)
+                .claim("category", category)
                 .claim("userId", user.get().getUserId())
                 .claim("userName", user.get().getUserName())
-                .claim("userType", String.valueOf(user.get().getUserType()))
+                .claim("nickName", user.get().getNickName())
+                .claim("profileUrl", user.get().getProfileUrl())
+                .claim("userType", String.valueOf(user.get().getUserType())) // Ensure userType is a String
+                .claim("gender", String.valueOf(user.get().getGender()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiredMs))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();

@@ -24,15 +24,27 @@ public class QDoctor extends EntityPathBase<Doctor> {
 
     public final SetPath<Career, QCareer> careers = this.<Career, QCareer>createSet("careers", Career.class, QCareer.class, PathInits.DIRECT2);
 
+    public final StringPath detailAddress = createString("detailAddress");
+
     public final SetPath<Education, QEducation> educations = this.<Education, QEducation>createSet("educations", Education.class, QEducation.class, PathInits.DIRECT2);
 
     public final StringPath hospitalAddress = createString("hospitalAddress");
+
+    public final StringPath hospitalImageUrl = createString("hospitalImageUrl");
 
     public final StringPath hospitalName = createString("hospitalName");
 
     public final StringPath hospitalPhone = createString("hospitalPhone");
 
     public final StringPath introduce = createString("introduce");
+
+    public final NumberPath<Double> latitude = createNumber("latitude", Double.class);
+
+    public final NumberPath<Double> longitude = createNumber("longitude", Double.class);
+
+    public final StringPath postalCode = createString("postalCode");
+
+    public final StringPath remainingAddress = createString("remainingAddress");
 
     public final SetPath<DoctorTag, QDoctorTag> tags = this.<DoctorTag, QDoctorTag>createSet("tags", DoctorTag.class, QDoctorTag.class, PathInits.DIRECT2);
 

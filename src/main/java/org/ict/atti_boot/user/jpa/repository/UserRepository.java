@@ -17,9 +17,6 @@ public interface UserRepository extends JpaRepository<User, String> {
     @Query("select u from User u where u.email = :email and u.loginType = :loginType")
     Optional<User> findByEmailAndLoginType(String email, String loginType);
 
-
-
-
 }
 
 

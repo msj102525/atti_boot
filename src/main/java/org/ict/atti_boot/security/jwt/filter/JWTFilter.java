@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.admin.repository.SuspensionRepository;
 import org.ict.atti_boot.security.jwt.util.JWTUtil;
 import org.ict.atti_boot.user.jpa.entity.User;
-import org.ict.atti_boot.user.jpa.repository.UserRepository;
 import org.ict.atti_boot.user.model.output.CustomUserDetails;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,7 +18,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Optional;
 
 // Lombok의 @Slf4j 어노테이션을 사용하여 로깅 기능을 자동으로 추가합니다.
 @Slf4j
@@ -29,17 +27,13 @@ public class JWTFilter extends OncePerRequestFilter {
     // JWT 관련 유틸리티 메서드를 제공하는 JWTUtil 클래스의 인스턴스를 멤버 변수로 가집니다.
     private final JWTUtil jwtUtil;
     private final SuspensionRepository suspensionRepository;
-    private final UserRepository userRepository;
 
     // 생성자를 통해 JWTUtil의 인스턴스를 주입받습니다.
-    public JWTFilter(JWTUtil jwtUtil, SuspensionRepository suspensionRepository, UserRepository userRepository) {
+    public JWTFilter(JWTUtil jwtUtil, SuspensionRepository suspensionRepository) {
 
         this.jwtUtil = jwtUtil;
         this.suspensionRepository = suspensionRepository;
-        this.userRepository = userRepository;
     }
-
-
 
     // 필터의 주요 로직을 구현하는 메서드입니다.
     @Override
@@ -50,78 +44,82 @@ public class JWTFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
         log.info("requestURI={}", requestURI);
         log.debug("requestURI: {}", requestURI);
-
         if ("/reissue".equals(requestURI) || "/users/signup".equals(requestURI)) {
             filterChain.doFilter(request, response);
             log.info("/reissue={}", requestURI);
             return;
         }
-        if (requestURI.startsWith("/user")) {
-            filterChain.doFilter(request, response);
-            log.info("/user={}", requestURI);
-            return;
-        }
-
-        //의사 리스트, 리뷰리스트 요청 필터 넘기기
-        String token = null;
-        if (requestURI.startsWith("/doctor") || requestURI.startsWith("/review")) {
 
 //        의사 리스트, 리뷰리스트 요청 필터 넘기기
 //        if ((requestURI.startsWith("/doctor")||requestURI.startsWith("/review"))&&!requestURI.equals("/doctor/mypage")) {
-            if (requestURI.startsWith("/doctor") || requestURI.startsWith("/review")) {
-
-                log.info(requestURI);
-                filterChain.doFilter(request, response);
-                return;
-            }
-
-            // 커뮤니티 요청 필터 넘기기 dev
-            if (requestURI.startsWith("/feed")) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-
-            // 공감 요청 필터 넘기기 dev
-            if (requestURI.startsWith("/like")) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-
-            // 댓글 요청 필터 넘기기 dev
-            if (requestURI.startsWith("/reply")) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-
-            // 오늘 한 줄 리스트 요청 필터 넘기기 dev(onewordsubject)
-            if (requestURI.startsWith("/onewordsubject")) {
-                log.info(requestURI);
-                filterChain.doFilter(request, response);
-                return;
-            }
-
-
-            // 'Authorization' 헤더가 없거나 Bearer 토큰이 아니면 요청을 계속 진행합니다.
-            if (authorization == null || !authorization.startsWith("Bearer ")) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-
-            // Bearer 토큰에서 JWT를 추출합니다.
-            token = authorization.split(" ")[1];
-
-            // 토큰 만료 여부 확인, 만료시 다음 필터로 넘기지 않음
-            try {
-                jwtUtil.isTokenExpired(token);
-            } catch (ExpiredJwtException e) {
-                //response body
-                PrintWriter writer = response.getWriter();
-                writer.print("access token expired");
-                //response status code
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                return;
-            }
+         if (requestURI.startsWith("/doctor")||requestURI.startsWith("/review")) {
+            log.info(requestURI);
+            filterChain.doFilter(request, response);
+            return;
         }
+
+        // 커뮤니티 요청 필터 넘기기 dev
+        if (requestURI.startsWith("/feed")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // 공감 요청 필터 넘기기 dev
+        if (requestURI.startsWith("/like")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // 댓글 요청 필터 넘기기 dev
+        if (requestURI.startsWith("/reply")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // 오늘 한 줄 리스트 요청 필터 넘기기 dev(onewordsubject)
+        if (requestURI.startsWith("/onewordsubject")) {
+            log.info(requestURI);
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+
+        // 'Authorization' 헤더가 없거나 Bearer 토큰이 아니면 요청을 계속 진행합니다.
+        if( authorization == null || !authorization.startsWith("Bearer ")){
+            filterChain.doFilter(request,response);
+            return;
+        }
+
+        // Bearer 토큰에서 JWT를 추출합니다.
+        String token = authorization.split(" ")[1];
+
+        // 토큰 만료 여부 확인, 만료시 다음 필터로 넘기지 않음
+        try {
+            jwtUtil.isTokenExpired(token);
+        } catch (ExpiredJwtException e) {
+            //response body
+            PrintWriter writer = response.getWriter();
+            writer.print("access token expired");
+            //response status code
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+//        // token에서 category 가져오기
+//        String category = jwtUtil.getCategoryFromToken(token);
+//        // 토큰 category 가 access 가 아니 라면 만료 된 토큰 이라고 판단
+//        if (!category.equals("access")) {
+//
+//            //response body
+//            PrintWriter writer = response.getWriter();
+//            writer.print("invalid access token");
+//
+//            //response status code
+//            // 응답 코드를 프론트와 맞추는 부분 401 에러 외 다른 코드로 맞춰서
+//            // 진행하면 리프레시 토큰 발급 체크를 빠르게 할수 있음
+//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//            return;
+//        }
 
         // token에서 category 가져오기
         String category = jwtUtil.getCategoryFromToken(token);
@@ -155,36 +153,17 @@ public class JWTFilter extends OncePerRequestFilter {
         user.setUserType(String.valueOf(user.getUserType()));
 
         // User 객체를 기반으로 CustomUserDetails 객체를 생성합니다.
-        CustomUserDetails customUserDetails = new CustomUserDetails(user, is_admin, suspensionRepository);
+        CustomUserDetails customUserDetails = new CustomUserDetails(user,is_admin, suspensionRepository);
 
         // Spring Security의 Authentication 객체를 생성하고, SecurityContext에 설정합니다.
         // 이로써 해당 요청에 대한 사용자 인증이 완료됩니다.
-
-        //Authentication authToken = new UsernamePasswordAuthenticationToken(userId, null, customUserDetails.getAuthorities());
-        //log.info("Authenticated user: {}", customUserDetails.getUser());
         //Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
         Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
-
 
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         // 필터 체인을 계속 진행합니다.
-        filterChain.doFilter(request, response);
+        filterChain.doFilter(request,response);
         log.info(userId);
     }
-
-//        private Authentication getAuthentication(String token) {
-//            String username = jwtUtil.getUserEmailFromToken(token);
-//            log.info(username);
-//            Optional<User> userOptional = userRepository.findByEmail(username);
-//            if (userOptional.isEmpty()) {
-//                return null;
-//            }
-//
-//            User user = userOptional.get();
-//            CustomUserDetails userDetails = new CustomUserDetails(user, suspensionRepository);
-//            log.info("Authenticated user: {}", userDetails.getUser());
-//
-//            return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
-//        }
-    }
+}
