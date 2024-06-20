@@ -21,7 +21,7 @@ public class QPayEntity extends EntityPathBase<PayEntity> {
 
     public final NumberPath<Integer> payAmount = createNumber("payAmount", Integer.class);
 
-    public final DateTimePath<java.util.Date> payDate = createDateTime("payDate", java.util.Date.class);
+    public final DateTimePath<java.time.LocalDateTime> payDate = createDateTime("payDate", java.time.LocalDateTime.class);
 
     public final StringPath payMethod = createString("payMethod");
 

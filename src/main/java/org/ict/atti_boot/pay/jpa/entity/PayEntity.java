@@ -1,13 +1,17 @@
 package org.ict.atti_boot.pay.jpa.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.ict.atti_boot.pay.model.dto.PayDto;
 
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Data
 @AllArgsConstructor
@@ -24,8 +28,8 @@ public class PayEntity {
     @Column(name="USER_ID")
     private String userId;
 
-    @Column(name="PAY_DATE")
-    private Date payDate;
+    @Column(name = "pay_date")
+    private LocalDateTime payDate;
 
     @Column(name="PAY_AMIOUNT")
     private int payAmount;
@@ -33,23 +37,17 @@ public class PayEntity {
     @Column(name="PAY_METHOD")
     private String payMethod;
 
-    @PrePersist     //// jpa 로 넘어가기 전에 작동하라는 어노테이션임
-    public void prePersist(){
-        payDate = new Date(System.currentTimeMillis());   /// 현재 날짜, 시간 적용
-    }
 
-    public PayDto toDto(){
+    public PayDto toDto() {
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
         return PayDto.builder()
                 .payNum(payNum)
                 .userId(userId)
-                .payDate(payDate.toString())
                 .payAmount(payAmount)
                 .payMethod(payMethod)
+                .payDate(payDate.format(formatter))
                 .build();
     }
-
-
-
 
 
 }
