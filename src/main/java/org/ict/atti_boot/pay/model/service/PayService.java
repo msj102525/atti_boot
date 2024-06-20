@@ -18,8 +18,12 @@ public class PayService {
     @Autowired
     private PayRepository payRepository;
 
-    public PayEntity savePayment(PayDto payDto) {
-        PayEntity payEntity = payDto.toEntity();
-        return payRepository.save(payEntity);
+    public int savePayment(PayDto payDto) {
+        PayEntity paymentEntity = payDto.toEntity();
+        payRepository.save(paymentEntity);
+        return 1; // Assuming the save is always successful
     }
+
+
+
 }
