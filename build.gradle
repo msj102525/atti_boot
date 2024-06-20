@@ -38,6 +38,8 @@ dependencies {
     implementation 'org.json:json:20210307' // JSON 파싱을 위한 org.json 라이브러리를 추가합니다.
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310' //날짜
 
+
+
     // querydsl
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"

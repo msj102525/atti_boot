@@ -127,6 +127,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             responseBody.put("userType", user.getUserType());
             responseBody.put("birthDate", user.getBirthDate());
             responseBody.put("gender", user.getGender());
+            responseBody.put("phone", user.getPhone());
 
             // ObjectMapper를 사용하여 JSON으로 직렬화
             ObjectMapper objectMapper = new ObjectMapper();
