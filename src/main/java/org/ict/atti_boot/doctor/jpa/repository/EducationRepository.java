@@ -5,9 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
-public interface EducationRepository extends JpaRepository<Education, String> {
-    List<Education> findByUserId(String userId);
+public interface EducationRepository extends JpaRepository<Education, UUID> {
+    Set<Education> findByUserId(String userId);
     Set<Education> findAllByUserId(String userId);
      Education findByUserIdAndEducation(String userId, String education);
 }

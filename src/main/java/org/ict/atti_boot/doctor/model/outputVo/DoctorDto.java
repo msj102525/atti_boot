@@ -24,6 +24,7 @@ public class DoctorDto {
 
 
 
+
     public DoctorDto(Doctor doctor){
         this.userId = doctor.getUserId();
         this.userName= doctor.getUser().getUserName();

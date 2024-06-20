@@ -26,6 +26,7 @@ public class DoctorUpdateInput {
     private String detailAddress;
     private Double latitude;
     private Double longitude;
+    private String hospitalFileName;
     private Set<String> addCareerList;
     private Set<String> deleteCareerList;
     private Set<String> addEducationList;

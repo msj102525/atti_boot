@@ -2,6 +2,7 @@ package org.ict.atti_boot.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
@@ -23,4 +24,13 @@ public class WebConfig implements WebMvcConfigurer {
                 // 쿠키나 인증과 관련된 정보를 포함한 요청을 허용합니다.
                 .allowCredentials(true);
     }
+    @Override
+       public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // /images/** 경로로 들어오는 요청을 /path/to/your/images/ 디렉토리의 파일로 매핑합니다.
+         registry.addResourceHandler("/images/**")
+                .addResourceLocations("classpath:/hospitalprofile/");
+    }
+
+
+
 }

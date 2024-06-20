@@ -37,4 +37,4 @@ out/
 .vscode/
 
 ## QEntity ##
-src/main/generated
+src/main/generated/

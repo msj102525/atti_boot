@@ -18,6 +18,7 @@ import org.ict.atti_boot.doctor.model.DoctorUpdateInput;
 import org.ict.atti_boot.doctor.model.outputVo.DoctorDto;
 import org.ict.atti_boot.doctor.model.dto.EmailRequest;
 import org.ict.atti_boot.doctor.model.outputVo.DoctorUpdateVo;
+import org.ict.atti_boot.doctor.model.outputVo.TestVO;
 import org.ict.atti_boot.user.jpa.repository.UserRepository;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
@@ -74,23 +75,23 @@ public class DoctorService {
 //    }
 
     //
-    public List<String> getEducationsByDoctorId(String doctorId) {
-        List<Education> educations = educationRepository.findByUserId(doctorId);
-        List<String> eduList = new ArrayList<>();
-        for (Education education : educations) {
-            eduList.add(education.getEducation());
-        }
-        return eduList;
-    }
+//    public List<String> getEducationsByDoctorId(String doctorId) {
+//        List<Education> educations = educationRepository.findByUserId(doctorId);
+//        List<String> eduList = new ArrayList<>();
+//        for (Education education : educations) {
+//            eduList.add(education.getEducation());
+//        }
+//        return eduList;
+//    }
 
-    public List<String> getCareersByDoctorId(String doctorId) {
-        List<Career> careers = careerRepository.findByUserId(doctorId);
-        List<String> careerList = new ArrayList<>();
-        for (Career career : careers) {
-            careerList.add(career.getCareer());
-        }
-        return careerList;
-    }
+//    public List<String> getCareersByDoctorId(String doctorId) {
+//        List<Career> careers = careerRepository.findByUserId(doctorId);
+//        List<String> careerList = new ArrayList<>();
+//        for (Career career : careers) {
+//            careerList.add(career.getCareer());
+//        }
+//        return careerList;
+//    }
 
 //    public Set<Education> getEducationsByUserId(String userId) {
 //        Doctor doctor = doctorRepository.findByUserId(userId);
@@ -154,9 +155,19 @@ public class DoctorService {
     }
 
     public Doctor getDoctorById(String doctorId) {
-        return doctorRepository.findByUserId(doctorId).get();
-    }
 
+        Doctor doctor = doctorRepository.findByUserId(doctorId).get();
+
+        return doctor;
+    }
+    public DoctorUpdateVo getDoctorMyPageById(String doctorId){
+        Doctor doctor = doctorRepository.findByUserId(doctorId).get();
+        Set<Career> careers = careerRepository.findByUserId(doctorId);
+        Set<Education> educations = educationRepository.findByUserId(doctorId);
+        Set<DoctorTag> tags = tagRepository.findByUserId(doctorId);
+        DoctorUpdateVo doctorUpdateVo = new DoctorUpdateVo(doctor, careers, educations, tags);
+        return doctorUpdateVo;
+    }
 
     public void sendEmail(EmailRequest request) {
         try {
@@ -211,9 +222,9 @@ public class DoctorService {
         doctor.setLatitude(roundToSixDecimals(doctorUpdateInput.getLatitude()));
         doctor.setLongitude(roundToSixDecimals(doctorUpdateInput.getLongitude()));
         doctor.setHospitalAddress(doctorUpdateInput.getAddress());
-        doctor.setDetailAddress(doctorUpdateInput.getDetailAddress());
+        doctor.setDetailAddress(doctorUpdateInput.getExtraAddress());
         doctor.setPostalCode(doctorUpdateInput.getZonecode());
-        doctor.setRemainingAddress(doctorUpdateInput.getExtraAddress());
+        doctor.setRemainingAddress(doctorUpdateInput.getDetailAddress());
         doctor.setHospitalImageUrl(imageFileName);
         doctorRepository.save(doctor);
         //의사/병원 정보 는 수정 완료
@@ -234,7 +245,10 @@ public class DoctorService {
             }
             if (!deleteCareers.isEmpty()) {
                 for (String careerName : deleteCareers) {
-                    Career career = new Career(careerName, doctorId);
+                    Career career = originalCareer.stream()
+                            .filter(c -> c.getCareer().equals(careerName))
+                            .findFirst()
+                            .orElse(null);
                     if (originalCareer.contains(career)) {
                         careerRepository.delete(career);
                     }
@@ -244,21 +258,22 @@ public class DoctorService {
         //Education
         Set<String> addEducations = doctorUpdateInput.getAddEducationList();
         Set<String> deleteEducations = doctorUpdateInput.getDeleteEducationList();
-        log.info(addEducations.toString());
-        log.info(deleteEducations.toString());
         if (addEducations.size() + deleteEducations.size() > 0) {
             Set<Education> originalEducation = educationRepository.findAllByUserId(doctorId);
             if (!addEducations.isEmpty()) {
-                for (String edu : addEducations) {
-                    Education education = new Education(edu, doctorId);
+                for (String educationName : addEducations) {
+                    Education education = new Education(educationName, doctorId);
                     if (!originalEducation.contains(education)) {
                         educationRepository.save(education);  // Save to DB
                     }
                 }
             }
             if (!deleteEducations.isEmpty()) {
-                for (String edu : deleteEducations) {
-                    Education education = new Education(edu, doctorId);
+                for (String educationName : deleteEducations) {
+                    Education education = originalEducation.stream()
+                            .filter(c -> c.getEducation().equals(educationName))
+                            .findFirst()
+                            .orElse(null);
                     if (originalEducation.contains(education)) {
                         educationRepository.delete(education);
                     }
@@ -275,9 +290,12 @@ public class DoctorService {
             log.info("원래 태그 !!!!! : " + originalTag.toString());
             if (!deleteTags.isEmpty()) {
                 for (String tagName : deleteTags) {
-                    DoctorTag tag = new DoctorTag(tagName, doctorId);
-                    if (originalTag.contains(tag)) {
-                        tagRepository.delete(tag);
+                    DoctorTag doctorTag = originalTag.stream()
+                            .filter(c -> c.getTag().equals(tagName))
+                            .findFirst()
+                            .orElse(null);
+                    if (originalTag.contains(doctorTag)) {
+                        tagRepository.delete(doctorTag);
                     }
                 }
             }
@@ -286,7 +304,7 @@ public class DoctorService {
                     DoctorTag tag = new DoctorTag(tagName, doctorId);
                     log.info("세이브 직전 !! :" + tag.toString());
                     if (!originalTag.contains(tag)) {
-                        tagRepository.customSaveDoctorTag(tag);
+                        tagRepository.save(tag);
                     }
                 }
             }
