@@ -1,4 +1,5 @@
 package org.ict.atti_boot.doctor.controller;
+
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.doctor.jpa.entity.Career;
 import org.ict.atti_boot.doctor.jpa.entity.Doctor;
@@ -47,8 +48,9 @@ public class DoctorController {
     public ResponseEntity<Map<String, Object>> getDoctors(@PageableDefault(size = 4, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok(doctorService.findAll(pageable));
     }
+
     @GetMapping("/{id}")
-    public ResponseEntity<DoctorDetail> getDoctorDetail(@PageableDefault(size = 4,sort = "writeDate", direction = Sort.Direction.DESC) Pageable pageable,@PathVariable(name="id",required = false) String doctorId) {
+    public ResponseEntity<DoctorDetail> getDoctorDetail(@PageableDefault(size = 4, sort = "writeDate", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(name = "id", required = false) String doctorId) {
         Doctor doctor = doctorService.getDoctorById(doctorId);
         Page<Object[]> reviewData = reviewService.findByDoctorId(doctorId, pageable);
         //리뷰 아웃풋 DTO 객체로 바꾸깅
@@ -65,15 +67,15 @@ public class DoctorController {
                 })
                 .collect(Collectors.toList());
 
-         List<Review> totalReviewList = reviewService.findByDoctorId(doctorId);
+        List<Review> totalReviewList = reviewService.findByDoctorId(doctorId);
         // 평균 변수
         double totalScore = 0.0;
-         // 평점분포 맵만들기
+        // 평점분포 맵만들기
         Map<Integer, Integer> ratingCount = new HashMap<>();
         for (int i = 1; i <= 5; i++) {
             ratingCount.put(i, 0);
         }
-         for (Review review : totalReviewList) {
+        for (Review review : totalReviewList) {
             int score = review.getStarPoint();
             ratingCount.put(score, ratingCount.get(score) + 1);
             totalScore += score;
@@ -85,30 +87,28 @@ public class DoctorController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Map<String, Object>> searchDoctors(@PageableDefault(size = 4, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable, @RequestParam(name="selectedTags",required = false) List<String> tags,
-            @RequestParam(name="keyword", required = false) String name,
-            @RequestParam(name="gender", required = false) Character gender) {
+    public ResponseEntity<Map<String, Object>> searchDoctors(@PageableDefault(size = 4, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable, @RequestParam(name = "selectedTags", required = false) List<String> tags,
+                                                             @RequestParam(name = "keyword", required = false) String name,
+                                                             @RequestParam(name = "gender", required = false) Character gender) {
         long tagCount = tags.size();
-        return ResponseEntity.ok(doctorService.findByAllConditions(name, tags, tagCount, gender,pageable));
+        return ResponseEntity.ok(doctorService.findByAllConditions(name, tags, tagCount, gender, pageable));
     }
 
     @GetMapping("/mypage")
-    public ResponseEntity<DoctorUpdateVo> getDoctorProfile(){
+    public ResponseEntity<DoctorUpdateVo> getDoctorProfile() {
 //        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 //         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 //        String doctorId = userDetails.getUserId();
         String doctorId = "user003";
-        Doctor doctor = doctorService.getDoctorById(doctorId);
-        DoctorUpdateVo doctorUpdateVo = new DoctorUpdateVo(doctor);
-
-
+        DoctorUpdateVo doctorUpdateVo = doctorService.getDoctorMyPageById(doctorId);
+        log.info(doctorUpdateVo.toString());
         return ResponseEntity.ok(doctorUpdateVo);
     }
 
-    
+
     @PutMapping("/mypage")
     public ResponseEntity<String> updateDoctorProfile(
-            @RequestPart("doctorData") DoctorUpdateInput doctorUpdateVo,     // 이미지 파일과 JSON데이터를 함께 처리하기위해 RequestPart 사용
+            @RequestPart("doctorData") DoctorUpdateInput doctorUpdateInput,     // 이미지 파일과 JSON데이터를 함께 처리하기위해 RequestPart 사용
             @RequestPart(value = "hospitalImage", required = false) MultipartFile hospitalImage) throws IOException {
 //        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 //         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -116,30 +116,52 @@ public class DoctorController {
         // 파일 저장 경로 설정
         String uploadDir = "src/main/resources/hospitalprofile/";
         //테스트용
-
         String doctorId = "user003";
+        doctorUpdateInput.setDoctorId(doctorId);
+        Doctor doctor = doctorService.getDoctorById(doctorId);
+        String originalFile = doctor.getHospitalImageUrl();
+        String fileName;
+        // 프로필 사진URL을 DB에서 뽑아옴
+        //프로필 사진파일이 왔다.
+        //사진을 바꿨거나? 새로 등록했거나 ?
+        if (!(hospitalImage == null)) {
+            // 파일 확장자 추출
+            String originalFilename = hospitalImage.getOriginalFilename();
+            String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            // 파일 이름을 UUID로 변경 중복을 피하기 위함
+            String newFileName = UUID.randomUUID() + fileExtension;
+            // 저장 경로 생성
+            Path filePath = Paths.get(uploadDir + newFileName);
+            // 파일 저장
+            Files.write(filePath, hospitalImage.getBytes());
+            fileName = "/images/" + filePath.getFileName().toString();
+            if (originalFile != null) {
+                //이미 있는데 바꿨다? 원래파일 지우기
+                filePath = Paths.get(uploadDir + originalFile.substring(8));
+                Files.delete(filePath);
+            }
+        } else {
+            log.info(doctor.getHospitalImageUrl());
+            log.info(doctorUpdateInput.getHospitalFileName());
+            //프로필사진이 안왔다
+            //근데 VO에는 들어있다?  ==>> 그냥 유지
+            //근데 VO도 빈채로 왔다? 원래 있었는데 지웠다는 소리기때문에
+            //원래 파일은 삭제한다.
+            if (doctorUpdateInput.getHospitalFileName() == null) {
+                Path filePath = Paths.get(uploadDir + originalFile.substring(8));
+                Files.delete(filePath);
+                fileName = null;
+            } else {
+                fileName = originalFile;
+            }
 
-        // 파일 확장자 추출
-        String originalFilename = hospitalImage.getOriginalFilename();
-        String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        // 파일 이름을 UUID로 변경 중복을 피하기 위함
-        String newFileName = UUID.randomUUID() + fileExtension;
-        // 저장 경로 생성
-        Path filePath = Paths.get(uploadDir + newFileName);
-        // 파일 저장
-        Files.write(filePath, hospitalImage.getBytes());
-        String fileName = filePath.getFileName().toString();
-        doctorUpdateVo.setDoctorId(doctorId);
-        log.info(doctorUpdateVo.toString());
-        doctorService.updateDoctor(doctorUpdateVo, fileName);
+        }
+
+
+        doctorService.updateDoctor(doctorUpdateInput, fileName);
 
         return ResponseEntity.ok("병원정보 수정 완료 !");
     }
-
-
-
-
-
 
 
     @PostMapping("/mail")

@@ -77,6 +77,7 @@ public class SecurityConfig {
                                 "/review/**",
                                 "/like/**",
                                 "/reply/**",
+                                "/images/**",
                                 "/chat/**"
                         )
                         .permitAll() // 해당 경로들은 인증 없이 접근 가능합니다.

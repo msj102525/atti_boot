@@ -49,6 +49,13 @@ public class JWTFilter extends OncePerRequestFilter {
             log.info("/reissue={}", requestURI);
             return;
         }
+// 이미지파일 요청은 필터 넘기기
+        if (requestURI.startsWith("/images")){
+            log.info(requestURI);
+            filterChain.doFilter(request, response);
+        }
+
+
 
 //        의사 리스트, 리뷰리스트 요청 필터 넘기기
 //        if ((requestURI.startsWith("/doctor")||requestURI.startsWith("/review"))&&!requestURI.equals("/doctor/mypage")) {

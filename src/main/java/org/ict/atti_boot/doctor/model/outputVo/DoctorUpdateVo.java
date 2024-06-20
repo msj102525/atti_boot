@@ -31,7 +31,7 @@ public class DoctorUpdateVo {
     private List<String> selectedTags;
     private String hospitalFileName;
 
-    public DoctorUpdateVo(Doctor doctor) {
+    public DoctorUpdateVo(Doctor doctor, Set<Career> careers, Set<Education> educations, Set<DoctorTag> tags) {
         this.address = doctor.getHospitalAddress();
         this.hospitalName = doctor.getHospitalName();
         this.zonecode = doctor.getPostalCode();
@@ -39,19 +39,17 @@ public class DoctorUpdateVo {
         this.detailAddress = doctor.getRemainingAddress();
         this.hospitalPhone = doctor.getHospitalPhone();
         this.introduce = doctor.getIntroduce();
-        Set<Career> careers=  doctor.getCareers();
+        this.hospitalFileName = doctor.getHospitalImageUrl();
         List<String> careerList = new ArrayList<>();
         for (Career career : careers) {
             careerList.add(career.getCareer());
         }
         this.careers = careerList;
-        Set<Education> educations= doctor.getEducations();
         List<String> educationList = new ArrayList<>();
         for (Education education : educations) {
             educationList.add(education.getEducation());
         }
         this.educations = educationList;
-        Set<DoctorTag> tags= doctor.getTags();
         List<String> tagList = new ArrayList<>();
         for (DoctorTag tag : tags) {
             tagList.add(tag.getTag());
