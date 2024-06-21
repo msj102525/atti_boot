@@ -1,5 +1,6 @@
 package org.ict.atti_boot.feed.repository;
 
+import org.hibernate.usertype.UserType;
 import org.ict.atti_boot.feed.model.entity.Feed;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,5 +22,11 @@ public interface FeedRepository extends JpaRepository<Feed, Integer> {
 
     @Query("SELECT f FROM Feed f LEFT JOIN f.likeHistories lh WHERE f.category = :category GROUP BY f.feedNum, f.feedContent, f.feedDate, f.feedReadCount, f.category, f.inPublic, f.user ORDER BY COUNT(lh) DESC, f.feedDate DESC")
     Page<Feed> findByCategoryOrderByLikeHistoriesDescAndFeedDateDesc(@Param("category") String category, Pageable pageable);
+
+    @Query("SELECT f FROM Feed f JOIN FETCH f.replies r JOIN r.user u WHERE u.userType = 'D'")
+    Page<Feed> findAllFeedsWithRepliesByUserType(Pageable pageable );
+
+    @Query("SELECT f FROM Feed f JOIN FETCH f.replies r JOIN r.user u WHERE u.userType = 'D' and f.category = :category ")
+    Page<Feed> findAllFeedsByCategoryWithRepliesByUserType(String category,Pageable pageable );
 
 }

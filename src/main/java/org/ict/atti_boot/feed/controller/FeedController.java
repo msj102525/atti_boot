@@ -66,9 +66,9 @@ public class FeedController {
 
         } else if ("전문 답변".equals(subCategory)) {
             log.info("전문 답변 : " + subCategory);
-//            sort = Sort.by(Sort.Direction.DESC, "feedDate");
-            pageable = PageRequest.of(page, size);
-            feeds = feedService.selectAllFeeds(pageable, category);
+            sort = Sort.by(Sort.Direction.DESC, "feedDate");
+            pageable = PageRequest.of(page, size, sort);
+            feeds = feedService.selectAllFeedsHasDocterReply(pageable, category);
         } else {
             log.info("최신순 : " + subCategory);
             sort = Sort.by(Sort.Direction.DESC, "feedDate");
