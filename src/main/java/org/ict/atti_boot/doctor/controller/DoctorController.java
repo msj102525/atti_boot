@@ -14,6 +14,7 @@ import org.ict.atti_boot.doctor.model.service.DoctorService;
 import org.ict.atti_boot.doctor.model.service.EducationService;
 import org.ict.atti_boot.doctor.model.service.TagService;
 import org.ict.atti_boot.review.jpa.entity.Review;
+import org.ict.atti_boot.review.model.output.StarPointVo;
 import org.ict.atti_boot.review.model.service.ReviewService;
 
 import org.ict.atti_boot.review.model.output.OutputReview;
@@ -81,21 +82,17 @@ public class DoctorController {
                 })
                 .collect(Collectors.toList());
 
-        List<Review> totalReviewList = reviewService.findByDoctorId(doctorId);
-        // 평균 변수
-        double totalScore = 0.0;
+
         // 평점분포 맵만들기
-        Map<Integer, Integer> ratingCount = new HashMap<>();
-        for (int i = 1; i <= 5; i++) {
-            ratingCount.put(i, 0);
-        }
-        for (Review review : totalReviewList) {
-            int score = review.getStarPoint();
-            ratingCount.put(score, ratingCount.get(score) + 1);
-            totalScore += score;
-        }
+       List<StarPointVo> starPointList  = reviewService.findStarPointCountsByUserId(doctorId);
         // 평균 점수 계산
-        double averageScore = totalReviewList.isEmpty() ? 0 : totalScore / totalReviewList.size();
+        double averageScore = reviewService.getAverageRating(doctorId);
+
+        Map<Integer,Integer> ratingCount = new HashMap<Integer,Integer>();
+        for(StarPointVo starPointVo : starPointList) {
+            ratingCount.put(starPointVo.getStarPoint(),(int)starPointVo.getCount());
+        }
+
         Set<Career> careers = careerService.getCareersById(doctorId);
         Set<Education> educations = educationService.getEducationsById(doctorId);
         Set<DoctorTag> tags = tagService.getTagsById(doctorId);

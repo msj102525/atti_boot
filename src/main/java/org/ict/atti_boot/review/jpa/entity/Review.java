@@ -27,7 +27,7 @@ public class Review {
     private Date writeDate;
 
     @Column(name="STAR_POINT")
-    private int startPoint;
+    private int starPoint;
 
     @Column(name="CONTENT")
     private String content;
@@ -39,6 +39,6 @@ public class Review {
     private String userId;
 
     public int getStarPoint() {
-        return startPoint;
+        return starPoint;
     }
 }

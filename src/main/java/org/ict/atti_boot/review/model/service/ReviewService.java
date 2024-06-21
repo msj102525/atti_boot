@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.review.jpa.entity.Review;
 import org.ict.atti_boot.review.jpa.repository.ReviewRepository;
+import org.ict.atti_boot.review.model.output.StarPointVo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,18 @@ public class ReviewService {
     public Page<Object[]> findByDoctorId(String doctorId, Pageable pageable) {
         return reviewRepository.findByDoctorId(doctorId, pageable);
     }
+
+    public Float getAverageRating(String doctorId) {
+        return reviewRepository.findAverageStarPointByUserId(doctorId);
+    }
+
+    public List<StarPointVo> findStarPointCountsByUserId(String doctorId){
+        log.info(doctorId);
+        List<StarPointVo> test = reviewRepository.findStarPointCountsByUserId(doctorId);
+        log.info(test.toString());
+        return test;
+    }
+
 
     public List<Review> findByDoctorId(String doctorId) {
         return reviewRepository.findByDoctorId(doctorId);
