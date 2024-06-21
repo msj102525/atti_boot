@@ -8,9 +8,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -109,4 +113,45 @@ public class UserService {
             throw new RuntimeException("User not found");
         }
     }
+
+    //파일업로드
+    @Transactional
+    public User uploadProfilePhoto(Long userId, MultipartFile file) throws IOException {
+        Optional<User> userOpt = userRepository.findById(String.valueOf(userId));
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            if (user.getProfileUrl() != null) {
+                File existingFile = new File("uploads/" + user.getProfileUrl());
+                if (existingFile.exists()) {
+                    existingFile.delete();
+                }
+            }
+            String newFileName = UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
+            File newFile = new File("uploads/" + newFileName);
+            file.transferTo(newFile);
+            user.setProfileUrl(newFileName);
+            return userRepository.save(user);
+        }
+        throw new RuntimeException("User not found");
+    }
+
+    //파일 삭제
+    @Transactional
+    public void deleteProfilePhoto(Long userId) {
+        Optional<User> userOpt = userRepository.findById(String.valueOf(userId));
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            if (user.getProfileUrl() != null) {
+                File existingFile = new File("uploads/" + user.getProfileUrl());
+                if (existingFile.exists()) {
+                    existingFile.delete();
+                }
+                user.setProfileUrl(null);
+                userRepository.save(user);
+            }
+        } else {
+            throw new RuntimeException("User not found");
+        }
+    }
 }
+
