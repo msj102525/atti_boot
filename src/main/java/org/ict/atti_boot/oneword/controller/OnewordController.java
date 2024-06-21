@@ -24,7 +24,7 @@ public class OnewordController {
 
     @GetMapping("/list")
     public ResponseEntity<List<OnewordDto>> selectList(@RequestParam(name="page", defaultValue = "0") int page,
-                                                              @RequestParam(name="size", defaultValue = "10") int size) {
+                                                       @RequestParam(name="size", defaultValue = "10") int size) {
         log.info("/oneword/list : {}", page + ",  " + size);
         //JPA 가 제공하는 Pageable 객체를 사용함
         //Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "owsjNum"));
@@ -32,6 +32,19 @@ public class OnewordController {
 
         //페이지에 출력할 목록 조회해 옴 => 응답 처리
         return new ResponseEntity<>(onewordService.selectList(pageable), HttpStatus.OK);
+    }
+
+    @GetMapping("/searchoneword")
+    public ResponseEntity<List<OnewordDto>> selectSearchOneword(
+            @RequestParam(name="keyword") String keyword,
+            @RequestParam(name="page") int page,
+            @RequestParam(name="size") int size) {
+        log.info("/oneword/searchoneword : {} ", keyword + ", " + page + ",  " + size);
+        //JPA 가 제공하는 Pageable 객체를 사용함
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "owsjNum"));
+
+        //페이지에 출력할 목록 조회해 옴 => 응답 처리
+        return new ResponseEntity<>(onewordService.selectSearchOneword(keyword, pageable), HttpStatus.OK);
     }
 
     @GetMapping("/onedetail/{owNum}")

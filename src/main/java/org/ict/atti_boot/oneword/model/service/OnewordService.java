@@ -3,8 +3,10 @@ package org.ict.atti_boot.oneword.model.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.oneword.jpa.entity.OnewordEntity;
+import org.ict.atti_boot.oneword.jpa.entity.OnewordSubjectEntity;
 import org.ict.atti_boot.oneword.jpa.repository.OnewordRepository;
 import org.ict.atti_boot.oneword.model.dto.OnewordDto;
+import org.ict.atti_boot.oneword.model.dto.OnewordSubjectDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,18 @@ public class OnewordService {
 
     public ArrayList<OnewordDto> selectList(Pageable pageable) {
         Page<OnewordEntity> pages = onewordRepository.findAll(pageable);
+        ArrayList<OnewordDto> list = new ArrayList<>();
+
+        for (OnewordEntity entity : pages) {
+            OnewordDto onewordDto = entity.toDto();
+            list.add(onewordDto);
+        }
+        return list;
+    }
+
+    /// 오늘 한 줄 주제 번호 검색 목록 조회
+    public ArrayList<OnewordDto> selectSearchOneword(String keyword, Pageable pageable) {
+        Page<OnewordEntity> pages = onewordRepository.findSearchSearchOneword(keyword, pageable);
         ArrayList<OnewordDto> list = new ArrayList<>();
 
         for (OnewordEntity entity : pages) {
