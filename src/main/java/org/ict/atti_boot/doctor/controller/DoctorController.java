@@ -17,6 +17,7 @@ import org.ict.atti_boot.review.jpa.entity.Review;
 import org.ict.atti_boot.review.model.service.ReviewService;
 
 import org.ict.atti_boot.review.model.output.OutputReview;
+import org.ict.atti_boot.user.model.output.CustomUserDetails;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -112,10 +115,10 @@ public class DoctorController {
 
     @GetMapping("/mypage")
     public ResponseEntity<DoctorUpdateVo> getDoctorProfile() {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-//        String doctorId = userDetails.getUserId();
-        String doctorId = "doc2";
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        String doctorId = userDetails.getUserId();
+
         DoctorUpdateVo doctorUpdateVo = doctorService.getDoctorMyPageById(doctorId);
 
 
@@ -127,13 +130,12 @@ public class DoctorController {
     public ResponseEntity<String> updateDoctorProfile(
             @RequestPart("doctorData") DoctorUpdateInput doctorUpdateInput,     // 이미지 파일과 JSON데이터를 함께 처리하기위해 RequestPart 사용
             @RequestPart(value = "hospitalImage", required = false) MultipartFile hospitalImage) throws IOException {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-//        String doctorId = userDetails.getUserId();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        String doctorId = userDetails.getUserId();
+
         // 파일 저장 경로 설정
         String uploadDir = "src/main/resources/hospitalprofile/";
-        //테스트용
-        String doctorId = "doc2";
         doctorUpdateInput.setDoctorId(doctorId);
         Doctor doctor = doctorService.getDoctorById(doctorId);
         String originalFile = doctor.getHospitalImageUrl();
