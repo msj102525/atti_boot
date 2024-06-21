@@ -64,7 +64,7 @@ public class FeedController {
         Page<Feed> feeds = null;
         Pageable pageable = null;
 
-        if (searchData.equals("")) {
+        if (searchData == null || searchData.isEmpty()) {
             if ("공감순".equals(subCategory)) {
                 log.info("공감순 : " + subCategory);
                 pageable = PageRequest.of(page, size);
@@ -89,47 +89,64 @@ public class FeedController {
             feeds = feedService.selectAllFeedsBySearchData(pageable, category, searchData);
         }
 
-
         List<FeedListOutput> feedListOutputList = new ArrayList<>();
 
         feeds.getContent().forEach(feed -> {
-            feed.getReplies().sort(Comparator.comparing(Reply::getReplyDate).reversed());
+            List<Reply> replies = feed.getReplies();
+            if (replies != null) {
+                replies.sort(Comparator.comparing(Reply::getReplyDate).reversed());
+            }
 
-            FeedListOutput feedListOutput = FeedListOutput.builder()
-//                    .totalPage(feeds.getTotalPages())
-                    .feedWriterId(feed.getUser().getUserId())
-                    .feedWriterProfileUrl(feed.getUser().getProfileUrl())
+            User user = feed.getUser();
+            String userId = (user != null) ? user.getUserId() : "Unknown";
+            String profileUrl = (user != null) ? user.getProfileUrl() : "";
+
+            FeedListOutput.FeedListOutputBuilder feedListOutputBuilder = FeedListOutput.builder()
+                    .feedWriterId(userId)
+                    .feedWriterProfileUrl(profileUrl)
                     .category(feed.getCategory())
                     .feedNum(feed.getFeedNum())
                     .feedContent(feed.getFeedContent())
                     .feedDate(feed.getFeedDate())
                     .inPublic(feed.getInPublic())
-                    .replyCount(feed.getReplies().size())
-                    .likeCount(feed.getLikeHistories().size())
-                    .loginUserIsLiked(feed.getLikeHistories().stream()
+                    .replyCount((replies != null) ? replies.size() : 0)
+                    .likeCount((feed.getLikeHistories() != null) ? feed.getLikeHistories().size() : 0)
+                    .loginUserIsLiked(feed.getLikeHistories() != null && feed.getLikeHistories().stream()
                             .anyMatch(reply -> reply.getUserId().equals(loginUserId)))
-                    .dComentExist(feed.getReplies().stream()
-                            .anyMatch(reply -> reply.getUser().getUserType() == 'D'))
-                    .docterName(feed.getReplies().stream()
-                            .filter(reply -> reply.getUser().getUserType() == 'D')
-                            .map(reply -> reply.getUser().getUserName())
-                            .findFirst()
-                            .orElse("No doctor user found"))
-                    .docterImgUrl(feed.getReplies().stream()
-                            .filter(reply -> reply.getUser().getUserType() == 'D')
-                            .map(reply -> reply.getUser().getProfileUrl())
-                            .findFirst()
-                            .orElse("No doctor user found"))
-                    .docterComment(feed.getReplies().stream()
-                            .filter(reply -> reply.getUser().getUserType() == 'D')
-                            .map(Reply::getReplyContent)
-                            .findFirst()
-                            .orElse("No doctor user found"))
-                    .build();
-            feedListOutputList.add(feedListOutput);
+                    .dComentExist(replies != null && replies.stream()
+                            .anyMatch(reply -> reply.getUser().getUserType() == 'D'));
+
+            if (replies != null) {
+                Reply doctorReply = replies.stream()
+                        .filter(reply -> reply.getUser().getUserType() == 'D')
+                        .findFirst()
+                        .orElse(null);
+
+                if (doctorReply != null) {
+                    User doctorUser = doctorReply.getUser();
+                    feedListOutputBuilder
+                            .docterName(doctorUser != null ? doctorUser.getUserName() : "No doctor user found")
+                            .docterImgUrl(doctorUser != null ? doctorUser.getProfileUrl() : "")
+                            .docterComent(doctorReply.getReplyContent());
+                } else {
+                    feedListOutputBuilder
+                            .docterName("No doctor user found")
+                            .docterImgUrl("")
+                            .docterComent("No doctor user found");
+                }
+            } else {
+                feedListOutputBuilder
+                        .docterName("No doctor user found")
+                        .docterImgUrl("")
+                        .docterComent("No doctor user found");
+            }
+
+            feedListOutputList.add(feedListOutputBuilder.build());
         });
+
         return ResponseEntity.ok().body(feedListOutputList);
     }
+
 
     @GetMapping("/{feedNum}")
     public ResponseEntity<FeedListOutput> selectFeedByFeedNum(
@@ -167,7 +184,7 @@ public class FeedController {
                             .map(reply -> reply.getUser().getProfileUrl())
                             .findFirst()
                             .orElse("No doctor user found"))
-                    .docterComment(feed.getReplies().stream()
+                    .docterComent(feed.getReplies().stream()
                             .filter(reply -> reply.getUser().getUserType() == 'D')
                             .map(Reply::getReplyContent)
                             .findFirst()
@@ -229,21 +246,22 @@ public class FeedController {
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
 
-            Feed updateFeed = Feed.builder()
-                    .user(user)
-                    .feedNum(feedUpdateInputDto.getFeedNum())
-                    .feedContent(feedUpdateInputDto.getFeedContent())
-                    .category(feedUpdateInputDto.getCategory())
-                    .inPublic(feedUpdateInputDto.getInPublic())
-                    .feedDate(LocalDateTime.now())
-                    .build();
+            Feed selectFeedById = feedService.selectFeedById(feedUpdateInputDto.getFeedNum());
 
-            log.info(updateFeed.toString());
+            if (selectFeedById != null) {
 
-            feedService.save(updateFeed);
+                selectFeedById.setFeedContent(feedUpdateInputDto.getFeedContent());
+                selectFeedById.setCategory(feedUpdateInputDto.getCategory());
+                selectFeedById.setInPublic(feedUpdateInputDto.getInPublic());
+                selectFeedById.setFeedDate(LocalDateTime.now());
+                selectFeedById.setUser(user);
 
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+                feedService.save(selectFeedById);
 
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }

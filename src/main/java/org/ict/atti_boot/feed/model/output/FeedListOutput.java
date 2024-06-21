@@ -51,6 +51,6 @@ public class FeedListOutput {
 
     private String docterImgUrl;
 
-    private String docterComment;
+    private String docterComent;
 
 }

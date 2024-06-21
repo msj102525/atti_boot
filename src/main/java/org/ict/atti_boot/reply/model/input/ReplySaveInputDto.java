@@ -3,9 +3,11 @@ package org.ict.atti_boot.reply.model.input;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class ReplySaveInputDto {
 
     private int replyNum;
