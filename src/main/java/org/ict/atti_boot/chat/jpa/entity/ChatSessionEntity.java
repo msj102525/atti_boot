@@ -24,6 +24,8 @@ public class ChatSessionEntity {
 
     private String senderId;
     private String receiverId;
+    private int limitTime;
+
 
     @Column(name = "start_time", updatable = false)
     private LocalDateTime startTime;
@@ -39,6 +41,7 @@ public class ChatSessionEntity {
                 .chatId(chatId)
                 .senderId(senderId)
                 .receiverId(receiverId)
+                .limitTime(limitTime)
                 .startTime(startTime.format(formatter))
                 .build();
     }

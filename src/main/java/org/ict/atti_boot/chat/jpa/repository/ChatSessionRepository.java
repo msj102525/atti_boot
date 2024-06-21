@@ -31,4 +31,9 @@ public interface ChatSessionRepository extends JpaRepository<ChatSessionEntity, 
         @Param("startTime") LocalDateTime startTime,
         @Param("endTime") LocalDateTime endTime
     );
+
+    @Query("SELECT cs FROM ChatSessionEntity cs WHERE cs.chatId = :chatId")
+    ChatSessionEntity findLimitTimeByChatId(@Param("chatId") String chatId);
+
+
 }
