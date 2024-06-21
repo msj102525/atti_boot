@@ -24,9 +24,12 @@ public interface FeedRepository extends JpaRepository<Feed, Integer> {
     Page<Feed> findByCategoryOrderByLikeHistoriesDescAndFeedDateDesc(@Param("category") String category, Pageable pageable);
 
     @Query("SELECT f FROM Feed f JOIN FETCH f.replies r JOIN r.user u WHERE u.userType = 'D'")
-    Page<Feed> findAllFeedsWithRepliesByUserType(Pageable pageable );
+    Page<Feed> findAllFeedsWithRepliesByUserType(Pageable pageable);
 
     @Query("SELECT f FROM Feed f JOIN FETCH f.replies r JOIN r.user u WHERE u.userType = 'D' and f.category = :category ")
-    Page<Feed> findAllFeedsByCategoryWithRepliesByUserType(String category,Pageable pageable );
+    Page<Feed> findAllFeedsByCategoryWithRepliesByUserType(String category, Pageable pageable);
 
+    Page<Feed> findAllByFeedContentContaining(Pageable pageable, String searchData);
+
+//    Page<Feed> findAllByCategoryAndFeedContentContaining(Pageable pageable, String category, String searchData);
 }
