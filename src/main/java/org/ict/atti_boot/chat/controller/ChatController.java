@@ -22,6 +22,7 @@ public class ChatController {
     // 결제 시 세션에 저장
     @PostMapping("/session")
     public ResponseEntity<ChatSessionDto> createChatSession(@RequestBody ChatSessionDto chatSessionDto) {
+        log.info(chatSessionDto + "consul");
         ChatSessionDto createdSession = chatService.createChatSession(chatSessionDto);
         return ResponseEntity.ok(createdSession);
     }
@@ -65,7 +66,12 @@ public class ChatController {
 
     // 알람 테스트용
     @GetMapping("/session/alarm/{userId}")
-    public ResponseEntity<List<ChatSessionEntity>> getChatSessionByUserIdAlarm(@PathVariable String userId, @RequestParam String type) {
+    public ResponseEntity<List<ChatSessionEntity>> getChatSessionByUserIdAlarm(
+            @PathVariable String userId, @RequestParam String type) {
+
+        log.info(userId + "con123");
+        log.info(type + "con123");
+
         List<ChatSessionEntity> chatSessions;
         if ("sender".equals(type)) {
             chatSessions = chatService.getRecentChatSessionsBySender(userId);
@@ -78,6 +84,15 @@ public class ChatController {
         return ResponseEntity.ok(chatSessions);
     }
 
+
+    // 채팅방 시간 제한 불러오기
+    @GetMapping("/time/{chatId}")
+    public ResponseEntity<ChatSessionDto> getLimitTimeByChatId(
+            @PathVariable String chatId) {
+
+        ChatSessionDto chatSession = chatService.getLimitTimeByChatId(chatId);
+        return ResponseEntity.ok(chatSession);
+    }
 
 
 

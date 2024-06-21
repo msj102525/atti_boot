@@ -78,4 +78,11 @@ public class ChatService {
     }
 
 
+
+    // 제한 시간 불러오기
+    public ChatSessionDto getLimitTimeByChatId(String chatId){
+        return chatSessionRepository.findLimitTimeByChatId(chatId).toDto();
+    }
+
+
 }

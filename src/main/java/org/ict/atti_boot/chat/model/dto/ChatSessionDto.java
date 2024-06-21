@@ -18,6 +18,8 @@ public class ChatSessionDto {
     private String senderId;
     private String receiverId;
     private String startTime;
+    private int limitTime;
+
 
     public ChatSessionEntity toEntity() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -26,6 +28,7 @@ public class ChatSessionDto {
                 .chatId(chatId)
                 .senderId(senderId)
                 .receiverId(receiverId)
+                .limitTime(limitTime)
                 .startTime(parsedStartTime)
                 .build();
     }

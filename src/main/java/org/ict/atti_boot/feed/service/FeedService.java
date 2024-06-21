@@ -19,6 +19,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class FeedService {
     private final FeedRepository feedRepository;
+
     public Feed save(Feed feedEntity) {
         return feedRepository.save(feedEntity);
     }
@@ -42,6 +43,19 @@ public class FeedService {
         } else {
             return feedRepository.findByCategoryOrderByLikeHistoriesDescAndFeedDateDesc(category, pageable);
         }
+    }
+
+    public Page<Feed> selectAllFeedsHasDocterReply(Pageable pageable, String category) {
+        if (category == null || category.isEmpty()) {
+            return feedRepository.findAllFeedsWithRepliesByUserType(pageable);
+        } else {
+            return feedRepository.findAllFeedsByCategoryWithRepliesByUserType(category, pageable);
+        }
+    }
+
+    public Page<Feed> selectAllFeedsBySearchData(Pageable pageable, String category, String searchData) {
+        log.info("FeedService : " + searchData);
+            return feedRepository.findAllByFeedContentContaining(pageable, searchData);
     }
 
     public Feed selectFeedById(int feedNum) {

@@ -48,32 +48,45 @@ public class FeedController {
             @RequestParam(name = "category", required = false) String category,
             @RequestParam(name = "subCategory", required = false) String subCategory,
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size
+            @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(name = "searchData", required = false) String searchData
     ) {
         String loginUserId = "door123";
 
-        log.info("selectAllFeeds called : " + page + size + category + subCategory);
+        log.info("selectAllFeeds called");
+        log.info("Page:" + page);
+        log.info("Size:" + size);
+        log.info("Category:" + category);
+        log.info("SubCategory:" + subCategory);
+        log.info("SearchData:" + searchData);
 
         Sort sort = null;
         Page<Feed> feeds = null;
         Pageable pageable = null;
 
-        if ("공감순".equals(subCategory)) {
-            log.info("공감순 : " + subCategory);
-//            sort = Sort.by(Sort.Direction.DESC, "feedDate");
-            pageable = PageRequest.of(page, size);
-            feeds = feedService.selectAllFeedsByLikeCount(pageable, category);
+        if (searchData.equals("")) {
+            if ("공감순".equals(subCategory)) {
+                log.info("공감순 : " + subCategory);
+                pageable = PageRequest.of(page, size);
+                feeds = feedService.selectAllFeedsByLikeCount(pageable, category);
 
-        } else if ("전문 답변".equals(subCategory)) {
-            log.info("전문 답변 : " + subCategory);
-//            sort = Sort.by(Sort.Direction.DESC, "feedDate");
-            pageable = PageRequest.of(page, size);
-            feeds = feedService.selectAllFeeds(pageable, category);
+            } else if ("전문 답변".equals(subCategory)) {
+                log.info("전문 답변 : " + subCategory);
+                sort = Sort.by(Sort.Direction.DESC, "feedDate");
+                pageable = PageRequest.of(page, size, sort);
+                feeds = feedService.selectAllFeedsHasDocterReply(pageable, category);
+            } else {
+                log.info("최신순 : " + subCategory);
+                sort = Sort.by(Sort.Direction.DESC, "feedDate");
+                pageable = PageRequest.of(page, size, sort);
+                feeds = feedService.selectAllFeeds(pageable, category);
+            }
+
         } else {
-            log.info("최신순 : " + subCategory);
+            log.info("ELSE SearchData:" + searchData);
             sort = Sort.by(Sort.Direction.DESC, "feedDate");
             pageable = PageRequest.of(page, size, sort);
-            feeds = feedService.selectAllFeeds(pageable, category);
+            feeds = feedService.selectAllFeedsBySearchData(pageable, category, searchData);
         }
 
 
