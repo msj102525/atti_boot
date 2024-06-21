@@ -246,21 +246,22 @@ public class FeedController {
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
 
-            Feed updateFeed = Feed.builder()
-                    .user(user)
-                    .feedNum(feedUpdateInputDto.getFeedNum())
-                    .feedContent(feedUpdateInputDto.getFeedContent())
-                    .category(feedUpdateInputDto.getCategory())
-                    .inPublic(feedUpdateInputDto.getInPublic())
-                    .feedDate(LocalDateTime.now())
-                    .build();
+            Feed selectFeedById = feedService.selectFeedById(feedUpdateInputDto.getFeedNum());
 
-            log.info(updateFeed.toString());
+            if (selectFeedById != null) {
 
-            feedService.save(updateFeed);
+                selectFeedById.setFeedContent(feedUpdateInputDto.getFeedContent());
+                selectFeedById.setCategory(feedUpdateInputDto.getCategory());
+                selectFeedById.setInPublic(feedUpdateInputDto.getInPublic());
+                selectFeedById.setFeedDate(LocalDateTime.now());
+                selectFeedById.setUser(user);
 
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+                feedService.save(selectFeedById);
 
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
