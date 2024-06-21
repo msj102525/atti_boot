@@ -1,5 +1,7 @@
 package org.ict.atti_boot.user.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.user.jpa.entity.User;
 import org.ict.atti_boot.user.model.output.CustomUserDetails;
@@ -7,7 +9,9 @@ import org.ict.atti_boot.user.model.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -73,16 +77,48 @@ public class UserController {
         }
     }
 
-    //유정 정보 삭제
-    @DeleteMapping("/{userId}")
+    // 유저 정보 삭제
+    @DeleteMapping("/deleteUser/{userId}")
     public ResponseEntity<Void> deleteUser(@PathVariable String userId, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        if (userDetails.getUsername().equals(userId)) {
-            userService.deleteUser(userId);
-            return ResponseEntity.noContent().build();
+        log.info("Authenticated deleteUser: {}", userDetails.getUserId());
+        if (userDetails.getUserId().equals(userId)) {
+            log.info("Request user ID: {}", userId);
+            try {
+                userService.deleteUser(userId);
+                log.info("Deleted user: {}", userId);
+                return ResponseEntity.noContent().build();
+            } catch (Exception e) {
+                log.error("Error deleting user: {}", userId, e);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
         } else {
-            return ResponseEntity.status(403).build();
+            log.warn("Unauthorized delete attempt by user: {}", userDetails.getUserId());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
         }
     }
+//    @DeleteMapping("/{userId}")
+//    public ResponseEntity<Void> deleteUser(@PathVariable String userId, @AuthenticationPrincipal CustomUserDetails userDetails, HttpServletRequest request, HttpServletResponse response) {
+//        log.info("Authenticated deleteUser: {}", userDetails.getUserId());
+//        if (userDetails.getUserId().equals(userId)) {
+//            log.info("Request user ID: {}", userId);
+//            try {
+//                // 로그아웃 처리
+//                new SecurityContextLogoutHandler().logout(request, response, SecurityContextHolder.getContext().getAuthentication());
+//
+//                // 유저 삭제 처리
+//                userService.deleteUser(userId);
+//                log.info("Deleted user: {}", userId);
+//                return ResponseEntity.noContent().build();
+//            } catch (Exception e) {
+//                log.error("Error deleting user: {}", userId, e);
+//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//            }
+//        } else {
+//            log.warn("Unauthorized delete attempt by user: {}", userDetails.getUserId());
+//            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+//        }
+//    }
 
 
 }

@@ -78,7 +78,8 @@ public class SecurityConfig {
                                 "/like/**",
                                 "/reply/**",
                                 "/images/**",
-                                "/chat/**"
+                                "/chat/**",
+                                "/file/**"
                         )
                         .permitAll() // 해당 경로들은 인증 없이 접근 가능합니다.
                         .requestMatchers(new AntPathRequestMatcher("/admin/**")).hasRole("ADMIN") // '/admin/**' 경로는 ADMIN 역할을 가진 사용자만 접근 가능합니다

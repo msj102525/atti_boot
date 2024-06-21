@@ -19,11 +19,12 @@ public class FileUpdown {
         this.userService = userService;
     }
 
-    @PostMapping("/upload")
-    public ResponseEntity<?> uploadProfilePhoto(@RequestParam("userId") Long userId, @RequestParam("file") MultipartFile file) {
+    @PutMapping("/upload")
+    public ResponseEntity<?> uploadProfilePhoto(@RequestPart(name="userId", required = false) String userId,@RequestPart("file") MultipartFile file) {
         try {
             User updatedUser = userService.uploadProfilePhoto(userId, file);
-            return ResponseEntity.ok().body("파일 업로드 완료: " + updatedUser.getProfileUrl());
+            log.info(file.toString());
+            return ResponseEntity.ok().body(updatedUser.getProfileUrl());
         } catch (Exception e) {
             return ResponseEntity.status(500).body("파일 업로드 실패: " + e.getMessage());
         }

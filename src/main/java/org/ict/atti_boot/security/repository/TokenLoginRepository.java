@@ -22,5 +22,6 @@ public interface TokenLoginRepository extends JpaRepository<TokenLogin, String> 
     Optional<TokenLogin> findByUserUserId(@Param("userId") String userId);
 
 
-    }
+    void deleteByUserId(String userId);
+}
 

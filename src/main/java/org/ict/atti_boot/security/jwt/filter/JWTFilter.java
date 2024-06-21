@@ -55,8 +55,6 @@ public class JWTFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         }
 
-
-
 //        의사 리스트, 리뷰리스트 요청 필터 넘기기
         if ((requestURI.startsWith("/doctor")||requestURI.startsWith("/review"))&&!requestURI.equals("/doctor/mypage")) {
         // if (requestURI.startsWith("/doctor")||requestURI.startsWith("/review")) {

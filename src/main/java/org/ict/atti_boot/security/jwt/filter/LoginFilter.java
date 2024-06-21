@@ -77,7 +77,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         // 액세스 토큰과 리프레시 토큰을 생성합니다.
         String accessToken = jwtUtil.generateToken(username, "access", accessExpiredMs);
+        log.info("Successfully accessToken authenticated user {}", username);
         String refreshToken = jwtUtil.generateToken(username, "refresh", refreshExpiredMs);
+        log.info("Successfully refreshToken authenticated user {}", username);
 
         // 사용자 정보를 데이터베이스에서 조회합니다.
         Optional<User> userOptional = userService.findByEmail(username);
