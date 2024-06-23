@@ -49,7 +49,7 @@ public class JWTFilter extends OncePerRequestFilter {
             log.info("/reissue={}", requestURI);
             return;
         }
-// 이미지파일 요청은 필터 넘기기
+        // 이미지파일 요청은 필터 넘기기
         if (requestURI.startsWith("/images")){
             log.info(requestURI);
             filterChain.doFilter(request, response);
@@ -95,6 +95,17 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
+        if (requestURI.startsWith("/file")){
+            log.info(requestURI);
+            filterChain.doFilter(request, response);
+        }
+        // 문의사항 요청 필터 넘기기
+        if (requestURI.startsWith("/inquiry")){
+            log.info(requestURI);
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         // Bearer 토큰에서 JWT를 추출합니다.
         String token = authorization.split(" ")[1];
 
@@ -110,21 +121,6 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
-//        // token에서 category 가져오기
-//        String category = jwtUtil.getCategoryFromToken(token);
-//        // 토큰 category 가 access 가 아니 라면 만료 된 토큰 이라고 판단
-//        if (!category.equals("access")) {
-//
-//            //response body
-//            PrintWriter writer = response.getWriter();
-//            writer.print("invalid access token");
-//
-//            //response status code
-//            // 응답 코드를 프론트와 맞추는 부분 401 에러 외 다른 코드로 맞춰서
-//            // 진행하면 리프레시 토큰 발급 체크를 빠르게 할수 있음
-//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//            return;
-//        }
 
         // token에서 category 가져오기
         String category = jwtUtil.getCategoryFromToken(token);

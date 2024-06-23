@@ -14,7 +14,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 
 @Slf4j
 @RestController
@@ -26,6 +28,7 @@ public class UserController {
 
 
     public UserController(UserService userService){
+
         this.userService = userService;
     }
 
@@ -97,28 +100,108 @@ public class UserController {
 
         }
     }
-//    @DeleteMapping("/{userId}")
-//    public ResponseEntity<Void> deleteUser(@PathVariable String userId, @AuthenticationPrincipal CustomUserDetails userDetails, HttpServletRequest request, HttpServletResponse response) {
-//        log.info("Authenticated deleteUser: {}", userDetails.getUserId());
-//        if (userDetails.getUserId().equals(userId)) {
-//            log.info("Request user ID: {}", userId);
-//            try {
-//                // 로그아웃 처리
-//                new SecurityContextLogoutHandler().logout(request, response, SecurityContextHolder.getContext().getAuthentication());
+
+    //아이디 찾기
+//    @PostMapping("/userIdfind")
+//    public ResponseEntity<String> findUsername(@RequestBody Map<String, String> request) {
+//        String email = request.get("email");
+//        log.info("Find username for email: {}", email);
 //
-//                // 유저 삭제 처리
-//                userService.deleteUser(userId);
-//                log.info("Deleted user: {}", userId);
-//                return ResponseEntity.noContent().build();
-//            } catch (Exception e) {
-//                log.error("Error deleting user: {}", userId, e);
-//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//            }
+//        Optional<User> user = userService.findByEmail(email);
+//        if (user.isPresent()) {
+//            String userName = user.get().getUserName();
+//            log.info("Found user: {}", userName);
+//
+//            // 이메일로 사용자 아이디 전송
+//            String subject = "Your User ID";
+//            String text = "Your user ID is: " + userName;
+//            log.info("Subject: {}", subject);
+//            log.info("Text: {}", text);
+//            userService.sendSimpleMessage(email, subject, text);
+//
+//            return ResponseEntity.ok("사용자 아이디가 이메일로 전송되었습니다.");
 //        } else {
-//            log.warn("Unauthorized delete attempt by user: {}", userDetails.getUserId());
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
 //        }
 //    }
+
+    @PostMapping("/userIdfind")
+    public ResponseEntity<String> findUsername(@RequestBody Map<String, String> request) {
+        String userName = request.get("userName");
+        String email = request.get("email");
+        log.info("Find username for userName: {}, email: {}", userName, email);
+
+        Optional<User> user = userService.findByUserNameAndEmail(userName, email);
+        if (user.isPresent()) {
+            String userId = user.get().getUserId();
+            log.info("Found user: {}", userId);
+
+            // 이메일로 사용자 아이디 전송
+            String subject = "Your User ID";
+            String text = "Your user ID is: " + userId;
+            log.info("Subject: {}", subject);
+            log.info("Text: {}", text);
+            userService.sendSimpleMessage(email, subject, text);
+
+            return ResponseEntity.ok("사용자 아이디가 이메일로 전송되었습니다.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
+        }
+    }
+    // 비밀번호 찾기
+    @PostMapping("/passwordReset")
+    public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> request) {
+        String userName = request.get("userName");
+        String email = request.get("email");
+        log.info("Reset password request for userName: {}, email: {}", userName, email);
+
+        Optional<User> user = userService.findByUserNameAndEmail(userName, email);
+        if (user.isPresent()) {
+            // 임시 비밀번호 생성
+            String temporaryPassword = generateTemporaryPassword();
+            log.info("Generated temporary password: {}", temporaryPassword);
+
+            // 사용자 비밀번호 업데이트
+            try {
+                userService.updateUserPassword(user.get().getUserId(), temporaryPassword);
+            } catch (Exception e) {
+                log.error("Failed to update user password: ", e);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("비밀번호 업데이트에 실패했습니다.");
+            }
+
+            // 이메일로 임시 비밀번호 전송
+            String subject = "ATTI 임시 비밀번호";
+            String text = "임시비밀번호는 : " + temporaryPassword + "입니다.";
+            log.info("임시비밀번호: {}", text);
+            try {
+                userService.sendSimpleMessage(email, subject, text);
+            } catch (Exception e) {
+                log.error("Failed to send email: ", e);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("이메일 전송에 실패했습니다.");
+            }
+
+            return ResponseEntity.ok("임시 비밀번호가 이메일로 전송되었습니다.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
+        }
+    }
+
+    private String generateTemporaryPassword() {
+        int length = 8;
+        String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder tempPassword = new StringBuilder();
+        Random random = new Random();
+
+        for (int i = 0; i < length; i++) {
+            int index = random.nextInt(charSet.length());
+            tempPassword.append(charSet.charAt(index));
+        }
+
+        return tempPassword.toString();
+    }
+
+
+
 
 
 }
