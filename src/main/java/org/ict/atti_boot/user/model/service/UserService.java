@@ -149,7 +149,7 @@ public class UserService {
     //소셜 회원 정보수정
     @Transactional
     public User updateSocialUser(User user) {
-        Optional<User> existingUserOpt = userRepository.findById(user.getUserId());
+        Optional<User> existingUserOpt = userRepository.findByEmail(user.getEmail());
         if (existingUserOpt.isPresent()) {
             User existingUser = existingUserOpt.get();
             // 소셜 회원 정보 업데이트 로직

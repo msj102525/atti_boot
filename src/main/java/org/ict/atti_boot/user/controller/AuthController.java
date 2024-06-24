@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -57,6 +58,8 @@ public class AuthController {
 
     @Value("${naver.redirect-signup-uri}")
     private String naverRedirectSignupUri;
+    @Value("${kakaoApiHost}")
+    private  String kakaoApiHost;
 
     private final UserRepository userRepository;
     private final SocialLoginRepository socialLoginRepository;
@@ -240,7 +243,7 @@ public class AuthController {
         }
     }
 
-
+    // 카카오 로그아웃
     @GetMapping("/kakao/logout")
     public void kakaoLogout(@RequestParam String accessToken, HttpServletResponse response) throws IOException {
         log.info("accessToken for logout = {}", accessToken);
@@ -258,6 +261,36 @@ public class AuthController {
 
         // 로그아웃 성공 후 리다이렉트
         response.sendRedirect("http://localhost:3000/logout-success");
+    }
+
+    //카카오연결끊기
+    @PostMapping("/unlink-kakao")
+    public ResponseEntity<?> unlinkKakaoAccount(@RequestBody Map<String, String> request) {
+        String accessToken = request.get("accessToken");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken);
+        headers.set("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    kakaoApiHost + "/v1/user/unlink",
+                    HttpMethod.POST,
+                    entity,
+                    String.class
+            );
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                return ResponseEntity.ok().body(Map.of("success", true, "data", response.getBody()));
+            } else {
+                return ResponseEntity.status(response.getStatusCode()).body(Map.of("success", false, "error", response.getBody()));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("success", false, "error", e.getMessage()));
+        }
     }
 
 
@@ -450,7 +483,6 @@ public class AuthController {
             response.sendRedirect("http://localhost:3000/logout-success");
         }
 
-    //유저 정보 수정
     // 유저 정보 수정
     @PutMapping("/update")
     public ResponseEntity<User> updateUser(@RequestBody User user) {
@@ -459,15 +491,15 @@ public class AuthController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         String userId = userDetails.getUserId();
-        log.info(userId);
+        log.info("userId={}", userId);
         if (userDetails == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "사용자 세부 정보를 찾을 수 없습니다. JWT 토큰이 유효하고 사용자가 인증되었는지 확인하세요.");
         }
-
         if (!userDetails.getUsername().equals(user.getEmail())) {
+            log.info("userDrtails.getUsername={}", userDetails.getUsername());
+            log.info("userDrtails.getUsernaver={}", user.getEmail());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "인증된 사용자와 요청된 사용자 ID가 일치하지 않습니다.");
         }
-
         User updatedUser = userService.updateSocialUser(user);
         return ResponseEntity.ok(updatedUser);
     }

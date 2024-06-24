@@ -107,11 +107,14 @@ public class JWTFilter extends OncePerRequestFilter {
         if (requestURI.startsWith("/file")){
             log.info(requestURI);
             filterChain.doFilter(request, response);
+            return;
         }
-        if (requestURI.startsWith("/auth")){
+        if (requestURI.equals("/auth/signUp") || requestURI.equals("/auth/kakao/callback") || requestURI.equals("/auth/naver/callback")) {
             log.info(requestURI);
             filterChain.doFilter(request, response);
+            return;
         }
+
         // 문의사항 요청 필터 넘기기
         if (requestURI.startsWith("/inquiry")){
             log.info(requestURI);
