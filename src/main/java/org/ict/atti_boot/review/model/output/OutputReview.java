@@ -16,7 +16,6 @@ import java.sql.Date;
 @Component
 public class OutputReview {
     private String nickName;
-    private Date writeDate;
     private String content;
     private int starPoint;
 }

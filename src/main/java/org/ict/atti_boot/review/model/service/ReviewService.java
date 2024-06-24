@@ -41,8 +41,8 @@ public class ReviewService {
     }
 
 
-    public List<Review> findByUserId(String userId){
-        return reviewRepository.findByUserId(userId);
+    public Page<Review> findByUserId(String userId, Pageable pageable){
+        return reviewRepository.findByUserId(userId, pageable);
     }
 
     public Review saveReview(ReviewDto reviewDTO) {
