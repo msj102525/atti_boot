@@ -42,6 +42,7 @@ public class JWTFilter extends OncePerRequestFilter {
         // 요청에서 'Authorization' 헤더를 추출합니다.
         String authorization = request.getHeader("Authorization");
         String requestURI = request.getRequestURI();
+        String requestMethod = request.getMethod();
         log.info("requestURI={}", requestURI);
         log.debug("requestURI: {}", requestURI);
         if ("/reissue".equals(requestURI) || "/users/signup".equals(requestURI)) {
@@ -51,16 +52,19 @@ public class JWTFilter extends OncePerRequestFilter {
         }
         // 이미지파일 요청은 필터 넘기기
         if (requestURI.startsWith("/images")){
-            log.info(requestURI);
             filterChain.doFilter(request, response);
         }
 
-//        의사 리스트, 리뷰리스트 요청 필터 넘기기
-        if ((requestURI.startsWith("/doctor")||requestURI.equals("/review"))&&!requestURI.equals("/doctor/mypage")) {
-        // if (requestURI.startsWith("/doctor")||requestURI.startsWith("/review")) {
-            log.info(requestURI);
+        //리뷰리스트 요청 필터 넘기기
+        if(requestURI.equals("/review") && requestMethod.equals("GET") ){
             filterChain.doFilter(request, response);
-            return;
+        }
+
+
+        //의사 리스트, 리뷰리스트 요청 필터 넘기기
+        if (requestURI.startsWith("/doctor")&&!requestURI.equals("/doctor/mypage")) {
+        // if (requestURI.startsWith("/doctor")||requestURI.startsWith("/review")) {
+            filterChain.doFilter(request, response);
         }
 
         // 커뮤니티 요청 필터 넘기기 dev

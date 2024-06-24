@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -64,7 +65,6 @@ public class ReviewController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         String id = userDetails.getUserId();
-        log.info(id);
 
 
         Page<Review> reviewEntityList = reviewService.findByUserId(id, pageable);
@@ -80,7 +80,30 @@ public class ReviewController {
         return ResponseEntity.ok(myReviewResponse);
     }
 
-    ;
+    @PutMapping
+    public ResponseEntity<String> updateReview(@RequestBody ReviewDto reviewDTO) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        String id = userDetails.getUserId();
+        Review originalReview = reviewService.findByReviewId(reviewDTO.getReviewId());
 
+        log.info("리뷰 아이디 !!!!!!!!!!!!!!!!!!!!!!!!"+reviewDTO.getReviewId());
+        String originalUserId = originalReview.getUserId();
+        //아이디 확인
+        if (!originalUserId.equals(id)) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body("잘못된 요청입니다.");
+        }
+        reviewDTO.setSenderId(id);
+        Review review = reviewService.saveReview(reviewDTO);
+        if (review == null) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("수정을 실패했습니다.");
+        }
+
+        return ResponseEntity.ok("수정 성공 !");
+    }
 
 }

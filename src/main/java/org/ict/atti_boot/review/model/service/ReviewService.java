@@ -47,6 +47,7 @@ public class ReviewService {
 
     public Review saveReview(ReviewDto reviewDTO) {
         Review review = Review.builder()
+                .reviewId(reviewDTO.getReviewId())
                 .starPoint(reviewDTO.getRating())
                 .content(reviewDTO.getReview())
                 .writeDate(reviewDTO.getWriteDate())
@@ -54,6 +55,10 @@ public class ReviewService {
                 .doctorId(reviewDTO.getReceiverId())
                 .build();
         return reviewRepository.save(review);
+    }
+
+    public Review findByReviewId(Long reviewId) {
+        return reviewRepository.findById(reviewId).get();
     }
 
 

@@ -15,7 +15,7 @@ import java.sql.Date;
 @Component
 public class ReviewDto {
 
-    private String reviewId;
+    private Long reviewId;
     private int rating;
     private String review;
     private Date writeDate;
