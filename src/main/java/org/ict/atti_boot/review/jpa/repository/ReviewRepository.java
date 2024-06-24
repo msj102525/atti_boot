@@ -22,6 +22,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
            "FROM Review r WHERE r.doctorId = :userId GROUP BY r.starPoint")
     List<StarPointVo> findStarPointCountsByUserId(@Param("userId") String userId);
 
+    List<Review> findByUserId(String userId);
 
     List<Review> findByDoctorId(String doctorId);
 }

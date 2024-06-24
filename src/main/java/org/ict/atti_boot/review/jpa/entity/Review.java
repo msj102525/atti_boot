@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.ict.atti_boot.doctor.jpa.entity.Doctor;
+import org.ict.atti_boot.user.jpa.entity.User;
 
 import java.sql.Date;
 
@@ -36,6 +38,10 @@ public class Review {
 
     @Column(name="USER_ID")
     private String userId;
+
+    @ManyToOne
+    @JoinColumn(name = "DOCTOR_ID", referencedColumnName = "USER_ID", insertable = false, updatable = false)
+    private Doctor doctor;
 
     public int getStarPoint() {
         return starPoint;

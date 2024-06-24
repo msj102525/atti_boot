@@ -49,10 +49,16 @@ public class ReviewController {
 
     @PostMapping
     public ResponseEntity<Review> createReview(@RequestBody ReviewDto reviewDTO) {
-        log.info(reviewDTO + "프로젝트");
         Review review = reviewService.saveReview(reviewDTO);
         return ResponseEntity.ok(review);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<List<Review>> getMyReview(@PathVariable("id") String id) {
+        return ResponseEntity.ok(reviewService.findByUserId(id));
+    };
+
+
 
 
 }

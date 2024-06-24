@@ -7,17 +7,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.sql.Date;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Component
-public class OutputReview {
-    private String nickName;
-    private Date writeDate;
-    private String content;
-    private int starPoint;
+public class MyReview {
+    private long id;
+    
 }
-

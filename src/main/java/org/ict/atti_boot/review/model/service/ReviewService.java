@@ -41,8 +41,8 @@ public class ReviewService {
     }
 
 
-    public List<Review> findByDoctorId(String doctorId) {
-        return reviewRepository.findByDoctorId(doctorId);
+    public List<Review> findByUserId(String userId){
+        return reviewRepository.findByUserId(userId);
     }
 
     public Review saveReview(ReviewDto reviewDTO) {
@@ -55,6 +55,8 @@ public class ReviewService {
                 .build();
         return reviewRepository.save(review);
     }
+
+
 
 
 
