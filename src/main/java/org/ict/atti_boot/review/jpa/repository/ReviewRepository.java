@@ -22,7 +22,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
            "FROM Review r WHERE r.doctorId = :userId GROUP BY r.starPoint")
     List<StarPointVo> findStarPointCountsByUserId(@Param("userId") String userId);
 
-    List<Review> findByUserId(String userId);
+    Page<Review> findByUserId(String userId, Pageable pageable);
 
     List<Review> findByDoctorId(String doctorId);
 }

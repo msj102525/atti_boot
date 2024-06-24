@@ -3,16 +3,22 @@ package org.ict.atti_boot.review.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.review.jpa.entity.Review;
 import org.ict.atti_boot.review.model.input.ReviewDto;
+import org.ict.atti_boot.review.model.output.MyReview;
+import org.ict.atti_boot.review.model.output.MyReviewResponse;
 import org.ict.atti_boot.review.model.output.OutputReview;
 import org.ict.atti_boot.review.model.output.ReviewResponse;
 import org.ict.atti_boot.review.model.service.ReviewService;
+import org.ict.atti_boot.user.model.output.CustomUserDetails;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,12 +59,28 @@ public class ReviewController {
         return ResponseEntity.ok(review);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<List<Review>> getMyReview(@PathVariable("id") String id) {
-        return ResponseEntity.ok(reviewService.findByUserId(id));
-    };
+    @GetMapping("/my")
+    public ResponseEntity<MyReviewResponse> getMyReview(@PageableDefault(size = 4, sort = "writeDate", direction = Sort.Direction.DESC) Pageable pageable) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        String id = userDetails.getUserId();
+        log.info(id);
 
 
+        Page<Review> reviewEntityList = reviewService.findByUserId(id, pageable);
+
+        List<MyReview> myReviews = new ArrayList<MyReview>();
+        for (Review review : reviewEntityList.getContent()) {
+            MyReview myReview = new MyReview(review);
+            myReviews.add(myReview);
+        }
+        int totalPage = reviewEntityList.getTotalPages();
+        MyReviewResponse myReviewResponse = new MyReviewResponse(myReviews, totalPage);
+
+        return ResponseEntity.ok(myReviewResponse);
+    }
+
+    ;
 
 
 }
