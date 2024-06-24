@@ -266,4 +266,14 @@ public class FeedController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
+    @DeleteMapping("/{feedNum}")
+    public ResponseEntity<Void> deleteFeedByFeedNum(@PathVariable int feedNum) {
+        log.info(String.valueOf(feedNum));
+
+        feedService.deleteFeedById(feedNum);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+
+    }
 }
