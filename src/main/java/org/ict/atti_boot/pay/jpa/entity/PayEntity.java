@@ -1,10 +1,14 @@
 package org.ict.atti_boot.pay.jpa.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.ict.atti_boot.pay.model.dto.PayDto;
 
 import java.time.LocalDateTime;
 
@@ -29,4 +33,16 @@ public class PayEntity {
     private String toDoctor;
 
     // 기타 필요한 필드 및 메서드
+
+    public PayDto toDto() {
+
+        return PayDto.builder()
+                .payNum(payNum)
+                .userId(userId)
+                .payAmount(payAmount)
+                .payMethod(payMethod)
+                .toDoctor(toDoctor)
+                .payDate(payDate.toString())
+                .build();
+    }
 }

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -82,6 +83,17 @@ public class ChatService {
     // 제한 시간 불러오기
     public ChatSessionDto getLimitTimeByChatId(String chatId){
         return chatSessionRepository.findLimitTimeByChatId(chatId).toDto();
+    }
+
+    public void endChatSession(Long chatId) {
+        Optional<ChatSessionEntity> chatSessionOpt = chatSessionRepository.findById(chatId);
+        if (chatSessionOpt.isPresent()) {
+            ChatSessionEntity chatSession = chatSessionOpt.get();
+            chatSession.setStatus(false);  // Assuming the status column is of type Boolean
+            chatSessionRepository.save(chatSession);
+        } else {
+            throw new RuntimeException("Chat session not found");
+        }
     }
 
 

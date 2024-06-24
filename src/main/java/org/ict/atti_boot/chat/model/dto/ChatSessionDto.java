@@ -19,6 +19,7 @@ public class ChatSessionDto {
     private String receiverId;
     private String startTime;
     private int limitTime;
+    private boolean status;
 
 
     public ChatSessionEntity toEntity() {
@@ -29,6 +30,7 @@ public class ChatSessionDto {
                 .senderId(senderId)
                 .receiverId(receiverId)
                 .limitTime(limitTime)
+                .status(status)
                 .startTime(parsedStartTime)
                 .build();
     }

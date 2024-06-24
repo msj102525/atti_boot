@@ -93,6 +93,12 @@ public class ChatController {
         return ResponseEntity.ok(chatSession);
     }
 
+    @PostMapping("/end/{chatId}")
+    public ResponseEntity<Void> endChatSession(@PathVariable Long chatId) {
+        chatService.endChatSession(chatId);
+        return ResponseEntity.ok().build();
+    }
+
 
 
 }

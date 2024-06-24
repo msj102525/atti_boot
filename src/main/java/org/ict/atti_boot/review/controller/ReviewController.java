@@ -19,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -104,6 +105,15 @@ public class ReviewController {
         }
 
         return ResponseEntity.ok("수정 성공 !");
+    }
+
+    @GetMapping("/check")
+    public ResponseEntity<List<Review>> checkReview(
+            @RequestParam("writeDate") Date writeDate,
+            @RequestParam("senderId") String userId,
+            @RequestParam("receiverId") String doctorId) {
+        List<Review> existingReviews = reviewService.checkReview(writeDate, userId, doctorId);
+        return ResponseEntity.ok(existingReviews);
     }
 
 }

@@ -38,4 +38,19 @@ public class PayDto {
                 .payDate(parsedPayDate)
                 .build();
     }
+
+    public static PayDto fromEntity(PayEntity payEntity) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+
+        return PayDto.builder()
+                .payNum(payEntity.getPayNum())
+                .userId(payEntity.getUserId())
+                .payDate(payEntity.getPayDate().format(formatter))
+                .payAmount(payEntity.getPayAmount())
+                .payMethod(payEntity.getPayMethod())
+                .toDoctor(payEntity.getToDoctor())
+                .build();
+    }
+
+
 }
