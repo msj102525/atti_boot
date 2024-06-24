@@ -102,29 +102,6 @@ public class UserController {
     }
 
     //아이디 찾기
-//    @PostMapping("/userIdfind")
-//    public ResponseEntity<String> findUsername(@RequestBody Map<String, String> request) {
-//        String email = request.get("email");
-//        log.info("Find username for email: {}", email);
-//
-//        Optional<User> user = userService.findByEmail(email);
-//        if (user.isPresent()) {
-//            String userName = user.get().getUserName();
-//            log.info("Found user: {}", userName);
-//
-//            // 이메일로 사용자 아이디 전송
-//            String subject = "Your User ID";
-//            String text = "Your user ID is: " + userName;
-//            log.info("Subject: {}", subject);
-//            log.info("Text: {}", text);
-//            userService.sendSimpleMessage(email, subject, text);
-//
-//            return ResponseEntity.ok("사용자 아이디가 이메일로 전송되었습니다.");
-//        } else {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
-//        }
-//    }
-
     @PostMapping("/userIdfind")
     public ResponseEntity<String> findUsername(@RequestBody Map<String, String> request) {
         String userName = request.get("userName");

@@ -114,6 +114,23 @@ public class UserService {
     }
 
     // 회원 수정
+//    @Transactional
+//    public User updateUser(User user) {
+//        Optional<User> existingUserOpt = userRepository.findById(user.getUserId());
+//        if (existingUserOpt.isPresent()) {
+//            User existingUser = existingUserOpt.get();
+//            existingUser.setUserName(user.getUserName());
+//            existingUser.setNickName(user.getNickName());
+//            existingUser.setPhone(user.getPhone());
+//            existingUser.setGender(user.getGender());
+//            existingUser.setBirthDate(user.getBirthDate());
+//            return userRepository.save(existingUser);
+//        } else {
+//            throw new RuntimeException("User not found");
+//        }
+//    }
+
+    //일반회원
     @Transactional
     public User updateUser(User user) {
         Optional<User> existingUserOpt = userRepository.findById(user.getUserId());
@@ -128,6 +145,28 @@ public class UserService {
             throw new RuntimeException("User not found");
         }
     }
+
+    //소셜 회원 정보수정
+    @Transactional
+    public User updateSocialUser(User user) {
+        Optional<User> existingUserOpt = userRepository.findById(user.getUserId());
+        if (existingUserOpt.isPresent()) {
+            User existingUser = existingUserOpt.get();
+            // 소셜 회원 정보 업데이트 로직
+            existingUser.setUserName(user.getUserName());
+            existingUser.setNickName(user.getNickName());
+            existingUser.setPhone(user.getPhone());
+            existingUser.setGender(user.getGender());
+            existingUser.setBirthDate(user.getBirthDate());
+            // 추가적인 소셜 네트워크 관련 정보 업데이트
+//            existingUser.setSocialNetworkId(user.getSocialNetworkId());
+//            existingUser.setSocialNetworkToken(user.getSocialNetworkToken());
+            return userRepository.save(existingUser);
+        } else {
+            throw new RuntimeException("User not found");
+        }
+    }
+
 
     //회원 탈퇴
     @Transactional

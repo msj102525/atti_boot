@@ -9,20 +9,22 @@ import org.ict.atti_boot.user.jpa.entity.SocialLogin;
 import org.ict.atti_boot.user.jpa.entity.User;
 import org.ict.atti_boot.user.jpa.repository.SocialLoginRepository;
 import org.ict.atti_boot.user.jpa.repository.UserRepository;
+import org.ict.atti_boot.user.model.output.CustomUserDetails;
 import org.ict.atti_boot.user.model.service.UserService;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -193,6 +195,9 @@ public class AuthController {
         JSONObject userJson = new JSONObject(userInfoResponse.getBody());
         String email = userJson.getJSONObject("kakao_account").has("email") ?
                 userJson.getJSONObject("kakao_account").getString("email") : null;
+        String userName = userJson.has("userName") ? userJson.getString("userName") : null;
+        String phone = userJson.has("phone") ? userJson.getString("phone") : null;
+        String nickName = userJson.has("nickName") ? userJson.getString("nickName") : null;
         log.info("email = {}", email);
 
         if (email == null) {
@@ -211,9 +216,9 @@ public class AuthController {
                     .userId(email)  // 이메일을 userId로 설정
                     .email(email)
                     .loginType("kakao")
-                    .nickName("")
-                    .userName("")
-                    .phone("")
+                    .nickName(nickName)
+                    .userName(userName)
+                    .phone(phone)
                     .userType('U')
                     .password("")
                     .build();
@@ -383,6 +388,10 @@ public class AuthController {
 
             JSONObject userJson = new JSONObject(userInfoResponse.getBody()).getJSONObject("response");
             String email = userJson.has("email") ? userJson.getString("email") : null;
+            String userName = userJson.has("userName") ? userJson.getString("userName") : null;
+            String phone = userJson.has("phone") ? userJson.getString("phone") : null;
+            String nickName = userJson.has("nickName") ? userJson.getString("nickName") : null;
+
 
             if (email == null) {
                 response.sendRedirect("http://localhost:3000/login");
@@ -398,9 +407,9 @@ public class AuthController {
                         .userId(email)
                         .email(email)
                         .loginType("naver")
-                        .userName("")
-                        .nickName("")
-                        .phone("")
+                        .userName(userName)
+                        .nickName(nickName)
+                        .phone(phone)
                         .userType('U')
                         .password("")
                         .build();
@@ -441,6 +450,28 @@ public class AuthController {
             response.sendRedirect("http://localhost:3000/logout-success");
         }
 
+    //유저 정보 수정
+    // 유저 정보 수정
+    @PutMapping("/update")
+    public ResponseEntity<User> updateUser(@RequestBody User user) {
 
+        log.info("Request user: {}", user);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        String userId = userDetails.getUserId();
+        log.info(userId);
+        if (userDetails == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "사용자 세부 정보를 찾을 수 없습니다. JWT 토큰이 유효하고 사용자가 인증되었는지 확인하세요.");
+        }
 
+        if (!userDetails.getUsername().equals(user.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "인증된 사용자와 요청된 사용자 ID가 일치하지 않습니다.");
+        }
+
+        User updatedUser = userService.updateSocialUser(user);
+        return ResponseEntity.ok(updatedUser);
     }
+
+
+
+}

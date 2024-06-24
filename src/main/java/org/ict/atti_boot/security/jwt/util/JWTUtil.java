@@ -1,6 +1,7 @@
 package org.ict.atti_boot.security.jwt.util;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.DecodingException;
 import lombok.extern.slf4j.Slf4j;
 
 import org.ict.atti_boot.user.jpa.entity.User;
@@ -82,17 +83,27 @@ public class JWTUtil {
         }
     }
 
+//    public boolean isTokenExpired(String token) {
+//        try {
+//            log.debug("Received token: {}", token);  // 토큰 값 로그 출력
+//            Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
+//            return claims.getExpiration().before(new Date());
+//        } catch (MalformedJwtException e) {
+//            log.error("잘못된 형식의 JWT 토큰", e);
+//            return true;  // 잘못된 형식의 토큰은 만료된 것으로 간주
+//        } catch (JwtException | IllegalArgumentException e) {
+//            log.error("유효하지 않은 JWT 토큰", e);
+//            return true;  // 기타 예외 발생 시 만료된 것으로 간주
+//        }
+//    }
+
     public boolean isTokenExpired(String token) {
         try {
-            log.debug("Received token: {}", token);  // 토큰 값 로그 출력
-            Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
-            return claims.getExpiration().before(new Date());
-        } catch (MalformedJwtException e) {
-            log.error("잘못된 형식의 JWT 토큰", e);
-            return true;  // 잘못된 형식의 토큰은 만료된 것으로 간주
-        } catch (JwtException | IllegalArgumentException e) {
-            log.error("유효하지 않은 JWT 토큰", e);
-            return true;  // 기타 예외 발생 시 만료된 것으로 간주
+            Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
+            return claims.getBody().getExpiration().before(new Date());
+        } catch (MalformedJwtException | SignatureException | UnsupportedJwtException | DecodingException e) {
+            System.err.println("Invalid JWT token: " + e.getMessage());
+            return true;
         }
     }
 
@@ -107,6 +118,7 @@ public class JWTUtil {
         }
     }
 
+
     public String getCategoryFromToken(String token) {
         try {
             Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
@@ -118,5 +130,9 @@ public class JWTUtil {
             log.error("Invalid JWT token", e);
             return null;  // 예외 발생 시 null 반환
         }
+    }
+    //모든 클레임 가져옴
+    public Claims getAllClaimsFromToken(String token) {
+        return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
     }
 }
