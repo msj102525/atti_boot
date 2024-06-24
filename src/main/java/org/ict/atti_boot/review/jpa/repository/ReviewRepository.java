@@ -10,9 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Set;
 
-public interface ReviewRepository extends JpaRepository<Review, String> {
+public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("SELECT r, u.nickName FROM Review r LEFT JOIN User u ON r.userId = u.userId WHERE r.doctorId = :doctorId ORDER BY r.writeDate DESC")
     Page<Object[]> findByDoctorId(String doctorId, Pageable pageable);
 

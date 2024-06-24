@@ -1,9 +1,6 @@
 package org.ict.atti_boot.review.jpa.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,8 +17,10 @@ import java.sql.Date;
 public class Review {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "review_seq")
+    @SequenceGenerator(name = "review_seq", sequenceName = "REVIEW_SEQUENCE", allocationSize = 1)
     @Column(name = "REVIEW_ID", length = 50)
-    private String reviewId;
+    private Long  reviewId;
 
     @Column(name="WRITE_DATE")
     private Date writeDate;

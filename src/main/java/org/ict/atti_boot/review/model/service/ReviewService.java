@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.review.jpa.entity.Review;
 import org.ict.atti_boot.review.jpa.repository.ReviewRepository;
+import org.ict.atti_boot.review.model.input.ReviewDto;
 import org.ict.atti_boot.review.model.output.StarPointVo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,5 +44,18 @@ public class ReviewService {
     public List<Review> findByDoctorId(String doctorId) {
         return reviewRepository.findByDoctorId(doctorId);
     }
+
+    public Review saveReview(ReviewDto reviewDTO) {
+        Review review = Review.builder()
+                .starPoint(reviewDTO.getRating())
+                .content(reviewDTO.getReview())
+                .writeDate(reviewDTO.getWriteDate())
+                .userId(reviewDTO.getSenderId())
+                .doctorId(reviewDTO.getReceiverId())
+                .build();
+        return reviewRepository.save(review);
+    }
+
+
 
 }

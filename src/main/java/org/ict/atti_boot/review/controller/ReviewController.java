@@ -2,9 +2,10 @@ package org.ict.atti_boot.review.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.review.jpa.entity.Review;
-import org.ict.atti_boot.review.model.service.ReviewService;
+import org.ict.atti_boot.review.model.input.ReviewDto;
 import org.ict.atti_boot.review.model.output.OutputReview;
 import org.ict.atti_boot.review.model.output.ReviewResponse;
+import org.ict.atti_boot.review.model.service.ReviewService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/review")
 @Slf4j
+
 public class ReviewController {
     private final ReviewService reviewService;
 
@@ -45,6 +47,12 @@ public class ReviewController {
         return ResponseEntity.ok(new ReviewResponse(reviewList, hasMoreReview));
     }
 
+    @PostMapping
+    public ResponseEntity<Review> createReview(@RequestBody ReviewDto reviewDTO) {
+        log.info(reviewDTO + "프로젝트");
+        Review review = reviewService.saveReview(reviewDTO);
+        return ResponseEntity.ok(review);
+    }
 
 
 }
