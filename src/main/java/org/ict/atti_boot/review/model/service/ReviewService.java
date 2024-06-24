@@ -33,7 +33,7 @@ public class ReviewService {
         return reviewRepository.findAverageStarPointByUserId(doctorId);
     }
 
-    public List<StarPointVo> findStarPointCountsByUserId(String doctorId){
+    public List<StarPointVo> findStarPointCountsByUserId(String doctorId) {
         log.info(doctorId);
         List<StarPointVo> test = reviewRepository.findStarPointCountsByUserId(doctorId);
         log.info(test.toString());
@@ -41,7 +41,7 @@ public class ReviewService {
     }
 
 
-    public Page<Review> findByUserId(String userId, Pageable pageable){
+    public Page<Review> findByUserId(String userId, Pageable pageable) {
         return reviewRepository.findByUserId(userId, pageable);
     }
 
@@ -61,8 +61,12 @@ public class ReviewService {
         return reviewRepository.findById(reviewId).get();
     }
 
-
-
-
+    public boolean deleteReview(Long reviewId) {
+        if (reviewRepository.existsById(reviewId)) {
+            reviewRepository.deleteById(reviewId);
+            return !reviewRepository.existsById(reviewId);
+        }
+        return false;
+    }
 
 }

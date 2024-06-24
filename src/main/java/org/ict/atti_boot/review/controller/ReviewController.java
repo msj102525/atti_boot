@@ -10,6 +10,7 @@ import org.ict.atti_boot.review.model.output.ReviewResponse;
 import org.ict.atti_boot.review.model.service.ReviewService;
 import org.ict.atti_boot.user.model.output.CustomUserDetails;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -61,18 +62,27 @@ public class ReviewController {
     }
 
     @GetMapping("/my")
-    public ResponseEntity<MyReviewResponse> getMyReview(@PageableDefault(size = 4, sort = "writeDate", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<MyReviewResponse> getMyReview(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "sortDir", defaultValue = "DESC") String sortDir) {
+        log.info("페이지 : " + page);
+        log.info("정렬방향 : " + sortDir);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         String id = userDetails.getUserId();
+        // 정렬 방향 설정
+        Sort.Direction direction = Sort.Direction.fromString(sortDir.toUpperCase());
 
-
+        // 페이지 크기와 정렬 방향을 설정하여 Pageable 객체 생성
+        int pageSize = 4; // 고정된 페이지 크기
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(direction, "writeDate"));
         Page<Review> reviewEntityList = reviewService.findByUserId(id, pageable);
 
         List<MyReview> myReviews = new ArrayList<MyReview>();
         for (Review review : reviewEntityList.getContent()) {
             MyReview myReview = new MyReview(review);
             myReviews.add(myReview);
+            log.info(myReview.toString());
         }
         int totalPage = reviewEntityList.getTotalPages();
         MyReviewResponse myReviewResponse = new MyReviewResponse(myReviews, totalPage);
@@ -87,7 +97,6 @@ public class ReviewController {
         String id = userDetails.getUserId();
         Review originalReview = reviewService.findByReviewId(reviewDTO.getReviewId());
 
-        log.info("리뷰 아이디 !!!!!!!!!!!!!!!!!!!!!!!!"+reviewDTO.getReviewId());
         String originalUserId = originalReview.getUserId();
         //아이디 확인
         if (!originalUserId.equals(id)) {
@@ -96,6 +105,9 @@ public class ReviewController {
                     .body("잘못된 요청입니다.");
         }
         reviewDTO.setSenderId(id);
+        reviewDTO.setWriteDate(originalReview.getWriteDate());
+
+
         Review review = reviewService.saveReview(reviewDTO);
         if (review == null) {
             return ResponseEntity
@@ -105,5 +117,29 @@ public class ReviewController {
 
         return ResponseEntity.ok("수정 성공 !");
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteReview(@PathVariable("id") Long reviewId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        String id = userDetails.getUserId();
+        Review originalReview = reviewService.findByReviewId(reviewId);
+        //아이디 확인
+        if (!originalReview.getUserId().equals(id)) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body("잘못된 요청입니다.");
+        }
+        boolean isSuccess = reviewService.deleteReview(reviewId);
+
+        if (isSuccess) {
+            return ResponseEntity.ok("삭제되었습니다.");
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("존재하지 않는 리뷰입니다.");
+        }
+    }
+
 
 }
