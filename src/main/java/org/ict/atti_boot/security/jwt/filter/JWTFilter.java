@@ -1,6 +1,7 @@
 package org.ict.atti_boot.security.jwt.filter;
 
 // 필요한 클래스와 인터페이스를 import 합니다.
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -53,11 +54,13 @@ public class JWTFilter extends OncePerRequestFilter {
         // 이미지파일 요청은 필터 넘기기
         if (requestURI.startsWith("/images")){
             filterChain.doFilter(request, response);
+            return;
         }
 
         //리뷰리스트 요청 필터 넘기기
         if(requestURI.equals("/review") && requestMethod.equals("GET") ){
             filterChain.doFilter(request, response);
+            return;
         }
 
 
@@ -100,7 +103,12 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
+
         if (requestURI.startsWith("/file")){
+            log.info(requestURI);
+            filterChain.doFilter(request, response);
+        }
+        if (requestURI.startsWith("/auth")){
             log.info(requestURI);
             filterChain.doFilter(request, response);
         }
@@ -113,6 +121,15 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // Bearer 토큰에서 JWT를 추출합니다.
         String token = authorization.split(" ")[1];
+
+        try {
+            Claims claims = jwtUtil.getAllClaimsFromToken(token);
+            log.info("JWT Claims: {}", claims);
+        } catch (Exception e) {
+            log.error("Invalid JWT token", e);
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         // 토큰 만료 여부 확인, 만료시 다음 필터로 넘기지 않음
         try {

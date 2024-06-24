@@ -36,9 +36,9 @@ public class OnewordController {
 
     @GetMapping("/searchoneword")
     public ResponseEntity<List<OnewordDto>> selectSearchOneword(
-            @RequestParam(name="keyword") String keyword,
-            @RequestParam(name="page") int page,
-            @RequestParam(name="size") int size) {
+            @RequestParam(name="keyword", defaultValue = "0") String keyword,
+            @RequestParam(name="page", defaultValue = "0") int page,
+            @RequestParam(name="size", defaultValue = "10") int size) {
         log.info("/oneword/searchoneword : {} ", keyword + ", " + page + ",  " + size);
         //JPA 가 제공하는 Pageable 객체를 사용함
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "owsjNum"));

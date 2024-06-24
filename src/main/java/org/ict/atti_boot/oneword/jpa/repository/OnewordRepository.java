@@ -15,7 +15,7 @@ public interface OnewordRepository extends JpaRepository<OnewordEntity, Integer>
 
     //@Query + JPQL 사용 (엔티티와 프로퍼티 사용)
     @Query(value = "SELECT b FROM OnewordEntity b WHERE b.owsjNum = :keyword",
-            countQuery = "SELECT COUNT(b) FRoM OnewordEntity b WHERE b.owsjNum = :keyword%")
+            countQuery = "SELECT COUNT(b) FRoM OnewordEntity b WHERE b.owsjNum = :keyword")
     Page<OnewordEntity> findSearchSearchOneword(@Param("keyword") String keyword, @Param("pageable") Pageable pageable);
 
 }

@@ -17,7 +17,9 @@ import java.util.Date;
 @Entity
 public class OnewordEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)  //primary key 지정하는 어노테이션(자동 채번)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_ONEWORD_OW_NUM")
+    @SequenceGenerator(name = "SEQ_ONEWORD_OW_NUM", sequenceName = "SEQ_ONEWORD_OW_NUM", allocationSize = 1)
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)  //primary key 지정하는 어노테이션(자동 채번)
     @Column(name="OW_NUM")
     private int owNum;
 

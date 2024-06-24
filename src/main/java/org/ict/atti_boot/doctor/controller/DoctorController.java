@@ -50,7 +50,7 @@ public class DoctorController {
     private final EducationService educationService;
     private final TagService tagService;
 
-    public DoctorController(DoctorService doctorService, ReviewService reviewService,CareerService careerService,EducationService educationService,TagService tagService) {
+    public DoctorController(DoctorService doctorService, ReviewService reviewService, CareerService careerService, EducationService educationService, TagService tagService) {
         this.doctorService = doctorService;
         this.reviewService = reviewService;
         this.careerService = careerService;
@@ -61,7 +61,13 @@ public class DoctorController {
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> getDoctors(@PageableDefault(size = 4, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable) {
-        return ResponseEntity.ok(doctorService.findAll(pageable));
+        log.info("Doctor list request received");
+
+        Map<String, Object> result = doctorService.findAll(pageable);
+
+        log.info("Returning response with data: {}", result);
+
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{id}")
@@ -84,20 +90,20 @@ public class DoctorController {
 
 
         // 평점분포 맵만들기
-       List<StarPointVo> starPointList  = reviewService.findStarPointCountsByUserId(doctorId);
+        List<StarPointVo> starPointList = reviewService.findStarPointCountsByUserId(doctorId);
         // 평균 점수 계산
         double averageScore = reviewService.getAverageRating(doctorId);
 
-        Map<Integer,Integer> ratingCount = new HashMap<Integer,Integer>();
-        for(StarPointVo starPointVo : starPointList) {
-            ratingCount.put(starPointVo.getStarPoint(),(int)starPointVo.getCount());
+        Map<Integer, Integer> ratingCount = new HashMap<Integer, Integer>();
+        for (StarPointVo starPointVo : starPointList) {
+            ratingCount.put(starPointVo.getStarPoint(), (int) starPointVo.getCount());
         }
 
         Set<Career> careers = careerService.getCareersById(doctorId);
         Set<Education> educations = educationService.getEducationsById(doctorId);
         Set<DoctorTag> tags = tagService.getTagsById(doctorId);
 
-        DoctorDetail doctorDetail = new DoctorDetail(doctor, reviewList, ratingCount, averageScore, hasMoreReview,careers,educations,tags);
+        DoctorDetail doctorDetail = new DoctorDetail(doctor, reviewList, ratingCount, averageScore, hasMoreReview, careers, educations, tags);
         log.info(doctorDetail.toString());
         return ResponseEntity.ok(doctorDetail);
     }
@@ -113,7 +119,7 @@ public class DoctorController {
     @GetMapping("/mypage")
     public ResponseEntity<DoctorUpdateVo> getDoctorProfile() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         String doctorId = userDetails.getUserId();
 
         DoctorUpdateVo doctorUpdateVo = doctorService.getDoctorMyPageById(doctorId);
@@ -128,7 +134,7 @@ public class DoctorController {
             @RequestPart("doctorData") DoctorUpdateInput doctorUpdateInput,     // 이미지 파일과 JSON데이터를 함께 처리하기위해 RequestPart 사용
             @RequestPart(value = "hospitalImage", required = false) MultipartFile hospitalImage) throws IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         String doctorId = userDetails.getUserId();
 
         // 파일 저장 경로 설정
