@@ -2,18 +2,9 @@ package org.ict.atti_boot.admin.service;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.ict.atti_boot.admin.model.dto.CommunityAdminVersionDto;
-import org.ict.atti_boot.admin.model.dto.FaqAdminVersionDto;
-import org.ict.atti_boot.admin.model.dto.InquiryAdminVersionDto;
-import org.ict.atti_boot.admin.model.dto.NoticeAdminVersionDto;
-import org.ict.atti_boot.admin.model.entity.CommunityAdminVersionEntity;
-import org.ict.atti_boot.admin.model.entity.FaqAdminVersionEntity;
-import org.ict.atti_boot.admin.model.entity.InquiryAdminVersionEntity;
-import org.ict.atti_boot.admin.model.entity.NoticeAdminVersionEntity;
-import org.ict.atti_boot.admin.repository.CommunityAdminVersionRepository;
-import org.ict.atti_boot.admin.repository.FaqAdminVersionRepository;
-import org.ict.atti_boot.admin.repository.InquiryAdminVersionRepository;
-import org.ict.atti_boot.admin.repository.NoticeAdminVersionRepository;
+import org.ict.atti_boot.admin.model.dto.*;
+import org.ict.atti_boot.admin.model.entity.*;
+import org.ict.atti_boot.admin.repository.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,12 +21,14 @@ public class BoardAdminVersionService {
     private final NoticeAdminVersionRepository noticeAdminVersionRepository;
     private final FaqAdminVersionRepository faqAdminVersionRepository;
     private final InquiryAdminVersionRepository inquiryAdminVersionRepository;
+    private final OnewordAdminVersionRepository onewordAdminVersionRepository;
 
-    public BoardAdminVersionService(CommunityAdminVersionRepository communityAdminVersionRepository, NoticeAdminVersionRepository noticeAdminVersionRepository, FaqAdminVersionRepository faqAdminVersionRepository, InquiryAdminVersionRepository inquiryAdminVersionRepository) {
+    public BoardAdminVersionService(CommunityAdminVersionRepository communityAdminVersionRepository, NoticeAdminVersionRepository noticeAdminVersionRepository, FaqAdminVersionRepository faqAdminVersionRepository, InquiryAdminVersionRepository inquiryAdminVersionRepository, OnewordAdminVersionRepository onewordAdminVersionRepository) {
         this.communityAdminVersionRepository = communityAdminVersionRepository;
         this.noticeAdminVersionRepository = noticeAdminVersionRepository;
         this.faqAdminVersionRepository = faqAdminVersionRepository;
         this.inquiryAdminVersionRepository = inquiryAdminVersionRepository;
+        this.onewordAdminVersionRepository = onewordAdminVersionRepository;
     }
 
     // 커뮤니티(admin ver.) ***********************************
@@ -142,8 +135,8 @@ public class BoardAdminVersionService {
         log.info("Page: {}, Size: {}, Search Field: {}, Search Input: {}", page, size, searchField, searchInput);
 
         // 검색 필드에 따라 적절한 메서드 호출
-        if ("faqWriter".equals(searchField)) {
-            memberPage = faqAdminVersionRepository.findByFaqWriter(searchInput, pageable);
+        if ("faqTitle".equals(searchField)) {
+            memberPage = faqAdminVersionRepository.findByFaqTitle(searchInput, pageable);
         } else if ("faqContent".equals(searchField)) {
             memberPage = faqAdminVersionRepository.findByFaqContent(searchInput, pageable);
         } else {
@@ -165,7 +158,9 @@ public class BoardAdminVersionService {
         return new FaqAdminVersionDto(faqAdminVersionEntity.getFaqNum(),
                 faqAdminVersionEntity.getFaqTitle(),
                 faqAdminVersionEntity.getFaqWriter(),
-                faqAdminVersionEntity.getFaqContent());
+                faqAdminVersionEntity.getFaqContent(),
+                faqAdminVersionEntity.getFaqCategory());
+
 
     }
 
@@ -227,6 +222,51 @@ public class BoardAdminVersionService {
     // ************************************************************
 
 
+    // 오늘 한 줄 (admin ver.) **************************************
+
+    public List<OnewordAdminVersionDto> getAllOnewordAdminVersion(int page, int size, String searchField, String searchInput) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<OnewordAdminVersionEntity> memberPage;
+
+        log.info("Page: {}, Size: {}, Search Field: {}, Search Input: {}", page, size, searchField, searchInput);
+
+        // 검색 필드에 따라 적절한 메서드 호출
+        if ("owsjWriter".equals(searchField)) {
+            memberPage = onewordAdminVersionRepository.findByOwsjWriter(searchInput, pageable);
+        } else if ("owsjSubject".equals(searchField)) {
+            memberPage = onewordAdminVersionRepository.findByOwsjSubject(searchInput, pageable);
+        } else {
+            // 검색 조건이 없는 경우 전체 회원 조회
+            memberPage = onewordAdminVersionRepository.findAll(pageable);
+        }
+
+        log.info("Total Elements: {}", memberPage.getTotalElements());
+
+        return memberPage.getContent().stream()
+                .map(this::convertToOnewordAdminVersionDto)
+                .collect(Collectors.toList());
+    }
+
+    // AdminEntity를 AdminDto로 변환하는 메서드
+    private OnewordAdminVersionDto convertToOnewordAdminVersionDto(OnewordAdminVersionEntity onewordAdminVersionEntity) {
+
+        // 나머지 필드도 설정
+        return new OnewordAdminVersionDto(onewordAdminVersionEntity.getOwsjNum(),
+                onewordAdminVersionEntity.getOwsjSubject(),
+                onewordAdminVersionEntity.getOwsjWriter());
+
+
+    }
+
+    // 공지사항보드(admin ver.) 삭제 메서드
+    public void deleteOnewordAdminVersion(Long owsjNum) {
+        // userId에 해당하는 회원을 삭제합니다.
+        onewordAdminVersionRepository.deleteById(owsjNum);
+    }
+
+
+
+    // **************************************************************
 
 
 

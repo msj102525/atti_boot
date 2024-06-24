@@ -9,12 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class FaqAdminVersionDto {
+public class OnewordAdminVersionDto {
 
-    private Long faqNum;
-    private String faqTitle;
-    private String faqWriter;
-    private String faqContent;
-    private String faqCategory;
+    private Long owsjNum;
+    private String owsjSubject;
+    private String owsjWriter;
 
 }

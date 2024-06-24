@@ -39,6 +39,7 @@ public class FAQController {
 
     @PostMapping("/faq")
     public ResponseEntity<FAQDto> createFAQ(@RequestBody FAQDto faqDto) {
+        log.info("createFAQ: {}", faqDto);
         FAQDto createdFAQ = faqService.createFAQ(faqDto);
         return ResponseEntity.ok(createdFAQ);
     }
@@ -49,7 +50,7 @@ public class FAQController {
         return updatedFAQ.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping()
+    @DeleteMapping("/{faqNum}")
     public ResponseEntity<Void> deleteFAQ(@PathVariable int faqNum) {
         if (faqService.deleteFAQ(faqNum)) {
             return ResponseEntity.noContent().build();

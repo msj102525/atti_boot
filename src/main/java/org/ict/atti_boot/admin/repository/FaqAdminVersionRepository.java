@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 public interface FaqAdminVersionRepository extends JpaRepository<FaqAdminVersionEntity, Long> {
 
     // 회원 아이디로 검색
-    Page<FaqAdminVersionEntity> findByFaqWriter(String faqWriter, Pageable pageable);
+    Page<FaqAdminVersionEntity> findByFaqTitle(String faqTitle, Pageable pageable);
 
     // 내용으로 검색
     Page<FaqAdminVersionEntity> findByFaqContent(String faqContent, Pageable pageable);

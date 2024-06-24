@@ -46,7 +46,6 @@ public class ChatController {
     // 메시지 저장
     @PostMapping("/message")
     public ResponseEntity<ChatMessageDto> saveMessage(@RequestBody ChatMessageDto chatMessageDto) {
-        log.info(chatMessageDto + "ㅂㅈㄷㅂㅈㄷ");
         ChatMessageDto savedMessage = chatService.saveChatMessage(chatMessageDto);
         return ResponseEntity.ok(savedMessage);
     }

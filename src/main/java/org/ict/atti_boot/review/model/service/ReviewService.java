@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.review.jpa.entity.Review;
 import org.ict.atti_boot.review.jpa.repository.ReviewRepository;
+import org.ict.atti_boot.review.model.input.ReviewDto;
 import org.ict.atti_boot.review.model.output.StarPointVo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,7 +33,7 @@ public class ReviewService {
         return reviewRepository.findAverageStarPointByUserId(doctorId);
     }
 
-    public List<StarPointVo> findStarPointCountsByUserId(String doctorId){
+    public List<StarPointVo> findStarPointCountsByUserId(String doctorId) {
         log.info(doctorId);
         List<StarPointVo> test = reviewRepository.findStarPointCountsByUserId(doctorId);
         log.info(test.toString());
@@ -40,8 +41,32 @@ public class ReviewService {
     }
 
 
-    public List<Review> findByDoctorId(String doctorId) {
-        return reviewRepository.findByDoctorId(doctorId);
+    public Page<Review> findByUserId(String userId, Pageable pageable) {
+        return reviewRepository.findByUserId(userId, pageable);
+    }
+
+    public Review saveReview(ReviewDto reviewDTO) {
+        Review review = Review.builder()
+                .reviewId(reviewDTO.getReviewId())
+                .starPoint(reviewDTO.getRating())
+                .content(reviewDTO.getReview())
+                .writeDate(reviewDTO.getWriteDate())
+                .userId(reviewDTO.getSenderId())
+                .doctorId(reviewDTO.getReceiverId())
+                .build();
+        return reviewRepository.save(review);
+    }
+
+    public Review findByReviewId(Long reviewId) {
+        return reviewRepository.findById(reviewId).get();
+    }
+
+    public boolean deleteReview(Long reviewId) {
+        if (reviewRepository.existsById(reviewId)) {
+            reviewRepository.deleteById(reviewId);
+            return !reviewRepository.existsById(reviewId);
+        }
+        return false;
     }
 
 }
