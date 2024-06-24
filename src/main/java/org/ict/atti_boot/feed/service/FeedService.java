@@ -55,7 +55,7 @@ public class FeedService {
 
     public Page<Feed> selectAllFeedsBySearchData(Pageable pageable, String category, String searchData) {
         log.info("FeedService : " + searchData);
-            return feedRepository.findAllByFeedContentContaining(pageable, searchData);
+        return feedRepository.findAllByFeedContentContaining(pageable, searchData);
     }
 
     public Feed selectFeedById(int feedNum) {
@@ -64,6 +64,12 @@ public class FeedService {
         feed.setFeedReadCount(feed.getFeedReadCount() + 1);
         return feedRepository.save(feed);
 
+    }
+
+    public void deleteFeedById(int feedNum) {
+        Feed feed = feedRepository.findById(feedNum)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid feedNum: " + feedNum));
+        feedRepository.delete(feed);
     }
 
 }
