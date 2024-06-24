@@ -15,5 +15,6 @@ public class FaqAdminVersionDto {
     private String faqTitle;
     private String faqWriter;
     private String faqContent;
+    private String faqCategory;
 
 }

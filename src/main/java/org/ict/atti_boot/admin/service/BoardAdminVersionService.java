@@ -165,7 +165,9 @@ public class BoardAdminVersionService {
         return new FaqAdminVersionDto(faqAdminVersionEntity.getFaqNum(),
                 faqAdminVersionEntity.getFaqTitle(),
                 faqAdminVersionEntity.getFaqWriter(),
+                faqAdminVersionEntity.getFaqCategory(),
                 faqAdminVersionEntity.getFaqContent());
+
 
     }
 

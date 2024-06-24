@@ -28,4 +28,7 @@ public class FaqAdminVersionEntity {
     @Column(name = "FAQ_CONTENT", length = 2000)
     private String faqContent;
 
+    @Column(name = "FAQ_CATEGORY", length = 50)
+    private String faqCategory;
+
 }
