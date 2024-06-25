@@ -119,7 +119,7 @@ public class ReviewController {
         return ResponseEntity.ok("수정 성공 !");
     }
 
-<<<<<<< HEAD
+
     @GetMapping("/check")
     public ResponseEntity<List<Review>> checkReview(
             @RequestParam("writeDate") Date writeDate,
@@ -129,7 +129,7 @@ public class ReviewController {
         return ResponseEntity.ok(existingReviews);
     }
 
-=======
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteReview(@PathVariable("id") Long reviewId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -154,5 +154,5 @@ public class ReviewController {
     }
 
 
->>>>>>> db7be117c765fabb8e41f2b1a6810aa56d51fc45
+
 }
