@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.ict.atti_boot.board.model.dto.BoardDto;
 
+import java.io.File;
 import java.util.Date;
 
 @Data
@@ -40,6 +41,9 @@ public class BoardEntity {
     @Column(name="BOARD_DATE", nullable = true)
     private Date boardDate;
 
+    @Column(name="FILEPATH")
+    private String filePath;
+
     @Column(name="IMPORTANCE", nullable = true)
     private int importance;
 
@@ -55,6 +59,7 @@ public class BoardEntity {
                 .boardWriter(boardWriter)
                 .boardContent(boardContent)
                 .readCount(readCount)
+                .fileUrl(filePath != null ? "/board/download/" + new File(filePath).getName() : null)
                 .boardDate(boardDate.toString())
                 .importance(importance)
                 .build();

@@ -6,11 +6,13 @@ import org.ict.atti_boot.board.jpa.entity.BoardEntity;
 import org.ict.atti_boot.board.model.dto.BoardDto;
 import org.ict.atti_boot.board.model.service.BoardService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,6 +27,8 @@ public class BoardController {
 
     @Autowired
     private BoardService boardService;
+
+    private final String uploadDir = "uploads/";
 
     // 전체 리스트 출력
     @GetMapping("/boardList")
@@ -49,14 +53,24 @@ public class BoardController {
     }
 
     // 수정 처리
-    @PutMapping("/boardUpdate/{boardNum}")
-    public ResponseEntity<BoardDto> updateBoard(
-            @PathVariable("boardNum") int boardNum,
-            @RequestBody BoardDto boardDto) {
+    @PutMapping("/{boardNum}")
+    public BoardDto updateBoard(@PathVariable int boardNum,
+                                @RequestParam("boardTitle") String boardTitle,
+                                @RequestParam("boardContent") String boardContent,
+                                @RequestParam("importance") int importance,
+                                @RequestParam("boardWriter") String boardWriter,
+                                @RequestParam("readCount") int readCount,
+                                @RequestParam(value = "file", required = false) MultipartFile file) {
 
-        boardService.updateBoard(boardNum, boardDto);
-        return ResponseEntity.noContent().build();
+        BoardDto boardDto = BoardDto.builder()
+                .boardTitle(boardTitle)
+                .boardContent(boardContent)
+                .importance(importance)
+                .boardWriter(boardWriter)
+                .readCount(readCount)
+                .build();
 
+        return boardService.updateBoard(boardNum, boardDto, file);
     }
 
     // 검색 처리
@@ -86,10 +100,31 @@ public class BoardController {
 
     // 등록 처리
     @PostMapping
-    public ResponseEntity<Void> insertBoard(@RequestBody BoardDto boardDto) {
-        boardService.insertBoard(boardDto);
-        return ResponseEntity.noContent().build();
+    public BoardDto createBoard(@RequestParam("boardTitle") String boardTitle,
+                                @RequestParam("boardContent") String boardContent,
+                                @RequestParam("importance") int importance,
+                                @RequestParam("boardWriter") String boardWriter,
+                                @RequestParam("readCount") int readCount,
+                                @RequestParam(value = "file", required = false) MultipartFile file) {
+
+        BoardDto boardDto = BoardDto.builder()
+                .boardTitle(boardTitle)
+                .boardContent(boardContent)
+                .importance(importance)
+                .boardWriter(boardWriter)
+                .readCount(readCount)
+                .build();
+
+        return boardService.createBoard(boardDto, file);
     }
+
+
+    @GetMapping("/download/{filename}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable String filename) {
+        return boardService.downloadFile(filename);
+    }
+
+
 
 
 }
