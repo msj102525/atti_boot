@@ -27,6 +27,7 @@ public class TokenController {
 
     @PostMapping("/reissue") // POST 요청을 '/reissue' 경로로 매핑합니다.
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
+        log.info("reissue");
         // HTTP 요청에서 'Authorization' 헤더를 통해 리프레시 토큰을 받아옵니다.
         String refresh = request.getHeader("Authorization");
         if (refresh == null || !refresh.startsWith("Bearer ")) { // 토큰이 없거나 Bearer 타입이 아니면 에러 반환
@@ -34,6 +35,7 @@ public class TokenController {
         }
         String token = refresh.substring("Bearer ".length()); // 실제 토큰 값을 추출합니다.
         // 토큰 만료 여부 검사
+        log.info("test");
         try {
             if (jwtUtil.isTokenExpired(token)) {
                 // 리프레시 토큰이 만료되면 데이터베이스에서 삭제합니다.

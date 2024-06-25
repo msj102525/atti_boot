@@ -128,6 +128,10 @@ public class DoctorController {
         return ResponseEntity.ok(doctorUpdateVo);
     }
 
+//    @GetMapping("/main")
+//    public ResponseEntity<DoctorDetail> getDoctorMain() {
+//    }
+
 
     @PutMapping("/mypage")
     public ResponseEntity<String> updateDoctorProfile(
