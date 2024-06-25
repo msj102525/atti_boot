@@ -3,6 +3,7 @@ package org.ict.atti_boot.user.model.service;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.security.repository.TokenLoginRepository;
 import org.ict.atti_boot.user.jpa.entity.User;
+import org.ict.atti_boot.user.jpa.repository.SocialLoginRepository;
 import org.ict.atti_boot.user.jpa.repository.UserRepository;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -30,13 +31,15 @@ public class UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final UserRepository userRepository;
     private final TokenLoginRepository tokenLoginRepository;
+    private final SocialLoginRepository socialLoginRepository;
     private final JavaMailSender emailSender;
 
-    public UserService(BCryptPasswordEncoder bCryptPasswordEncoder, UserRepository userRepository, JavaMailSender javaMailSender, TokenLoginRepository tokenLoginRepository) {
+    public UserService(BCryptPasswordEncoder bCryptPasswordEncoder, UserRepository userRepository, JavaMailSender javaMailSender, TokenLoginRepository tokenLoginRepository, SocialLoginRepository socialLoginRepository, JavaMailSender emailSender) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userRepository = userRepository;
         this.tokenLoginRepository = tokenLoginRepository;
         this.emailSender = javaMailSender;
+        this.socialLoginRepository = socialLoginRepository;
     }
 
     //회원가입처리
@@ -175,6 +178,7 @@ public class UserService {
         if (userRepository.existsById(userId)) {
             // 연관된 데이터 삭제
             tokenLoginRepository.deleteByUserId(userId);
+            socialLoginRepository.deleteByUserId(userId);
             log.debug("Related token login data for user {} deleted successfully", userId);
 
             // 사용자 삭제

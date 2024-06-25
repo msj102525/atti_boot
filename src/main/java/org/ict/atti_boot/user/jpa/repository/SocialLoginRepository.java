@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface SocialLoginRepository extends JpaRepository<SocialLogin, Long> {
     Optional<SocialLogin> findBySocialUserIdAndSocialsite(String email, String kakao);
+
+    void deleteByUserId(String userId);
 }
