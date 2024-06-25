@@ -59,7 +59,6 @@ public class UserController {
             log.info("userName: {}", user.getUserName());
 
             return ResponseEntity.ok("회원가입이 완료되었습니다!");
-
         } catch (Exception e) {
             log.error("회원가입 실패: {}", e.getMessage());
             return ResponseEntity.status(500).body("회원가입에 실패했습니다.");
@@ -82,25 +81,6 @@ public class UserController {
         }
     }
 
-//    // 유저 정보 삭제
-//    @DeleteMapping("/deleteUser/{userId}")
-//    public ResponseEntity<Void> deleteUser(@PathVariable String userId, @AuthenticationPrincipal CustomUserDetails userDetails) {
-//        log.info("Authenticated deleteUser: {}", userDetails.getUserId());
-//        if (userDetails.getUserId().equals(userId)) {
-//            log.info("Request user ID: {}", userId);
-//            try {
-//                userService.deleteUser(userId);
-//                log.info("Deleted user: {}", userId);
-//                return ResponseEntity.noContent().build();
-//            } catch (Exception e) {
-//                log.error("Error deleting user: {}", userId, e);
-//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//            }
-//        } else {
-//            log.warn("Unauthorized delete attempt by user: {}", userDetails.getUserId());
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-//
-//        }
 // 유저 정보 삭제
 @DeleteMapping("/deleteUser/{userId}")
 public ResponseEntity<Void> deleteUser(@PathVariable String userId, @AuthenticationPrincipal CustomUserDetails userDetails) {
