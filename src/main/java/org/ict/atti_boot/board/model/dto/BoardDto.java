@@ -21,6 +21,8 @@ public class BoardDto {
     private int readCount;
     private String boardDate;
     private int importance;
+    private String filePath;
+    private String fileUrl;
 
     public BoardEntity toEntity(){
         return BoardEntity.builder()
@@ -29,6 +31,7 @@ public class BoardDto {
                 .boardContent(boardContent)
                 .boardWriter(boardWriter)
                 .readCount(readCount)
+                .filePath(filePath)
                 .importance(importance)
                 .boardDate(new java.sql.Date(System.currentTimeMillis())) // 현재 시스템 날짜로 설정
                 .build();

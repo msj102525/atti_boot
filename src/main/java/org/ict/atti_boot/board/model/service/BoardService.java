@@ -6,12 +6,22 @@ import org.ict.atti_boot.board.jpa.entity.BoardEntity;
 import org.ict.atti_boot.board.jpa.repository.BoardRepository;
 import org.ict.atti_boot.board.model.dto.BoardDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -23,6 +33,8 @@ public class BoardService {
 
     @Autowired
     private BoardRepository boardRepository;
+
+    private final String uploadDir = "uploads/";
 
     public Page<BoardDto> selectList(PageRequest pageRequest) {
         log.info("Fetching board list");
@@ -44,15 +56,36 @@ public class BoardService {
         }
     }
 
-    public void updateBoard(int boardNum, BoardDto boardDto) {
-        BoardEntity existingBoard = boardRepository.findById(boardNum)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid board number: " + boardNum));
+    public BoardDto updateBoard(int boardNum, BoardDto boardDto, MultipartFile file) {
+        Optional<BoardEntity> optionalBoardEntity = boardRepository.findById(boardNum);
+        if (optionalBoardEntity.isPresent()) {
+            BoardEntity boardEntity = optionalBoardEntity.get();
+            boardEntity.setBoardTitle(boardDto.getBoardTitle());
+            boardEntity.setBoardContent(boardDto.getBoardContent());
+            boardEntity.setImportance(boardDto.getImportance());
 
-        existingBoard.setBoardTitle(boardDto.getBoardTitle());
-        existingBoard.setBoardContent(boardDto.getBoardContent());
-        existingBoard.setImportance(boardDto.getImportance());
+            if (file != null && !file.isEmpty()) {
+                try {
+                    String fileName = file.getOriginalFilename();
+                    Path uploadPath = Paths.get(uploadDir);
 
-        boardRepository.save(existingBoard);
+                    if (!Files.exists(uploadPath)) {
+                        Files.createDirectories(uploadPath);
+                    }
+
+                    Path filePathObj = uploadPath.resolve(fileName);
+                    file.transferTo(filePathObj.toFile());
+                    boardEntity.setFilePath(filePathObj.toString());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            BoardEntity updatedEntity = boardRepository.save(boardEntity);
+            return updatedEntity.toDto();
+        } else {
+            return null;
+        }
     }
 
 
@@ -78,12 +111,59 @@ public class BoardService {
         }
     }
 
+    // 등록 처리
     @Transactional
-    public void insertBoard(BoardDto boardDto) {
-        log.info("디티오" + boardDto + "wegwe");
+    public BoardDto createBoard(BoardDto boardDto, MultipartFile file) {
+        String filePath = null;
+        if (file != null && !file.isEmpty()) {
+            try {
+                String fileName = file.getOriginalFilename();
+                Path uploadPath = Paths.get(uploadDir);
+
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
+
+                Path filePathObj = uploadPath.resolve(fileName);
+                file.transferTo(filePathObj.toFile());
+
+                filePath = filePathObj.toString();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         BoardEntity boardEntity = boardDto.toEntity();
-        log.info(boardEntity + "wegwe");
-        boardRepository.save(boardEntity);
+        boardEntity.setFilePath(filePath);
+        BoardEntity savedEntity = boardRepository.save(boardEntity);
+        return savedEntity.toDto();
+    }
+
+
+    // 파일 다운 처리
+    public ResponseEntity<Resource> downloadFile(String filename) {
+        try {
+            File file = new File(uploadDir + filename);
+            if (file.exists()) {
+                Resource resource = new FileSystemResource(file);
+                HttpHeaders headers = new HttpHeaders();
+                headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename);
+
+                String mimeType = Files.probeContentType(file.toPath());
+                if (mimeType == null) {
+                    mimeType = "application/octet-stream";
+                }
+                headers.add(HttpHeaders.CONTENT_TYPE, mimeType);
+
+                return ResponseEntity.ok()
+                        .headers(headers)
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (IOException e) {
+            return ResponseEntity.status(500).build();
+        }
     }
 
 

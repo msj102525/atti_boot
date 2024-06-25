@@ -31,7 +31,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
@@ -62,7 +61,7 @@ public class AuthController {
     @Value("${naver.redirect-signup-uri}")
     private String naverRedirectSignupUri;
     @Value("${kakaoApiHost}")
-    private String kakaoApiHost;
+    private  String kakaoApiHost;
 
     private final UserRepository userRepository;
     private final SocialLoginRepository socialLoginRepository;
@@ -132,8 +131,8 @@ public class AuthController {
             userRepository.save(user);
 
             // JWT 토큰 발급
-            //Long accessExpiredMs = 600000L; // 10분
-            Long accessExpiredMs = 40 * 60 * 1000L; // 40분
+//            Long accessExpiredMs = 600000L; // 10분
+            Long accessExpiredMs =  40 * 60 * 1000L; // 40분
             String accessTokenJwt = jwtUtil.generateToken(email, "access", accessExpiredMs);
             Long refreshExpiredMs = 86400000L; // 24시간
             String refreshTokenJwt = jwtUtil.generateToken(email, "refresh", refreshExpiredMs);
@@ -151,23 +150,24 @@ public class AuthController {
                     .build();
             tokenLoginService.save(tokenLogin);
 
-            // 사용자 정보를 인코딩하여 URL에 포함
-            String encodedUserName = URLEncoder.encode(user.getUserName(), StandardCharsets.UTF_8);
-            String encodedNickName = URLEncoder.encode(user.getNickName(), StandardCharsets.UTF_8);
-            String encodedPhone = URLEncoder.encode(user.getPhone(), StandardCharsets.UTF_8);
             Date birthDate = user.getBirthDate();
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             String formattedDate = formatter.format(birthDate);
 
+            Character gander = user.getGender();
+            String gender = gander.toString();
 
+            String encodedUserName = URLEncoder.encode(user.getUserName(), StandardCharsets.UTF_8);
+            String encodedNickName = URLEncoder.encode(user.getNickName(), StandardCharsets.UTF_8);
+            String encodedPhone = URLEncoder.encode(user.getPhone(), StandardCharsets.UTF_8);
             String encodedBirthDate = URLEncoder.encode(formattedDate.toString(), StandardCharsets.UTF_8);
+            String encodedGander = URLEncoder.encode(gender, StandardCharsets.UTF_8);
 
             // 로그인 성공 후 URL에 토큰 정보 포함하여 리다이렉트
-            String redirectUrl = String.format("http://localhost:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s",
-                    accessTokenJwt, refreshTokenJwt, user.getUserId(), user.getEmail());
+            String redirectUrl = String.format("http://localhost:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s&userName=%s&nickName=%s&phone=%s&birthDate=%s&gander=%s",
+                    accessTokenJwt, refreshTokenJwt, user.getUserId(), user.getEmail(),encodedUserName,encodedNickName,encodedPhone,encodedBirthDate,encodedGander);
             response.sendRedirect(redirectUrl);
-            log.info("로그인 url={}", redirectUrl);
-            log.info("로그인 성공: {}", encodedBirthDate);
+            log.info("로그인 성공: {}", email);
         } else {
             log.info("회원가입 필요: {}", email);
             response.sendRedirect("http://localhost:3000/signup"); // 회원가입 페이지로 리다이렉트
@@ -175,6 +175,8 @@ public class AuthController {
     }
 
 
+
+    //카카오 회원 가입
     @GetMapping("/kakao/signup/callback")
     public void kakaoSignup(@RequestParam String code, HttpServletResponse response) throws IOException, JSONException {
         log.info("code signup = {}", code);
@@ -234,7 +236,7 @@ public class AuthController {
                     .loginType("kakao")
                     .nickName(nickName)
                     .userName(userName)
-                    .phone(phone)
+                    .phone("")
                     .userType('U')
                     .password("")
                     .build();
@@ -276,35 +278,65 @@ public class AuthController {
         response.sendRedirect("http://localhost:3000/logout-success");
     }
 
-    //카카오연결끊기
-    @PostMapping("/unlink-kakao")
-    public ResponseEntity<?> unlinkKakaoAccount(@RequestBody Map<String, String> request) {
-        String accessToken = request.get("accessToken");
+//    //카카오연결끊기
+//    @PostMapping("/unlink-kakao")
+//    public ResponseEntity<?> unlinkKakaoAccount(@RequestBody Map<String, String> request) {
+//        String accessToken = request.get("accessToken");
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.set("Authorization", "Bearer " + accessToken);
+//        headers.set("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+//
+//        HttpEntity<String> entity = new HttpEntity<>(headers);
+//
+//        RestTemplate restTemplate = new RestTemplate();
+//        try {
+//            ResponseEntity<String> response = restTemplate.exchange(
+//                    kakaoApiHost + "/v1/user/unlink",
+//                    HttpMethod.POST,
+//                    entity,
+//                    String.class
+//            );
+//
+//            if (response.getStatusCode().is2xxSuccessful()) {
+//                return ResponseEntity.ok().body(Map.of("success", true, "data", response.getBody()));
+//            } else {
+//                return ResponseEntity.status(response.getStatusCode()).body(Map.of("success", false, "error", response.getBody()));
+//            }
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("success", false, "error", e.getMessage()));
+//        }
+//    }
+//카카오연결끊기
+@PostMapping("/unlink-kakao")
+public ResponseEntity<?> unlinkKakaoAccount(@RequestBody Map<String, String> request) {
+    String accessToken = request.get("accessToken");
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + accessToken);
-        headers.set("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("Authorization", "Bearer " + accessToken);
+    headers.set("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
 
-        HttpEntity<String> entity = new HttpEntity<>(headers);
+    HttpEntity<String> entity = new HttpEntity<>(headers);
 
-        RestTemplate restTemplate = new RestTemplate();
-        try {
-            ResponseEntity<String> response = restTemplate.exchange(
-                    kakaoApiHost + "/v1/user/unlink",
-                    HttpMethod.POST,
-                    entity,
-                    String.class
-            );
+    RestTemplate restTemplate = new RestTemplate();
+    try {
+        ResponseEntity<String> response = restTemplate.exchange(
+                "https://kapi.kakao.com/v1/user/unlink",
+                HttpMethod.POST,
+                entity,
+                String.class
+        );
 
-            if (response.getStatusCode().is2xxSuccessful()) {
-                return ResponseEntity.ok().body(Map.of("success", true, "data", response.getBody()));
-            } else {
-                return ResponseEntity.status(response.getStatusCode()).body(Map.of("success", false, "error", response.getBody()));
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("success", false, "error", e.getMessage()));
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return ResponseEntity.ok().body(Map.of("success", true, "data", response.getBody()));
+        } else {
+            return ResponseEntity.status(response.getStatusCode()).body(Map.of("success", false, "error", response.getBody()));
         }
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("success", false, "error", e.getMessage()));
     }
+}
+
 
 
     //네이버 로그인
@@ -381,7 +413,6 @@ public class AuthController {
             response.sendRedirect("http://localhost:3000/signup"); // 회원가입 페이지로 리다이렉트
         }
     }
-
     //네이버 회원가입
     @GetMapping("/naver/signup/callback")
     public void naverSignup(@RequestParam String code, HttpServletResponse response) throws IOException {
@@ -456,7 +487,7 @@ public class AuthController {
                     .loginType("naver")
                     .userName(userName)
                     .nickName(nickName)
-                    .phone(phone)
+                    .phone("")
                     .userType('U')
                     .password("")
                     .build();
@@ -517,6 +548,7 @@ public class AuthController {
         User updatedUser = userService.updateSocialUser(user);
         return ResponseEntity.ok(updatedUser);
     }
+
 
 
 }
