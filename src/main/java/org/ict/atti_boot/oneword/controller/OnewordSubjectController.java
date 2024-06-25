@@ -1,9 +1,11 @@
 package org.ict.atti_boot.oneword.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.oneword.model.dto.OnewordSubjectDto;
 import org.ict.atti_boot.oneword.model.service.OnewordSubjectService;
+import org.ict.atti_boot.security.jwt.util.JWTUtil;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -20,6 +22,9 @@ import java.util.List;
 @CrossOrigin     //// 리액트 애플리케이션(포트가 다름)의 자원 요청을 처리하기 위함
 public class OnewordSubjectController {
     private final OnewordSubjectService onewordSubjectService;
+
+    private final JWTUtil jwtUtil;
+    //private final UserRepository userRepository;
 
     @GetMapping("/list")
     public ResponseEntity<List<OnewordSubjectDto>> selectList(
@@ -88,8 +93,21 @@ public class OnewordSubjectController {
     }
 
     @PostMapping // insert
-    public ResponseEntity<?> insertOnewordSubject(@RequestBody OnewordSubjectDto onewordSubjectDto){
+    public ResponseEntity<?> insertOnewordSubject(HttpServletRequest request,
+                                                  @RequestBody OnewordSubjectDto onewordSubjectDto){
         log.info("insertBoard : {}", onewordSubjectDto);
+
+        //// 2024.06.25
+        String token = request.getHeader("Authorization").substring("Bearer ".length());
+        String userEmail = jwtUtil.getUserEmailFromToken(token);
+        boolean isAdmin = jwtUtil.isAdminFromToken(token);
+
+        log.info("insertBoard(token-2024.06.25) : {}", token);
+
+//        if (!isAdmin) {
+//            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied. User is not an administrator.");
+//        }
+
         onewordSubjectService.insertOnewordSubject(onewordSubjectDto);
         //return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
         return new ResponseEntity<Void>(HttpStatus.CREATED);  //// 글등록 성공시 생성되었다는 상태 코드를 반환함
