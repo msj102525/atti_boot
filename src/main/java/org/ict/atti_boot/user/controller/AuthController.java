@@ -31,6 +31,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
@@ -61,7 +62,7 @@ public class AuthController {
     @Value("${naver.redirect-signup-uri}")
     private String naverRedirectSignupUri;
     @Value("${kakaoApiHost}")
-    private  String kakaoApiHost;
+    private String kakaoApiHost;
 
     private final UserRepository userRepository;
     private final SocialLoginRepository socialLoginRepository;
@@ -132,7 +133,7 @@ public class AuthController {
 
             // JWT 토큰 발급
             //Long accessExpiredMs = 600000L; // 10분
-            Long accessExpiredMs =  40 * 60 * 1000L; // 40분
+            Long accessExpiredMs = 40 * 60 * 1000L; // 40분
             String accessTokenJwt = jwtUtil.generateToken(email, "access", accessExpiredMs);
             Long refreshExpiredMs = 86400000L; // 24시간
             String refreshTokenJwt = jwtUtil.generateToken(email, "refresh", refreshExpiredMs);
@@ -150,29 +151,28 @@ public class AuthController {
                     .build();
             tokenLoginService.save(tokenLogin);
 
-            Date birthDate = user.getBirthDate();
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-            String formattedDate = formatter.format(birthDate);
-
             // 사용자 정보를 인코딩하여 URL에 포함
             String encodedUserName = URLEncoder.encode(user.getUserName(), StandardCharsets.UTF_8);
             String encodedNickName = URLEncoder.encode(user.getNickName(), StandardCharsets.UTF_8);
             String encodedPhone = URLEncoder.encode(user.getPhone(), StandardCharsets.UTF_8);
-            String encodedBirthDate = URLEncoder.encode(formattedDate, StandardCharsets.UTF_8);
+            Date birthDate = user.getBirthDate();
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            String formattedDate = formatter.format(birthDate);
+
+
+            String encodedBirthDate = URLEncoder.encode(formattedDate.toString(), StandardCharsets.UTF_8);
 
             // 로그인 성공 후 URL에 토큰 정보 포함하여 리다이렉트
-            String redirectUrl = String.format("http://localhost:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s&userName=%s&nickName=%s&phone=%s&gander=%s&birthDate=%s",
-                    accessTokenJwt, refreshTokenJwt, user.getUserId(), user.getEmail(), encodedUserName, encodedNickName, encodedPhone, encodedBirthDate);
+            String redirectUrl = String.format("http://localhost:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s",
+                    accessTokenJwt, refreshTokenJwt, user.getUserId(), user.getEmail());
             response.sendRedirect(redirectUrl);
             log.info("로그인 url={}", redirectUrl);
-            log.info("로그인 성공: {}", email);
+            log.info("로그인 성공: {}", encodedBirthDate);
         } else {
             log.info("회원가입 필요: {}", email);
             response.sendRedirect("http://localhost:3000/signup"); // 회원가입 페이지로 리다이렉트
         }
     }
-
-
 
 
     @GetMapping("/kakao/signup/callback")
@@ -234,7 +234,7 @@ public class AuthController {
                     .loginType("kakao")
                     .nickName(nickName)
                     .userName(userName)
-                    .phone("")
+                    .phone(phone)
                     .userType('U')
                     .password("")
                     .build();
@@ -381,6 +381,7 @@ public class AuthController {
             response.sendRedirect("http://localhost:3000/signup"); // 회원가입 페이지로 리다이렉트
         }
     }
+
     //네이버 회원가입
     @GetMapping("/naver/signup/callback")
     public void naverSignup(@RequestParam String code, HttpServletResponse response) throws IOException {
@@ -455,7 +456,7 @@ public class AuthController {
                     .loginType("naver")
                     .userName(userName)
                     .nickName(nickName)
-                    .phone("")
+                    .phone(phone)
                     .userType('U')
                     .password("")
                     .build();
@@ -516,7 +517,6 @@ public class AuthController {
         User updatedUser = userService.updateSocialUser(user);
         return ResponseEntity.ok(updatedUser);
     }
-
 
 
 }
