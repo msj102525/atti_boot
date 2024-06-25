@@ -149,14 +149,15 @@ public class AuthController {
             tokenLoginService.save(tokenLogin);
 
             // 사용자 정보를 인코딩하여 URL에 포함
-            String encodedUserName = URLEncoder.encode(user.getUserName(), StandardCharsets.UTF_8);
-            String encodedNickName = URLEncoder.encode(user.getNickName(), StandardCharsets.UTF_8);
-            String encodedPhone = URLEncoder.encode(user.getPhone(), StandardCharsets.UTF_8);
-            String encodedBirthDate = URLEncoder.encode(user.getBirthDate().toString(), StandardCharsets.UTF_8);
+//            String encodedUserName = URLEncoder.encode(user.getUserName(), StandardCharsets.UTF_8);
+//            String encodedNickName = URLEncoder.encode(user.getNickName(), StandardCharsets.UTF_8);
+//            String encodedPhone = URLEncoder.encode(user.getPhone(), StandardCharsets.UTF_8);
+//            String encodedBirthDate = URLEncoder.encode(user.getBirthDate().toString(), StandardCharsets.UTF_8);
+//            String encodedGender = URLEncoder.encode(user.getGender().toString(), StandardCharsets.UTF_8);
 
             // 로그인 성공 후 URL에 토큰 정보 포함하여 리다이렉트
-            String redirectUrl = String.format("http://localhost:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s&userName=%s&nickName=%s&phone=%s&birthDate=%s",
-                    accessTokenJwt, refreshTokenJwt, user.getUserId(), user.getEmail(), encodedUserName, encodedNickName, encodedPhone, encodedBirthDate);
+            String redirectUrl = String.format("http://localhost:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s",
+                    accessTokenJwt, refreshTokenJwt, user.getUserId(), user.getEmail());
             response.sendRedirect(redirectUrl);
             log.info("로그인 url={}", redirectUrl);
             log.info("로그인 성공: {}", email);
