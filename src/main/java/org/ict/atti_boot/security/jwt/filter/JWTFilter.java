@@ -1,6 +1,7 @@
 package org.ict.atti_boot.security.jwt.filter;
 
 // 필요한 클래스와 인터페이스를 import 합니다.
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -40,71 +41,50 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         log.debug("JWTFilter 오류={}", request.getRequestURI());
-        // 요청에서 'Authorization' 헤더를 추출합니다.
         String authorization = request.getHeader("Authorization");
         String requestURI = request.getRequestURI();
         String requestMethod = request.getMethod();
         log.info("requestURI={}", requestURI);
-        log.debug("requestURI: {}", requestURI);
+
         if ("/reissue".equals(requestURI) || "/users/signup".equals(requestURI)) {
             filterChain.doFilter(request, response);
             log.info("/reissue={}", requestURI);
             return;
         }
-        // 이미지파일 요청은 필터 넘기기
-        if (requestURI.startsWith("/images")){
+        if (requestURI.startsWith("/images")) {
             filterChain.doFilter(request, response);
             return;
         }
-
-        //리뷰리스트 요청 필터 넘기기
-        if(requestURI.equals("/review") && requestMethod.equals("GET") ){
+        if (requestURI.equals("/review") && requestMethod.equals("GET")) {
             filterChain.doFilter(request, response);
             return;
         }
-
-
-        //의사 리스트, 리뷰리스트 요청 필터 넘기기
-        if (requestURI.startsWith("/doctor")&&!requestURI.equals("/doctor/mypage")) {
-        // if (requestURI.startsWith("/doctor")||requestURI.startsWith("/review")) {
+        if (requestURI.startsWith("/doctor") && !requestURI.equals("/doctor/mypage")) {
             filterChain.doFilter(request, response);
             return;
         }
-
-        // 커뮤니티 요청 필터 넘기기 dev
         if (requestURI.startsWith("/feed")) {
             filterChain.doFilter(request, response);
             return;
         }
-
-        // 공감 요청 필터 넘기기 dev
         if (requestURI.startsWith("/like")) {
             filterChain.doFilter(request, response);
             return;
         }
-
-        // 댓글 요청 필터 넘기기 dev
         if (requestURI.startsWith("/reply")) {
             filterChain.doFilter(request, response);
             return;
         }
-
-        // 오늘 한 줄 리스트 요청 필터 넘기기 dev(onewordsubject)
         if (requestURI.startsWith("/onewordsubject")) {
             log.info(requestURI);
             filterChain.doFilter(request, response);
             return;
         }
-
-
-        // 'Authorization' 헤더가 없거나 Bearer 토큰이 아니면 요청을 계속 진행합니다.
-        if( authorization == null || !authorization.startsWith("Bearer ")){
-            filterChain.doFilter(request,response);
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
             return;
         }
-
-
-        if (requestURI.startsWith("/file")){
+        if (requestURI.startsWith("/file")) {
             log.info(requestURI);
             filterChain.doFilter(request, response);
             return;
@@ -114,82 +94,51 @@ public class JWTFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
-        // 문의사항 요청 필터 넘기기
-        if (requestURI.startsWith("/inquiry")){
+        if (requestURI.startsWith("/inquiry")) {
             log.info(requestURI);
             filterChain.doFilter(request, response);
             return;
         }
 
-        // Bearer 토큰에서 JWT를 추출합니다.
         String token = authorization.split(" ")[1];
 
         try {
+            jwtUtil.isTokenExpired(token);
+
             Claims claims = jwtUtil.getAllClaimsFromToken(token);
             log.info("JWT Claims: {}", claims);
+
+            String category = jwtUtil.getCategoryFromToken(token);
+            if (category == null || !category.equals("access")) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
+
+            String userId = jwtUtil.getUserEmailFromToken(token);
+            boolean is_admin = jwtUtil.isAdminFromToken(token);
+            String userRealId = jwtUtil.getUserIdFromToken(token);
+
+            User user = new User();
+            user.setEmail(userId);
+            user.setUserId(userRealId);
+            user.setPassword("tempPassword");
+            user.setUserType(String.valueOf(user.getUserType()));
+
+            CustomUserDetails customUserDetails = new CustomUserDetails(user, is_admin, suspensionRepository);
+            Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+
+            filterChain.doFilter(request, response);
+            log.info(userId);
+
+        } catch (ExpiredJwtException e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
         } catch (Exception e) {
             log.error("Invalid JWT token", e);
             filterChain.doFilter(request, response);
             return;
         }
-
-        // 토큰 만료 여부 확인, 만료시 다음 필터로 넘기지 않음
-        try {
-            jwtUtil.isTokenExpired(token);
-        } catch (ExpiredJwtException e) {
-            //response body
-            PrintWriter writer = response.getWriter();
-            writer.print("access token expired");
-            //response status code
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
-
-
-        // token에서 category 가져오기
-        String category = jwtUtil.getCategoryFromToken(token);
-        // 토큰 category 가 access 가 아니 라면 만료 된 토큰 이라고 판단
-        if (category == null || !category.equals("access")) {
-            //response body
-            PrintWriter writer = response.getWriter();
-            writer.print("invalid access token");
-
-            //response status code
-            // 응답 코드를 프론트와 맞추는 부분 401 에러 외 다른 코드로 맞춰서
-            // 진행하면 리프레시 토큰 발급 체크를 빠르게 할수 있음
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
-
-
-        // 토큰에서 사용자 이메일과 관리자 여부를 추출합니다.
-        String userId = jwtUtil.getUserEmailFromToken(token);
-        boolean is_admin = jwtUtil.isAdminFromToken(token);
-
-        //유저의 아이디
-        String userRealId = jwtUtil.getUserIdFromToken(token);
-
-
-        // 인증에 사용할 임시 User 객체를 생성하고, 이메일과 관리자 여부를 설정합니다.
-        User user = new User();
-        user.setEmail(userId);
-        user.setUserId(userRealId);
-        user.setPassword("tempPassword"); // 실제 인증에서는 사용되지 않는 임시 비밀번호를 설정합니다.
-        user.setUserType(String.valueOf(user.getUserType()));
-
-        // User 객체를 기반으로 CustomUserDetails 객체를 생성합니다.
-        CustomUserDetails customUserDetails = new CustomUserDetails(user,is_admin, suspensionRepository);
-
-        // Spring Security의 Authentication 객체를 생성하고, SecurityContext에 설정합니다.
-        // 이로써 해당 요청에 대한 사용자 인증이 완료됩니다.
-        //Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
-        Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
-
-        SecurityContextHolder.getContext().setAuthentication(authToken);
-
-        // 필터 체인을 계속 진행합니다.
-        filterChain.doFilter(request,response);
-        log.info(userId);
     }
 }

@@ -35,7 +35,6 @@ public class ReviewService {
     }
 
     public List<StarPointVo> findStarPointCountsByUserId(String doctorId) {
-        log.info(doctorId);
         List<StarPointVo> test = reviewRepository.findStarPointCountsByUserId(doctorId);
         log.info(test.toString());
         return test;
@@ -62,14 +61,11 @@ public class ReviewService {
         return reviewRepository.findById(reviewId).get();
     }
 
-<<<<<<< HEAD
 
     public List<Review> checkReview(Date writeDate, String userId, String doctorId) {
         return reviewRepository.findByWriteDateAndUserIdAndDoctorId(writeDate, userId, doctorId);
     }
 
-
-=======
     public boolean deleteReview(Long reviewId) {
         if (reviewRepository.existsById(reviewId)) {
             reviewRepository.deleteById(reviewId);
@@ -77,6 +73,5 @@ public class ReviewService {
         }
         return false;
     }
->>>>>>> db7be117c765fabb8e41f2b1a6810aa56d51fc45
 
 }

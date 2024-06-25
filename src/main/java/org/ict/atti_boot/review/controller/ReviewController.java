@@ -119,7 +119,6 @@ public class ReviewController {
         return ResponseEntity.ok("수정 성공 !");
     }
 
-<<<<<<< HEAD
     @GetMapping("/check")
     public ResponseEntity<List<Review>> checkReview(
             @RequestParam("writeDate") Date writeDate,
@@ -128,8 +127,6 @@ public class ReviewController {
         List<Review> existingReviews = reviewService.checkReview(writeDate, userId, doctorId);
         return ResponseEntity.ok(existingReviews);
     }
-
-=======
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteReview(@PathVariable("id") Long reviewId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -152,7 +149,4 @@ public class ReviewController {
                     .body("존재하지 않는 리뷰입니다.");
         }
     }
-
-
->>>>>>> db7be117c765fabb8e41f2b1a6810aa56d51fc45
 }
