@@ -12,6 +12,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Slf4j
@@ -47,31 +50,30 @@ public class PayController {
 
     // 검색 처리
     @GetMapping("/search")
-    public Page<PayDto> searchPays(
-            @RequestParam String action,
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String beginDate,
-            @RequestParam(required = false) String endDate,
-            Pageable pageable
-    ) {
-        log.info(pageable.getPageSize() + "페이지 사이즈");
+    public Page<PayEntity> getPays(@RequestParam int page,
+                                   @RequestParam int size,
+                                   @RequestParam(required = false) String action,
+                                   @RequestParam(required = false) String keyword,
+                                   @RequestParam(required = false) String beginDate,
+                                   @RequestParam(required = false) String endDate) {
 
-        Page<PayDto> result;
-        switch (action) {
-            case "userId":
-                result = payService.searchByUserId(keyword, pageable);
-                break;
-            case "date":
-                result = payService.searchByDateRange(beginDate, endDate, pageable);
-                break;
-            case "payMethod":
-                result = payService.searchByPayMethod(keyword, pageable);
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid search action");
+        LocalDateTime beginDateTime = null;
+        LocalDateTime endDateTime = null;
+
+        if (beginDate != null && !beginDate.isEmpty()) {
+            LocalDate begin = LocalDate.parse(beginDate, DateTimeFormatter.ISO_LOCAL_DATE);
+            beginDateTime = begin.atStartOfDay();
         }
 
-        return result;
+        if (endDate != null && !endDate.isEmpty()) {
+            LocalDate end = LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE);
+            endDateTime = end.atStartOfDay().plusDays(1).minusNanos(1);  // 하루의 끝까지 포함하도록 설정
+        }
+
+
+
+        Pageable pageable = PageRequest.of(page, size);
+        return payService.getPays(action, keyword, beginDateTime, endDateTime, pageable);
     }
 
     @GetMapping("/graph")

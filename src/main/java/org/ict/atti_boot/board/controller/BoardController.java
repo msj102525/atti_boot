@@ -2,15 +2,19 @@ package org.ict.atti_boot.board.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ict.atti_boot.board.jpa.entity.BoardEntity;
 import org.ict.atti_boot.board.model.dto.BoardDto;
 import org.ict.atti_boot.board.model.service.BoardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Slf4j
 @RestController
@@ -57,14 +61,27 @@ public class BoardController {
 
     // 검색 처리
     @GetMapping("/search")
-    public ResponseEntity<List<BoardDto>> searchBoards(
-        @RequestParam String action,
-        @RequestParam(required = false) String keyword,
-        @RequestParam(required = false) String beginDate,
-        @RequestParam(required = false) String endDate
-    ) {
-        List<BoardDto> boards = boardService.searchBoards(action, keyword, beginDate, endDate);
-        return ResponseEntity.ok(boards);
+    public Page<BoardEntity> getBoards(@RequestParam int page,
+                                     @RequestParam int size,
+                                     @RequestParam(required = false) String action,
+                                     @RequestParam(required = false) String keyword,
+                                     @RequestParam(required = false) String beginDate,
+                                     @RequestParam(required = false) String endDate) {
+        LocalDateTime beginDateTime = null;
+        LocalDateTime endDateTime = null;
+
+        if (beginDate != null && !beginDate.isEmpty()) {
+            LocalDate begin = LocalDate.parse(beginDate, DateTimeFormatter.ISO_LOCAL_DATE);
+            beginDateTime = begin.atStartOfDay();
+        }
+
+        if (endDate != null && !endDate.isEmpty()) {
+            LocalDate end = LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE);
+            endDateTime = end.atStartOfDay().plusDays(1).minusNanos(1);  // 하루의 끝까지 포함하도록 설정
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        return boardService.getBoards(action, keyword, beginDateTime, endDateTime, pageable);
     }
 
     // 등록 처리

@@ -8,15 +8,12 @@ import org.ict.atti_boot.board.model.dto.BoardDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -63,32 +60,23 @@ public class BoardService {
         boardRepository.deleteById(boardNum);
     }
 
-    public List<BoardDto> searchBoards(String action, String keyword, String beginDate, String endDate) {
-    List<BoardEntity> boardEntities;
+    // 검색
+    public Page<BoardEntity> getBoards(String action, String keyword, LocalDateTime beginDate, LocalDateTime endDate, Pageable pageable) {
+        if ("title".equals(action)) {
+            return boardRepository.findAllByBoardTitle(keyword, pageable);
+        } else if ("writer".equals(action)) {
+            return boardRepository.findAllByBoardWriter(keyword, pageable);
+        } else if ("date".equals(action)) {
+            return boardRepository.findAllByBoardDateBetween(beginDate, endDate, pageable);
+        } else if (action == null){
+            Page<BoardEntity> pages = boardRepository.findAllOrdered(pageable);
+            return pages; //
+        }
 
-    switch (action) {
-        case "title":
-            boardEntities = boardRepository.findByBoardTitleContaining(keyword);
-            break;
-        case "writer":
-            boardEntities = boardRepository.findByBoardWriterContaining(keyword);
-            break;
-        case "date":
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            try {
-                Date startDate = dateFormat.parse(beginDate);
-                Date eDate = dateFormat.parse(endDate);
-                boardEntities = boardRepository.findByBoardDateBetween(startDate, eDate);
-            } catch (ParseException e) {
-                throw new IllegalArgumentException("Invalid date format: " + e.getMessage());
-            }
-            break;
-        default:
+        else {
             throw new IllegalArgumentException("Invalid search action: " + action);
+        }
     }
-
-    return boardEntities.stream().map(BoardEntity::toDto).collect(Collectors.toList());
-}
 
     @Transactional
     public void insertBoard(BoardDto boardDto) {

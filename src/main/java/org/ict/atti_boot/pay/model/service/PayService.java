@@ -48,21 +48,21 @@ public class PayService {
         return pages.map(PayEntity::toDto); // Page<BoardEntity>를 Page<BoardDto>로 변환
     }
 
-   public Page<PayDto> searchByUserId(String userId, Pageable pageable) {
-        Page<PayEntity> entities = payRepository.findByUserId(userId, pageable);
-        return entities.map(PayDto::fromEntity);
-    }
+   public Page<PayEntity> getPays(String action, String keyword, LocalDateTime beginDate, LocalDateTime endDate, Pageable pageable) {
+        if ("userId".equals(action)) {
+            return payRepository.findAllByUserId(keyword, pageable);
+        } else if ("payMethod".equals(action)) {
+            return payRepository.findAllByPayMethod(keyword, pageable);
+        } else if ("date".equals(action)) {
+            return payRepository.findAllByPayDateBetween(beginDate, endDate, pageable);
+        } else if (action == null){
+            Page<PayEntity> pages = payRepository.findAll(pageable);
+            return pages; //
+        }
 
-    public Page<PayDto> searchByDateRange(String beginDate, String endDate, Pageable pageable) {
-        LocalDateTime start = LocalDateTime.parse(beginDate + "T00:00:00");
-        LocalDateTime end = LocalDateTime.parse(endDate + "T23:59:59");
-        Page<PayEntity> entities = payRepository.findByPayDateBetween(start, end, pageable);
-        return entities.map(PayDto::fromEntity);
-    }
-
-    public Page<PayDto> searchByPayMethod(String payMethod, Pageable pageable) {
-        Page<PayEntity> entities = payRepository.findByPayMethod(payMethod, pageable);
-        return entities.map(PayDto::fromEntity);
+        else {
+            throw new IllegalArgumentException("Invalid search action: " + action);
+        }
     }
 
     public List<PayEntity> getAllPays() {
