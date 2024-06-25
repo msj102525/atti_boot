@@ -53,13 +53,13 @@ public class BoardController {
     }
 
     // 수정 처리
-    @PutMapping("/{boardNum}")
+    @PutMapping("/boardUpdate/{boardNum}")
     public BoardDto updateBoard(@PathVariable int boardNum,
                                 @RequestParam("boardTitle") String boardTitle,
                                 @RequestParam("boardContent") String boardContent,
                                 @RequestParam("importance") int importance,
-                                @RequestParam("boardWriter") String boardWriter,
-                                @RequestParam("readCount") int readCount,
+                                @RequestParam(value = "boardWriter", required = false) String boardWriter,
+                                @RequestParam(value = "readCount", required = false) int readCount,
                                 @RequestParam(value = "file", required = false) MultipartFile file) {
 
         BoardDto boardDto = BoardDto.builder()

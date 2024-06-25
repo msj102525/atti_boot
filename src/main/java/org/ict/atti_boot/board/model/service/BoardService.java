@@ -17,13 +17,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -34,7 +35,7 @@ public class BoardService {
     @Autowired
     private BoardRepository boardRepository;
 
-    private final String uploadDir = "uploads/";
+    private final String uploadDir = "D:/atti/atti_boot/uploads/";
 
     public Page<BoardDto> selectList(PageRequest pageRequest) {
         log.info("Fetching board list");
@@ -64,22 +65,34 @@ public class BoardService {
             boardEntity.setBoardContent(boardDto.getBoardContent());
             boardEntity.setImportance(boardDto.getImportance());
 
+            String filePath = boardEntity.getFilePath();
+
             if (file != null && !file.isEmpty()) {
                 try {
-                    String fileName = file.getOriginalFilename();
+                    String originalFileName = file.getOriginalFilename();
+                    String extension = "";
+                    int index = originalFileName.lastIndexOf('.');
+                    if (index > 0) {
+                        extension = originalFileName.substring(index);
+                    }
+                    String uniqueFileName = UUID.randomUUID().toString() + "_" +
+                            LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) + extension;
+
                     Path uploadPath = Paths.get(uploadDir);
 
                     if (!Files.exists(uploadPath)) {
                         Files.createDirectories(uploadPath);
                     }
 
-                    Path filePathObj = uploadPath.resolve(fileName);
+                    Path filePathObj = uploadPath.resolve(uniqueFileName);
                     file.transferTo(filePathObj.toFile());
-                    boardEntity.setFilePath(filePathObj.toString());
+                    filePath = filePathObj.toString();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
+
+            boardEntity.setFilePath(filePath);
 
             BoardEntity updatedEntity = boardRepository.save(boardEntity);
             return updatedEntity.toDto();
@@ -117,14 +130,32 @@ public class BoardService {
         String filePath = null;
         if (file != null && !file.isEmpty()) {
             try {
-                String fileName = file.getOriginalFilename();
+                // 원본 파일명
+                String originalFileName = file.getOriginalFilename();
+                // 확장자 추출
+                String extension = "";
+                int index = originalFileName.lastIndexOf('.');
+                if (index > 0) {
+                    extension = originalFileName.substring(index);
+                }
+                // 고유한 파일명 생성 (UUID + 타임스탬프)
+                String uniqueFileName = UUID.randomUUID().toString() + "_" +
+                        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) + extension;
+
                 Path uploadPath = Paths.get(uploadDir);
 
                 if (!Files.exists(uploadPath)) {
                     Files.createDirectories(uploadPath);
+
+                    if (Files.exists(uploadPath)) {
+                        log.info("Upload directory created successfully: " + uploadPath.toString());
+                    } else {
+                        log.error("Failed to create upload directory: " + uploadPath.toString());
+                    }
+
                 }
 
-                Path filePathObj = uploadPath.resolve(fileName);
+                Path filePathObj = uploadPath.resolve(uniqueFileName);
                 file.transferTo(filePathObj.toFile());
 
                 filePath = filePathObj.toString();
@@ -143,25 +174,21 @@ public class BoardService {
     // 파일 다운 처리
     public ResponseEntity<Resource> downloadFile(String filename) {
         try {
-            File file = new File(uploadDir + filename);
-            if (file.exists()) {
-                Resource resource = new FileSystemResource(file);
-                HttpHeaders headers = new HttpHeaders();
-                headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename);
-
-                String mimeType = Files.probeContentType(file.toPath());
-                if (mimeType == null) {
-                    mimeType = "application/octet-stream";
+            Path file = Paths.get(uploadDir).resolve(filename).normalize();
+            Resource resource = new FileSystemResource(file);
+            if (resource.exists() || resource.isReadable()) {
+                String contentType = Files.probeContentType(file);
+                if (contentType == null) {
+                    contentType = "application/octet-stream";
                 }
-                headers.add(HttpHeaders.CONTENT_TYPE, mimeType);
-
                 return ResponseEntity.ok()
-                        .headers(headers)
+                        .contentType(org.springframework.http.MediaType.parseMediaType(contentType))
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
                         .body(resource);
             } else {
                 return ResponseEntity.notFound().build();
             }
-        } catch (IOException e) {
+        } catch (IOException ex) {
             return ResponseEntity.status(500).build();
         }
     }
