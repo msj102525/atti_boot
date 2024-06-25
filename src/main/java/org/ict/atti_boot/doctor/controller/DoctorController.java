@@ -8,6 +8,7 @@ import org.ict.atti_boot.doctor.jpa.entity.Education;
 import org.ict.atti_boot.doctor.model.DoctorUpdateInput;
 import org.ict.atti_boot.doctor.model.dto.EmailRequest;
 import org.ict.atti_boot.doctor.model.outputVo.DoctorDetail;
+import org.ict.atti_boot.doctor.model.outputVo.DoctorMainVO;
 import org.ict.atti_boot.doctor.model.outputVo.DoctorUpdateVo;
 import org.ict.atti_boot.doctor.model.service.CareerService;
 import org.ict.atti_boot.doctor.model.service.DoctorService;
@@ -21,6 +22,7 @@ import org.ict.atti_boot.review.model.output.OutputReview;
 import org.ict.atti_boot.user.model.output.CustomUserDetails;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -128,9 +130,16 @@ public class DoctorController {
         return ResponseEntity.ok(doctorUpdateVo);
     }
 
-//    @GetMapping("/main")
-//    public ResponseEntity<DoctorDetail> getDoctorMain() {
-//    }
+    @GetMapping("/main")
+    public ResponseEntity<List<DoctorDetail>> getDoctorMain() {
+        Pageable pageable = PageRequest.of(0, 10);
+        List<DoctorMainVO> doctorList = doctorService.getMainDoctor(pageable);
+        List<DoctorDetail> doctorDetailList = new ArrayList<>();
+        for (DoctorMainVO doctorMainVO : doctorList) {
+            doctorDetailList.add(new DoctorDetail(doctorMainVO));
+        }
+        return ResponseEntity.ok(doctorDetailList);
+    }
 
 
     @PutMapping("/mypage")

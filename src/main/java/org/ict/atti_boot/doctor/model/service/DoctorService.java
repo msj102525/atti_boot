@@ -17,8 +17,10 @@ import org.ict.atti_boot.doctor.jpa.specification.DoctorSpecifications;
 import org.ict.atti_boot.doctor.model.DoctorUpdateInput;
 import org.ict.atti_boot.doctor.model.outputVo.DoctorDto;
 import org.ict.atti_boot.doctor.model.dto.EmailRequest;
+import org.ict.atti_boot.doctor.model.outputVo.DoctorMainVO;
 import org.ict.atti_boot.doctor.model.outputVo.DoctorUpdateVo;
 import org.ict.atti_boot.doctor.model.outputVo.TestVO;
+import org.ict.atti_boot.review.jpa.repository.ReviewRepository;
 import org.ict.atti_boot.user.jpa.repository.UserRepository;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
@@ -43,19 +45,25 @@ public class DoctorService {
     private final DoctorTagRepository tagRepository;
     private final UserRepository userRepository;
     private final JavaMailSender mailSender;
+    private final ReviewRepository reviewRepository;
 
-    public DoctorService(DoctorRepository doctorRepository, EducationRepository educationRepository, CareerRepository careerRepository, JavaMailSender mailSender, UserRepository userRepository, DoctorTagRepository tagRepository) {
+    public DoctorService(DoctorRepository doctorRepository, EducationRepository educationRepository, CareerRepository careerRepository, JavaMailSender mailSender, UserRepository userRepository, DoctorTagRepository tagRepository, ReviewRepository reviewRepository) {
         this.doctorRepository = doctorRepository;
         this.educationRepository = educationRepository;
         this.careerRepository = careerRepository;
         this.mailSender = mailSender;
         this.userRepository = userRepository;
         this.tagRepository = tagRepository;
+        this.reviewRepository = reviewRepository;
     }
 
 //    public List<DoctorDto> findAllDoctor() {
 //        return doctorRepository.findAllWithUsers();
 //    }
+
+    public List<DoctorMainVO> getMainDoctor(Pageable pageable){
+        return reviewRepository.findTop10DoctorsWithAverageScores(pageable);
+    }
 
 
     public Map<String, Object> findAll(Pageable pageable) {

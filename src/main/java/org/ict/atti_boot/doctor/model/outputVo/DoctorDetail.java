@@ -39,6 +39,15 @@ public class DoctorDetail {
     private Map<Integer, Integer> ratingCount;
     private Boolean hasMoreReview;
 
+    public DoctorDetail(DoctorMainVO doctorMainVO) {
+        this.doctorId = doctorMainVO.getDoctor().getUserId();
+        this.introduce = doctorMainVO.getDoctor().getIntroduce();
+        this.profileUrl = doctorMainVO.getDoctor().getUser().getProfileUrl();
+        this.averageStarPoint = doctorMainVO.getAverageScore();
+        this.userName = doctorMainVO.getDoctor().getUser().getUserName();
+    }
+
+
     public DoctorDetail(Doctor doctor, List<OutputReview> reviews, Map<Integer, Integer> ratingCount, Double averageStarPoint, Boolean hasMoreReview, Set<Career> careers, Set<Education> educations, Set<DoctorTag> tags) {
         this.doctorId = doctor.getUserId();
         this.hospitalPhone = doctor.getHospitalPhone();

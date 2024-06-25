@@ -1,6 +1,7 @@
 package org.ict.atti_boot.doctor.jpa.repository;
 
 import org.ict.atti_boot.doctor.jpa.entity.Doctor;
+import org.ict.atti_boot.doctor.model.outputVo.DoctorMainVO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -8,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +27,9 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long>, JpaSpecif
     Page<Doctor> findByTagsIn(@Param("tags") List<String> tags, @Param("tagCount") long tagCount, Pageable pageable);
 
     Optional<Doctor> findByUserId(String userId);
+
+
+
 //    @Query("SELECT d FROM Doctor d JOIN d.user u WHERE u.gender LIKE :gender")
 //    Page<Doctor> findByGenderContaining(@Param("gender") Character gender, Pageable pageable);
 //    Doctor findByUserId(String userId);
