@@ -17,11 +17,13 @@ public interface PayRepository extends JpaRepository<PayEntity, String> {
     @Query("SELECT p FROM PayEntity p WHERE p.userId = :userId AND p.payDate BETWEEN :startTime AND :endTime")
     List<PayEntity> findRecentPayments(@Param("userId") String userId, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
 
+    @Query("SELECT p FROM PayEntity p ORDER BY p.payDate DESC")
     Page<PayEntity> findAll(Pageable pageable);
 
-    Page<PayEntity> findByUserId(String userId, Pageable pageable);
+    Page<PayEntity> findAllByUserId(String userId, Pageable pageable);
 
-    Page<PayEntity> findByPayDateBetween(LocalDateTime start, LocalDateTime end, Pageable pageable);
+    Page<PayEntity> findAllByPayMethod(String payMethod, Pageable pageable);
 
-    Page<PayEntity> findByPayMethod(String payMethod, Pageable pageable);
+    Page<PayEntity> findAllByPayDateBetween(LocalDateTime beginDate, LocalDateTime endDate, Pageable pageable);
+
 }

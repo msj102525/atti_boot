@@ -7,8 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Repository
 public interface BoardRepository extends JpaRepository<BoardEntity, Integer> {
@@ -16,11 +15,11 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Integer> {
     @Query("SELECT b FROM BoardEntity b ORDER BY " +"b.boardNum DESC")
     Page<BoardEntity> findAllOrdered(Pageable pageable);
 
-    List<BoardEntity> findByBoardTitleContaining(String keyword);
+    Page<BoardEntity> findAllByBoardWriter(String boardWriter, Pageable pageable);
 
-    List<BoardEntity> findByBoardWriterContaining(String keyword);
+    Page<BoardEntity> findAllByBoardTitle(String boardTitle, Pageable pageable);
 
-    List<BoardEntity> findByBoardDateBetween(Date beginDate, Date endDate);
+    Page<BoardEntity> findAllByBoardDateBetween(LocalDateTime beginDate, LocalDateTime endDate, Pageable pageable);
 
 
 }

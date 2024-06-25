@@ -127,6 +127,9 @@ public class ReviewController {
         List<Review> existingReviews = reviewService.checkReview(writeDate, userId, doctorId);
         return ResponseEntity.ok(existingReviews);
     }
+
+
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteReview(@PathVariable("id") Long reviewId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

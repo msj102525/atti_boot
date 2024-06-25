@@ -8,6 +8,7 @@ import org.ict.atti_boot.user.model.output.CustomUserDetails;
 import org.ict.atti_boot.user.model.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,14 +35,15 @@ public class UserController {
 
     // 유저정보
     @GetMapping()
-    public ResponseEntity<User> getUserById(@PathVariable String userId) {
-        Optional<User> user = userService.findById(userId);
+    public ResponseEntity<User> getUser(@PathVariable String email) {
+        Optional<User> user = userService.findByEmail(email);
         if (user.isPresent()) {
             return ResponseEntity.ok(user.get());
         } else {
             return ResponseEntity.notFound().build();
         }
     }
+
 
     @PostMapping("/signup")
     public ResponseEntity<String> signUp(@RequestBody(required = false) User user) {
