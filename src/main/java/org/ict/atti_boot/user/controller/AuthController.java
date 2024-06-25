@@ -29,7 +29,9 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
@@ -148,16 +150,19 @@ public class AuthController {
                     .build();
             tokenLoginService.save(tokenLogin);
 
+            Date birthDate = user.getBirthDate();
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            String formattedDate = formatter.format(birthDate);
+
             // 사용자 정보를 인코딩하여 URL에 포함
-//            String encodedUserName = URLEncoder.encode(user.getUserName(), StandardCharsets.UTF_8);
-//            String encodedNickName = URLEncoder.encode(user.getNickName(), StandardCharsets.UTF_8);
-//            String encodedPhone = URLEncoder.encode(user.getPhone(), StandardCharsets.UTF_8);
-//            String encodedBirthDate = URLEncoder.encode(user.getBirthDate().toString(), StandardCharsets.UTF_8);
-//            String encodedGender = URLEncoder.encode(user.getGender().toString(), StandardCharsets.UTF_8);
+            String encodedUserName = URLEncoder.encode(user.getUserName(), StandardCharsets.UTF_8);
+            String encodedNickName = URLEncoder.encode(user.getNickName(), StandardCharsets.UTF_8);
+            String encodedPhone = URLEncoder.encode(user.getPhone(), StandardCharsets.UTF_8);
+            String encodedBirthDate = URLEncoder.encode(formattedDate, StandardCharsets.UTF_8);
 
             // 로그인 성공 후 URL에 토큰 정보 포함하여 리다이렉트
-            String redirectUrl = String.format("http://localhost:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s",
-                    accessTokenJwt, refreshTokenJwt, user.getUserId(), user.getEmail());
+            String redirectUrl = String.format("http://localhost:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s&userName=%s&nickName=%s&phone=%s&gander=%s&birthDate=%s",
+                    accessTokenJwt, refreshTokenJwt, user.getUserId(), user.getEmail(), encodedUserName, encodedNickName, encodedPhone, encodedBirthDate);
             response.sendRedirect(redirectUrl);
             log.info("로그인 url={}", redirectUrl);
             log.info("로그인 성공: {}", email);
@@ -229,7 +234,7 @@ public class AuthController {
                     .loginType("kakao")
                     .nickName(nickName)
                     .userName(userName)
-                    .phone(phone)
+                    .phone("")
                     .userType('U')
                     .password("")
                     .build();
@@ -376,120 +381,120 @@ public class AuthController {
             response.sendRedirect("http://localhost:3000/signup"); // 회원가입 페이지로 리다이렉트
         }
     }
-        //네이버 회원가입
-        @GetMapping("/naver/signup/callback")
-        public void naverSignup(@RequestParam String code, HttpServletResponse response) throws IOException {
-            String tokenUrl = "https://nid.naver.com/oauth2.0/token";
-            HttpHeaders tokenHeaders = new HttpHeaders();
-            tokenHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-            String encodedRedirectUri = URLEncoder.encode(naverRedirectSignupUri, StandardCharsets.UTF_8.toString());
-            String tokenRequestBody = "grant_type=authorization_code"
-                    + "&client_id=" + naverClientId
-                    + "&client_secret=" + naverClientSecret
-                    + "&redirect_uri=" + encodedRedirectUri
-                    + "&code=" + code;
+    //네이버 회원가입
+    @GetMapping("/naver/signup/callback")
+    public void naverSignup(@RequestParam String code, HttpServletResponse response) throws IOException {
+        String tokenUrl = "https://nid.naver.com/oauth2.0/token";
+        HttpHeaders tokenHeaders = new HttpHeaders();
+        tokenHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        String encodedRedirectUri = URLEncoder.encode(naverRedirectSignupUri, StandardCharsets.UTF_8.toString());
+        String tokenRequestBody = "grant_type=authorization_code"
+                + "&client_id=" + naverClientId
+                + "&client_secret=" + naverClientSecret
+                + "&redirect_uri=" + encodedRedirectUri
+                + "&code=" + code;
 
-            HttpEntity<String> tokenRequestEntity = new HttpEntity<>(tokenRequestBody, tokenHeaders);
-            RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<String> tokenResponse;
+        HttpEntity<String> tokenRequestEntity = new HttpEntity<>(tokenRequestBody, tokenHeaders);
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> tokenResponse;
 
-            try {
-                tokenResponse = restTemplate.exchange(tokenUrl, HttpMethod.POST, tokenRequestEntity, String.class);
-            } catch (HttpClientErrorException | HttpServerErrorException e) {
-                log.error("HTTP error: {}", e.getStatusCode());
-                response.sendRedirect("/error");
-                return;
-            } catch (ResourceAccessException e) {
-                log.error("Resource access error: {}", e.getMessage());
-                response.sendRedirect("/error");
-                return;
-            }
-
-            JSONObject tokenJson = new JSONObject(tokenResponse.getBody());
-            String accessToken = tokenJson.getString("access_token");
-
-            String userInfoUrl = "https://openapi.naver.com/v1/nid/me";
-            HttpHeaders userInfoHeaders = new HttpHeaders();
-            userInfoHeaders.set("Authorization", "Bearer " + accessToken);
-
-            HttpEntity<String> userInfoRequestEntity = new HttpEntity<>(userInfoHeaders);
-            ResponseEntity<String> userInfoResponse;
-
-            try {
-                userInfoResponse = restTemplate.exchange(userInfoUrl, HttpMethod.GET, userInfoRequestEntity, String.class);
-            } catch (HttpClientErrorException | HttpServerErrorException e) {
-                log.error("HTTP error: {}", e.getStatusCode());
-                response.sendRedirect("/error");
-                return;
-            } catch (ResourceAccessException e) {
-                log.error("Resource access error: {}", e.getMessage());
-                response.sendRedirect("/error");
-                return;
-            }
-
-            JSONObject userJson = new JSONObject(userInfoResponse.getBody()).getJSONObject("response");
-            String email = userJson.has("email") ? userJson.getString("email") : null;
-            String userName = userJson.has("userName") ? userJson.getString("userName") : null;
-            String phone = userJson.has("phone") ? userJson.getString("phone") : null;
-            String nickName = userJson.has("nickName") ? userJson.getString("nickName") : null;
-
-
-            if (email == null) {
-                response.sendRedirect("http://localhost:3000/login");
-                return;
-            }
-
-            Optional<User> optionalUser = userRepository.findByEmailAndLoginType(email, "naver");
-
-            if (optionalUser.isPresent()) {
-                response.sendRedirect("http://localhost:3000/login");
-            } else {
-                User newUser = User.builder()
-                        .userId(email)
-                        .email(email)
-                        .loginType("naver")
-                        .userName(userName)
-                        .nickName(nickName)
-                        .phone(phone)
-                        .userType('U')
-                        .password("")
-                        .build();
-
-                userRepository.save(newUser);
-
-                SocialLogin socialLogin = SocialLogin.builder()
-                        .socialUserId(email)
-                        .userId(email)
-                        .socialsite("naver")
-                        .loginTime(LocalDateTime.now())
-                        .build();
-                socialLogin.setUser(newUser);
-                socialLoginRepository.save(socialLogin);
-
-                response.sendRedirect("http://localhost:3000/login");
-            }
+        try {
+            tokenResponse = restTemplate.exchange(tokenUrl, HttpMethod.POST, tokenRequestEntity, String.class);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            log.error("HTTP error: {}", e.getStatusCode());
+            response.sendRedirect("/error");
+            return;
+        } catch (ResourceAccessException e) {
+            log.error("Resource access error: {}", e.getMessage());
+            response.sendRedirect("/error");
+            return;
         }
+
+        JSONObject tokenJson = new JSONObject(tokenResponse.getBody());
+        String accessToken = tokenJson.getString("access_token");
+
+        String userInfoUrl = "https://openapi.naver.com/v1/nid/me";
+        HttpHeaders userInfoHeaders = new HttpHeaders();
+        userInfoHeaders.set("Authorization", "Bearer " + accessToken);
+
+        HttpEntity<String> userInfoRequestEntity = new HttpEntity<>(userInfoHeaders);
+        ResponseEntity<String> userInfoResponse;
+
+        try {
+            userInfoResponse = restTemplate.exchange(userInfoUrl, HttpMethod.GET, userInfoRequestEntity, String.class);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            log.error("HTTP error: {}", e.getStatusCode());
+            response.sendRedirect("/error");
+            return;
+        } catch (ResourceAccessException e) {
+            log.error("Resource access error: {}", e.getMessage());
+            response.sendRedirect("/error");
+            return;
+        }
+
+        JSONObject userJson = new JSONObject(userInfoResponse.getBody()).getJSONObject("response");
+        String email = userJson.has("email") ? userJson.getString("email") : null;
+        String userName = userJson.has("userName") ? userJson.getString("userName") : null;
+        String phone = userJson.has("phone") ? userJson.getString("phone") : null;
+        String nickName = userJson.has("nickName") ? userJson.getString("nickName") : null;
+
+
+        if (email == null) {
+            response.sendRedirect("http://localhost:3000/login");
+            return;
+        }
+
+        Optional<User> optionalUser = userRepository.findByEmailAndLoginType(email, "naver");
+
+        if (optionalUser.isPresent()) {
+            response.sendRedirect("http://localhost:3000/login");
+        } else {
+            User newUser = User.builder()
+                    .userId(email)
+                    .email(email)
+                    .loginType("naver")
+                    .userName(userName)
+                    .nickName(nickName)
+                    .phone("")
+                    .userType('U')
+                    .password("")
+                    .build();
+
+            userRepository.save(newUser);
+
+            SocialLogin socialLogin = SocialLogin.builder()
+                    .socialUserId(email)
+                    .userId(email)
+                    .socialsite("naver")
+                    .loginTime(LocalDateTime.now())
+                    .build();
+            socialLogin.setUser(newUser);
+            socialLoginRepository.save(socialLogin);
+
+            response.sendRedirect("http://localhost:3000/login");
+        }
+    }
 
 
     //네이버 로그아웃
-        @GetMapping("/naver/logout")
-        public void naverLogout(@RequestParam String accessToken, HttpServletResponse response) throws IOException {
-            log.info("accessToken for logout = {}", accessToken);
+    @GetMapping("/naver/logout")
+    public void naverLogout(@RequestParam String accessToken, HttpServletResponse response) throws IOException {
+        log.info("accessToken for logout = {}", accessToken);
 
-            // 카카오 로그아웃 처리
-            String logoutUrl = "https://kapi.kakao.com/v1/user/logout";
-            HttpHeaders logoutHeaders = new HttpHeaders();
-            logoutHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-            logoutHeaders.set("Authorization", "Bearer " + accessToken);
+        // 카카오 로그아웃 처리
+        String logoutUrl = "https://kapi.kakao.com/v1/user/logout";
+        HttpHeaders logoutHeaders = new HttpHeaders();
+        logoutHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        logoutHeaders.set("Authorization", "Bearer " + accessToken);
 
-            HttpEntity<String> logoutRequestEntity = new HttpEntity<>(logoutHeaders);
-            RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<String> logoutResponse = restTemplate.exchange(logoutUrl, HttpMethod.POST, logoutRequestEntity, String.class);
-            log.info("logout response = {}", logoutResponse.getBody());
+        HttpEntity<String> logoutRequestEntity = new HttpEntity<>(logoutHeaders);
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> logoutResponse = restTemplate.exchange(logoutUrl, HttpMethod.POST, logoutRequestEntity, String.class);
+        log.info("logout response = {}", logoutResponse.getBody());
 
-            // 로그아웃 성공 후 리다이렉트
-            response.sendRedirect("http://localhost:3000/logout-success");
-        }
+        // 로그아웃 성공 후 리다이렉트
+        response.sendRedirect("http://localhost:3000/logout-success");
+    }
 
     // 유저 정보 수정
     @PutMapping("/update")
