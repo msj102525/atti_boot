@@ -10,7 +10,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,7 +35,7 @@ public class BoardAdminVersionService {
 
     // 커뮤니티(admin ver.) ***********************************
 
-    public List<CommunityAdminVersionDto> getAllCommunityAdminVersion(int page, int size, String searchField, String searchInput) {
+    public Map<String, Object> getAllCommunityAdminVersion(int page, int size, String searchField, String searchInput) {
         Pageable pageable = PageRequest.of(page, size);
         Page<CommunityAdminVersionEntity> memberPage;
 
@@ -51,9 +53,20 @@ public class BoardAdminVersionService {
 
         log.info("Total Elements: {}", memberPage.getTotalElements());
 
-        return memberPage.getContent().stream()
+//        return memberPage.getContent().stream()
+//                .map(this::convertToCommunityAdminVersionDto)
+//                .collect(Collectors.toList());
+
+        List<CommunityAdminVersionDto> memberDtos = memberPage.getContent().stream()
                 .map(this::convertToCommunityAdminVersionDto)
                 .collect(Collectors.toList());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("members", memberDtos);
+        response.put("totalPages", memberPage.getTotalPages());
+
+        return response;
+
     }
 
     // AdminEntity를 AdminDto로 변환하는 메서드
@@ -78,7 +91,7 @@ public class BoardAdminVersionService {
     // 공지사항(admin ver.) ***************************************
 
 
-    public List<NoticeAdminVersionDto> getAllNoticeAdminVersion(int page, int size, String searchField, String searchInput) {
+    public Map<String, Object> getAllNoticeAdminVersion(int page, int size, String searchField, String searchInput) {
         Pageable pageable = PageRequest.of(page, size);
         Page<NoticeAdminVersionEntity> memberPage;
 
@@ -96,9 +109,19 @@ public class BoardAdminVersionService {
 
         log.info("Total Elements: {}", memberPage.getTotalElements());
 
-        return memberPage.getContent().stream()
+//        return memberPage.getContent().stream()
+//                .map(this::convertToNoticeAdminVersionDto)
+//                .collect(Collectors.toList());
+        List<NoticeAdminVersionDto> memberDtos = memberPage.getContent().stream()
                 .map(this::convertToNoticeAdminVersionDto)
                 .collect(Collectors.toList());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("members", memberDtos);
+        response.put("totalPages", memberPage.getTotalPages());
+
+        return response;
+
     }
 
     // AdminEntity를 AdminDto로 변환하는 메서드
@@ -128,7 +151,7 @@ public class BoardAdminVersionService {
 
     // FAQ(admin ver.) **********************************************
 
-    public List<FaqAdminVersionDto> getAllFaqAdminVersion(int page, int size, String searchField, String searchInput) {
+    public Map<String, Object> getAllFaqAdminVersion(int page, int size, String searchField, String searchInput) {
         Pageable pageable = PageRequest.of(page, size);
         Page<FaqAdminVersionEntity> memberPage;
 
@@ -146,9 +169,20 @@ public class BoardAdminVersionService {
 
         log.info("Total Elements: {}", memberPage.getTotalElements());
 
-        return memberPage.getContent().stream()
+//        return memberPage.getContent().stream()
+//                .map(this::convertToFaqAdminVersionDto)
+//                .collect(Collectors.toList());
+
+        List<FaqAdminVersionDto> memberDtos = memberPage.getContent().stream()
                 .map(this::convertToFaqAdminVersionDto)
                 .collect(Collectors.toList());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("members", memberDtos);
+        response.put("totalPages", memberPage.getTotalPages());
+
+        return response;
+
     }
 
     // AdminEntity를 AdminDto로 변환하는 메서드
@@ -176,7 +210,7 @@ public class BoardAdminVersionService {
 
     // 문의하기(admin ver.) *****************************************
 
-    public List<InquiryAdminVersionDto> getAllInquiryAdminVersion(int page, int size, String searchField, String searchInput) {
+    public Map<String, Object> getAllInquiryAdminVersion(int page, int size, String searchField, String searchInput) {
         Pageable pageable = PageRequest.of(page, size);
         Page<InquiryAdminVersionEntity> memberPage;
 
@@ -194,9 +228,19 @@ public class BoardAdminVersionService {
 
         log.info("Total Elements: {}", memberPage.getTotalElements());
 
-        return memberPage.getContent().stream()
+//        return memberPage.getContent().stream()
+//                .map(this::convertToInquiryAdminVersionDto)
+//                .collect(Collectors.toList());
+
+        List<InquiryAdminVersionDto> memberDtos = memberPage.getContent().stream()
                 .map(this::convertToInquiryAdminVersionDto)
                 .collect(Collectors.toList());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("members", memberDtos);
+        response.put("totalPages", memberPage.getTotalPages());
+
+        return response;
     }
 
     // AdminEntity를 AdminDto로 변환하는 메서드
@@ -224,7 +268,7 @@ public class BoardAdminVersionService {
 
     // 오늘 한 줄 (admin ver.) **************************************
 
-    public List<OnewordAdminVersionDto> getAllOnewordAdminVersion(int page, int size, String searchField, String searchInput) {
+    public Map<String, Object> getAllOnewordAdminVersion(int page, int size, String searchField, String searchInput) {
         Pageable pageable = PageRequest.of(page, size);
         Page<OnewordAdminVersionEntity> memberPage;
 
@@ -242,9 +286,19 @@ public class BoardAdminVersionService {
 
         log.info("Total Elements: {}", memberPage.getTotalElements());
 
-        return memberPage.getContent().stream()
+//        return memberPage.getContent().stream()
+//                .map(this::convertToOnewordAdminVersionDto)
+//                .collect(Collectors.toList());
+
+        List<OnewordAdminVersionDto> memberDtos = memberPage.getContent().stream()
                 .map(this::convertToOnewordAdminVersionDto)
                 .collect(Collectors.toList());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("members", memberDtos);
+        response.put("totalPages", memberPage.getTotalPages());
+
+        return response;
     }
 
     // AdminEntity를 AdminDto로 변환하는 메서드

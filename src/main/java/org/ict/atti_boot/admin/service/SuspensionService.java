@@ -3,6 +3,7 @@ package org.ict.atti_boot.admin.service;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.ict.atti_boot.admin.model.dto.AdminDto;
 import org.ict.atti_boot.admin.model.dto.SuspensionDto;
 import org.ict.atti_boot.admin.model.entity.SuspensionEntity;
 import org.ict.atti_boot.admin.repository.SuspensionRepository;
@@ -11,7 +12,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -34,7 +37,7 @@ public class SuspensionService {
         return suspensionRepository.save(suspension);
     }
 
-    public List<SuspensionDto> getAllSuspensionMembers(int page, int size, String searchField, String searchInput) {
+    public Map<String, Object> getAllSuspensionMembers(int page, int size, String searchField, String searchInput) {
         Pageable pageable = PageRequest.of(page, size);
         Page<SuspensionEntity> memberPage;
 
@@ -52,9 +55,19 @@ public class SuspensionService {
 
         log.info("Total Elements: {}", memberPage.getTotalElements());
 
-        return memberPage.getContent().stream()
+//        return memberPage.getContent().stream()
+//                .map(this::convertToSuspensionDto)
+//                .collect(Collectors.toList());
+
+        List<SuspensionDto> memberDtos = memberPage.getContent().stream()
                 .map(this::convertToSuspensionDto)
                 .collect(Collectors.toList());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("members", memberDtos);
+        response.put("totalPages", memberPage.getTotalPages());
+
+        return response;
     }
 
     // AdminEntity를 AdminDto로 변환하는 메서드

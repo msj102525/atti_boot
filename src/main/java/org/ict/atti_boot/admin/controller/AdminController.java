@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -47,18 +48,19 @@ public class AdminController {
 //    }
 
     @GetMapping("/memberList")
-    public ResponseEntity<List<AdminDto>> getAllMembers(
+    public ResponseEntity<Map<String, Object>> getAllMembers(
             @RequestParam(value = "searchField", required = false) String searchField,
             @RequestParam(value = "searchInput", required = false) String searchInput,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size
     ) {
         try {
-            List<AdminDto> members = adminService.getAllMembers(page, size, searchField, searchInput);
-            if (members.isEmpty()) {
+//            List<AdminDto> members = adminService.getAllMembers(page, size, searchField, searchInput);
+            Map<String, Object> response = adminService.getAllMembers(page, size, searchField, searchInput);
+            if (((List<?>) response.get("members")).isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
-            return new ResponseEntity<>(members, HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             log.error("Error while fetching members: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

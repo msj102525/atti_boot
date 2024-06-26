@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin")
@@ -30,18 +31,18 @@ public class SuspensionController {
 
 
     @GetMapping("/suspensionMemberList")
-    public ResponseEntity<List<SuspensionDto>> getAllSuspensionMembers(
+    public ResponseEntity<Map<String, Object>> getAllSuspensionMembers(
             @RequestParam(value = "searchField", required = false) String searchField,
             @RequestParam(value = "searchInput", required = false) String searchInput,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size
     ) {
         try {
-            List<SuspensionDto> members = suspensionService.getAllSuspensionMembers(page, size, searchField, searchInput);
-            if (members.isEmpty()) {
+            Map<String, Object> response = suspensionService.getAllSuspensionMembers(page, size, searchField, searchInput);
+            if (((List<?>) response.get("members")).isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
-            return new ResponseEntity<>(members, HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             log.error("Error while fetching members: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

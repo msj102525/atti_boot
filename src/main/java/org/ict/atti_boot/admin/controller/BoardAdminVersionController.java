@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin")
@@ -24,18 +25,18 @@ public class BoardAdminVersionController {
     // 커뮤니티(admin ver.) ***********************************
 
     @GetMapping("/communityAdminVersionList")
-    public ResponseEntity<List<CommunityAdminVersionDto>> getAllCommunityAdminVersion(
+    public ResponseEntity<Map<String, Object>> getAllCommunityAdminVersion(
             @RequestParam(value = "searchField", required = false) String searchField,
             @RequestParam(value = "searchInput", required = false) String searchInput,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size
     ) {
         try {
-            List<CommunityAdminVersionDto> members = boardAdminVersionService.getAllCommunityAdminVersion(page, size, searchField, searchInput);
-            if (members.isEmpty()) {
+            Map<String, Object> response  = boardAdminVersionService.getAllCommunityAdminVersion(page, size, searchField, searchInput);
+            if (((List<?>) response.get("members")).isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
-            return new ResponseEntity<>(members, HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             log.error("Error while fetching members: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -61,18 +62,18 @@ public class BoardAdminVersionController {
     // 공지사항(admin ver.) *************************************
 
     @GetMapping("/noticeAdminVersionList")
-    public ResponseEntity<List<NoticeAdminVersionDto>> getAllNoticeAdminVersion(
+    public ResponseEntity<Map<String, Object>> getAllNoticeAdminVersion(
             @RequestParam(value = "searchField", required = false) String searchField,
             @RequestParam(value = "searchInput", required = false) String searchInput,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size
     ) {
         try {
-            List<NoticeAdminVersionDto> members = boardAdminVersionService.getAllNoticeAdminVersion(page, size, searchField, searchInput);
-            if (members.isEmpty()) {
+            Map<String, Object> response = boardAdminVersionService.getAllNoticeAdminVersion(page, size, searchField, searchInput);
+            if (((List<?>) response.get("members")).isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
-            return new ResponseEntity<>(members, HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             log.error("Error while fetching members: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -100,18 +101,18 @@ public class BoardAdminVersionController {
     // FAQ(admin ver.) **********************************************
 
     @GetMapping("/faqAdminVersionList")
-    public ResponseEntity<List<FaqAdminVersionDto>> getAllFaqAdminVersion(
+    public ResponseEntity<Map<String, Object>> getAllFaqAdminVersion(
             @RequestParam(value = "searchField", required = false) String searchField,
             @RequestParam(value = "searchInput", required = false) String searchInput,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size
     ) {
         try {
-            List<FaqAdminVersionDto> members = boardAdminVersionService.getAllFaqAdminVersion(page, size, searchField, searchInput);
-            if (members.isEmpty()) {
+            Map<String, Object> response = boardAdminVersionService.getAllFaqAdminVersion(page, size, searchField, searchInput);
+            if (((List<?>) response.get("members")).isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
-            return new ResponseEntity<>(members, HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             log.error("Error while fetching members: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -142,18 +143,18 @@ public class BoardAdminVersionController {
     // 문의하기(admin ver.) ****************************************
 
     @GetMapping("/inquiryAdminVersionList")
-    public ResponseEntity<List<InquiryAdminVersionDto>> getAllInquiryAdminVersion(
+    public ResponseEntity<Map<String, Object>> getAllInquiryAdminVersion(
             @RequestParam(value = "searchField", required = false) String searchField,
             @RequestParam(value = "searchInput", required = false) String searchInput,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size
     ) {
         try {
-            List<InquiryAdminVersionDto> members = boardAdminVersionService.getAllInquiryAdminVersion(page, size, searchField, searchInput);
-            if (members.isEmpty()) {
+            Map<String, Object> response = boardAdminVersionService.getAllInquiryAdminVersion(page, size, searchField, searchInput);
+            if (((List<?>) response.get("members")).isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
-            return new ResponseEntity<>(members, HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             log.error("Error while fetching members: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -183,18 +184,18 @@ public class BoardAdminVersionController {
     //오늘 한 줄 (admin ver.) **************************************
 
     @GetMapping("/onewordAdminVersionList")
-    public ResponseEntity<List<OnewordAdminVersionDto>> getAllOnewordAdminVersion(
+    public ResponseEntity<Map<String, Object>> getAllOnewordAdminVersion(
             @RequestParam(value = "searchField", required = false) String searchField,
             @RequestParam(value = "searchInput", required = false) String searchInput,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size
     ) {
         try {
-            List<OnewordAdminVersionDto> members = boardAdminVersionService.getAllOnewordAdminVersion(page, size, searchField, searchInput);
-            if (members.isEmpty()) {
+            Map<String, Object> response = boardAdminVersionService.getAllOnewordAdminVersion(page, size, searchField, searchInput);
+            if (((List<?>) response.get("members")).isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
-            return new ResponseEntity<>(members, HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             log.error("Error while fetching members: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

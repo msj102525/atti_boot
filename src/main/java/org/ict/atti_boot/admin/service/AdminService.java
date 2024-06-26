@@ -10,7 +10,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,7 +33,8 @@ public class AdminService {
 //        return users.stream().map(this::convertToAdminDto).collect(Collectors.toList());
 //    }
 
-    public List<AdminDto> getAllMembers(int page, int size, String searchField, String searchInput) {
+    //public List<AdminDto> getAllMembers(int page, int size, String searchField, String searchInput) {
+    public Map<String, Object> getAllMembers(int page, int size, String searchField, String searchInput) {
         Pageable pageable = PageRequest.of(page, size);
         Page<AdminEntity> memberPage;
 
@@ -47,11 +50,23 @@ public class AdminService {
             memberPage = adminRepository.findAll(pageable);
         }
 
-        log.info("Total Elements: {}", memberPage.getTotalElements());
+        //log.info("Total Elements: {}", memberPage.getTotalElements());
 
-        return memberPage.getContent().stream()
+//        return memberPage.getContent().stream()
+//                .map(this::convertToAdminDto)
+//                .collect(Collectors.toList());
+
+        List<AdminDto> memberDtos = memberPage.getContent().stream()
                 .map(this::convertToAdminDto)
                 .collect(Collectors.toList());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("members", memberDtos);
+        response.put("totalPages", memberPage.getTotalPages());
+
+        return response;
+
+
     }
 
 
