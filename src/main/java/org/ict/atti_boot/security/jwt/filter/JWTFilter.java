@@ -46,6 +46,7 @@ public class JWTFilter extends OncePerRequestFilter {
         String requestMethod = request.getMethod();
         log.info("requestURI={}", requestURI);
 
+        // 특정 요청 URI에 대해서는 필터링을 하지 않고 바로 다음 필터로 넘어감
         if ("/reissue".equals(requestURI) || "/users/signup".equals(requestURI)) {
             filterChain.doFilter(request, response);
             log.info("/reissue={}", requestURI);
@@ -100,35 +101,37 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
+        //jwt 토큰 추출
         String token = authorization.split(" ")[1];
 
         try {
+            // 토큰이 만료되었는지 확인
             jwtUtil.isTokenExpired(token);
-
+            // 토큰의 모든 클레임을 가져옴
             Claims claims = jwtUtil.getAllClaimsFromToken(token);
             log.info("JWT Claims: {}", claims);
-
+            // 토큰의 카테고리가 'access'인지 확인
             String category = jwtUtil.getCategoryFromToken(token);
             if (category == null || !category.equals("access")) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
-
+            // 토큰에서 사용자 정보 추출
             String userId = jwtUtil.getUserEmailFromToken(token);
             boolean is_admin = jwtUtil.isAdminFromToken(token);
             String userRealId = jwtUtil.getUserIdFromToken(token);
-
+            // 사용자 객체 생성 및 설정
             User user = new User();
             user.setEmail(userId);
             user.setUserId(userRealId);
             user.setPassword("tempPassword");
             user.setUserType(String.valueOf(user.getUserType()));
-
+            // 사용자 인증 정보 설정
             CustomUserDetails customUserDetails = new CustomUserDetails(user, is_admin, suspensionRepository);
             Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
 
             SecurityContextHolder.getContext().setAuthentication(authToken);
-
+            // 다음 필터 호출
             filterChain.doFilter(request, response);
             log.info(userId);
 

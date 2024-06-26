@@ -22,12 +22,12 @@ public class JWTUtil {
 
     private final SecretKey secretKey;
     private final UserRepository userRepository;
-
+    // 생성자를 통해 비밀 키와 UserRepository 인스턴스를 주입
     public JWTUtil(@Value("${jwt.secret}") String secret, UserRepository userRepository) {
         this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.HS256.getJcaName());
         this.userRepository = userRepository;
     }
-
+    //jwt 토큰 생성
     public String generateToken(String userEmail, String category, Long expiredMs) {
         Optional<User> user = userRepository.findByEmail(userEmail);
 
@@ -42,16 +42,19 @@ public class JWTUtil {
                 .claim("admin", isAdmin)
                 .claim("category", category)
                 .claim("userId", user.get().getUserId())
-                .setExpiration(new Date(System.currentTimeMillis() + expiredMs))
+                .setExpiration(new Date(System.currentTimeMillis() + expiredMs))    //토큰 만료 시간 (밀리초)
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
 
         log.info("generate token : " + token);
         return token;
     }
-
+    //jwt 토큰에서 사용자 이메일 추출
     public String getUserEmailFromToken(String token) {
         try {
+            if (token.startsWith("Bearer")) {
+                return token.substring(7);
+            }
             Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
             return claims.getSubject();
         } catch (JwtException | IllegalArgumentException e) {
@@ -61,6 +64,7 @@ public class JWTUtil {
     }
 
     //getUserIdFromToken 만들기
+    //jwt 토큰에서 사용자 아이디 추출
     public String getUserIdFromToken(String token) {
         try {
             if (token.startsWith("Bearer ")) {
@@ -101,8 +105,12 @@ public class JWTUtil {
 //        }
 //    }
 
+    //토큰 만료 여부 확인
     public boolean isTokenExpired(String token) {
         try {
+            if(token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
             Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
             return claims.getBody().getExpiration().before(new Date());
         } catch (MalformedJwtException | SignatureException | UnsupportedJwtException | DecodingException e) {
@@ -111,9 +119,12 @@ public class JWTUtil {
         }
     }
 
-
+    //토큰에서 관리자여부 확인
     public boolean isAdminFromToken(String token) {
         try {
+            if(token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
             Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
             return Boolean.TRUE.equals(claims.get("admin", Boolean.class));
         } catch (JwtException | IllegalArgumentException e) {
@@ -122,9 +133,12 @@ public class JWTUtil {
         }
     }
 
-
+    // 토큰에서 카테고리 추출
     public String getCategoryFromToken(String token) {
         try {
+            if (token.startsWith("Bearer")) {
+                return token.substring(7);
+            }
             Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
             return claims.get("category", String.class);
         } catch (MalformedJwtException e) {
