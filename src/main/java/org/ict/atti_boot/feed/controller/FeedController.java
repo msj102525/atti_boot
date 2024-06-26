@@ -48,9 +48,14 @@ public class FeedController {
             @RequestParam(name = "subCategory", required = false) String subCategory,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size,
-            @RequestParam(name = "searchData", required = false) String searchData
+            @RequestParam(name = "searchData", required = false) String searchData,
+            @RequestHeader(value = "Authorization", required = false) String token
     ) {
-        String loginUserId = "door123";
+
+        String loginUserId = null;
+        if (token != null) {
+            loginUserId = jwtUtil.getUserIdFromToken(token);
+        }
 
         log.info("selectAllFeeds called");
         log.info("Page:" + page);
@@ -92,10 +97,13 @@ public class FeedController {
 
     @GetMapping("/{feedNum}")
     public ResponseEntity<FeedListOutput> selectFeedByFeedNum(
-            @PathVariable(name = "feedNum") int feedNum
+            @PathVariable(name = "feedNum") int feedNum,
+            @RequestHeader(value = "Authorization", required = false) String token
     ) {
-        String loginUserId = "door123";
-        log.info("selectFeedByFeedNum called : {}", feedNum);
+        String loginUserId = null;
+        if (token != null) {
+            loginUserId = jwtUtil.getUserIdFromToken(token);
+        }
 
         Feed feed = feedService.selectFeedById(feedNum);
         if (feed != null) {
@@ -169,14 +177,14 @@ public class FeedController {
     }
 
     @PutMapping("")
-    public ResponseEntity<Void> updateFeed(
-
-            @RequestBody FeedUpdateInputDto feedUpdateInputDto
+    public ResponseEntity<Void> updateFeed(@RequestHeader("Authorization") String token, @RequestBody FeedUpdateInputDto feedUpdateInputDto
     ) {
         log.info(feedUpdateInputDto.toString());
+        String userId = jwtUtil.getUserIdFromToken(token);
+        log.info(userId);
 
 
-        Optional<User> optionalUser = userService.findByUserId("door123");
+        Optional<User> optionalUser = userService.findByUserId(userId);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             Feed selectFeedById = feedService.selectFeedById(feedUpdateInputDto.getFeedNum());
