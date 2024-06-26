@@ -564,14 +564,19 @@ public ResponseEntity<?> unlinkKakaoAccount(@RequestBody Map<String, String> req
         return ResponseEntity.ok(updatedUser);
     }
 
-    // 네이버 연결끊기
+    // 네이버 연결 끊기
     @PostMapping("/unlink-naver")
     public ResponseEntity<?> unlinkNaverAccount(@RequestBody Map<String, String> request) {
         String accessToken = request.get("accessToken");
 
+        if (accessToken == null || accessToken.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "error", "Access token is missing"));
+        }
+
         String unlinkUrl = "https://nid.naver.com/oauth2.0/token";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
         String body = "grant_type=delete"
                 + "&client_id=" + naverClientId
                 + "&client_secret=" + naverClientSecret
@@ -581,6 +586,7 @@ public ResponseEntity<?> unlinkKakaoAccount(@RequestBody Map<String, String> req
 
         RestTemplate restTemplate = new RestTemplate();
         log.info("unlinkNaverAccount: {}", unlinkUrl);
+
         try {
             ResponseEntity<String> response = restTemplate.exchange(
                     unlinkUrl,
@@ -595,6 +601,7 @@ public ResponseEntity<?> unlinkKakaoAccount(@RequestBody Map<String, String> req
                 return ResponseEntity.status(response.getStatusCode()).body(Map.of("success", false, "error", response.getBody()));
             }
         } catch (Exception e) {
+            log.error("Error unlinking Naver account", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("success", false, "error", e.getMessage()));
         }
     }
