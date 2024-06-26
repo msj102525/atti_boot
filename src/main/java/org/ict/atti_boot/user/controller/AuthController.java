@@ -150,40 +150,40 @@ public class AuthController {
                     .build();
             tokenLoginService.save(tokenLogin);
 
-            Date birthDate = user.getBirthDate();
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-            String formattedDate = formatter.format(birthDate);
-
-            Character gander = user.getGender();
-            String gender = gander.toString();
-
-            String encodedUserName = URLEncoder.encode(user.getUserName(), StandardCharsets.UTF_8);
-            String encodedNickName = URLEncoder.encode(user.getNickName(), StandardCharsets.UTF_8);
-            String encodedPhone = URLEncoder.encode(user.getPhone(), StandardCharsets.UTF_8);
-            String encodedBirthDate = URLEncoder.encode(formattedDate, StandardCharsets.UTF_8);
-            String encodedGander = URLEncoder.encode(gender, StandardCharsets.UTF_8);
-
-            // 로그인 성공 후 URL에 토큰 정보 포함하여 리다이렉트
-            String redirectUrl = String.format("http://localhost:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s&userName=%s&nickName=%s&phone=%s&birthDate=%s&gander=%s&loginType=%s",
-                    accessTokenJwt, refreshTokenJwt, user.getUserId(), user.getEmail(),encodedUserName,encodedNickName,encodedPhone,encodedBirthDate,encodedGander,user.getLoginType());
-            response.sendRedirect(redirectUrl);
-            log.info("로그인 성공: {}", email);
-        } else {
-            log.info("회원가입 필요: {}", email);
-            response.sendRedirect("http://localhost:3000/signup"); // 회원가입 페이지로 리다이렉트
-        }
-    }
+//            Date birthDate = user.getBirthDate();
+//            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+//            String formattedDate = formatter.format(birthDate);
+//
+//            Character gander = user.getGender();
+//            String gender = gander.toString();
+//
+//            String encodedUserName = URLEncoder.encode(user.getUserName(), StandardCharsets.UTF_8);
+//            String encodedNickName = URLEncoder.encode(user.getNickName(), StandardCharsets.UTF_8);
+//            String encodedPhone = URLEncoder.encode(user.getPhone(), StandardCharsets.UTF_8);
+//            String encodedBirthDate = URLEncoder.encode(formattedDate, StandardCharsets.UTF_8);
+//            String encodedGander = URLEncoder.encode(gender, StandardCharsets.UTF_8);
+//
 //            // 로그인 성공 후 URL에 토큰 정보 포함하여 리다이렉트
-//            String redirectUrl = String.format("http://localhost:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s&userName=%s&nickName=%s&phone=%s&birthday=%s&gender=%s&loginType=%s",
-//                    accessTokenJwt, refreshTokenJwt, user.getUserId(), user.getEmail(), user.getUserName(), user.getNickName(), user.getPhone(), user.getBirthDate(), user.getGender(),user.getLoginType());
+//            String redirectUrl = String.format("http://localhost:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s&userName=%s&nickName=%s&phone=%s&birthDate=%s&gander=%s&loginType=%s",
+//                    accessTokenJwt, refreshTokenJwt, user.getUserId(), user.getEmail(),encodedUserName,encodedNickName,encodedPhone,encodedBirthDate,encodedGander,user.getLoginType());
 //            response.sendRedirect(redirectUrl);
 //            log.info("로그인 성공: {}", email);
 //        } else {
-//            // 신규 사용자 회원가입 필요
 //            log.info("회원가입 필요: {}", email);
 //            response.sendRedirect("http://localhost:3000/signup"); // 회원가입 페이지로 리다이렉트
 //        }
 //    }
+            // 로그인 성공 후 URL에 토큰 정보 포함하여 리다이렉트
+            String redirectUrl = String.format("http://localhost:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s&userName=%s&nickName=%s&phone=%s&birthday=%s&gender=%s&loginType=%s",
+                    accessTokenJwt, refreshTokenJwt, user.getUserId(), user.getEmail(), user.getUserName(), user.getNickName(), user.getPhone(), user.getBirthDate(), user.getGender(),user.getLoginType());
+            response.sendRedirect(redirectUrl);
+            log.info("로그인 성공: {}", email);
+        } else {
+            // 신규 사용자 회원가입 필요
+            log.info("회원가입 필요: {}", email);
+            response.sendRedirect("http://localhost:3000/signup"); // 회원가입 페이지로 리다이렉트
+        }
+    }
 
 
         //카카오 회원 가입
