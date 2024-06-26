@@ -47,7 +47,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         this.tokenLoginService = tokenLoginService;
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
-        this.refreshExpiredMs = 86400000L;   // 1일
+//        this.refreshExpiredMs = 86400000L;   // 1일
+        this.refreshExpiredMs = 7200000L;     // 2시간
         this.accessExpiredMs = 600000L;      // 10분
     }
 
@@ -115,6 +116,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
             // 응답 헤더에 액세스 토큰을 추가합니다.
             response.addHeader("Authorization", "Bearer " + accessToken);
+            response.addHeader("Authorization", "Bearer " + refreshToken);
             response.setHeader("Access-Control-Expose-Headers", "Authorization");
 
             // 응답 본문에 사용자 정보를 JSON 형식으로 추가합니다.

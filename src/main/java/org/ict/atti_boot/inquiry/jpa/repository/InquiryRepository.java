@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface InquiryRepository extends JpaRepository<InquiryEntity, Integer> {
     List<InquiryEntity> findByTitleContaining(String keyword);
+
+    void deleteByUserId(String userId);
 }

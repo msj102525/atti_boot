@@ -40,7 +40,7 @@ public class InquiryService {
 
     @Transactional
     public List<InquiryEntity> searchInquiries(Map<String, String> params) {
-        // 예시로 제목을 검색하는 로직 구현
+        //제목을 검색
         return inquiryRepository.findByTitleContaining(params.get("keyword"));
     }
 
@@ -66,5 +66,10 @@ public class InquiryService {
     @Transactional
     public void deleteInquiry(int inquiryNo) {
         inquiryRepository.deleteById(inquiryNo);
+    }
+
+    @Transactional
+    public void deleteInquiriesByUserId(String userId) {
+    inquiryRepository.deleteByUserId(userId);
     }
 }

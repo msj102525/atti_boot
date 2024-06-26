@@ -3,6 +3,7 @@ package org.ict.atti_boot.inquiry.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.inquiry.jpa.entity.InquiryEntity;
 import org.ict.atti_boot.inquiry.model.inquiryService.InquiryService;
+import org.ict.atti_boot.user.model.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,9 +17,11 @@ import java.util.Map;
 public class InquiryController {
 
     private final InquiryService inquiryService;
+    private final UserService userService;
 
-    public InquiryController(InquiryService inquiryService) {
+    public InquiryController(InquiryService inquiryService, UserService userService) {
         this.inquiryService = inquiryService;
+        this.userService = userService;
     }
 
     // 문의사항 리스트 가져오기
@@ -62,10 +65,21 @@ public class InquiryController {
         return ResponseEntity.ok(createdInquiry);
     }
 
-    // 문의사항 삭제
+     //문의사항 삭제
     @DeleteMapping("/inquiryDelete/{inquiryNo}")
     public ResponseEntity<Void> deleteInquiry(@PathVariable int inquiryNo) {
         inquiryService.deleteInquiry(inquiryNo);
         return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/deleteUser/{userId}")
+    public ResponseEntity<Void> deleteUser(@PathVariable String userId) {
+        try {
+            userService.deleteUser(userId);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            log.error("Error deleting user: {}", userId, e);
+            return ResponseEntity.status(500).build();
+        }
     }
 }

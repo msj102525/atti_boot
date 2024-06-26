@@ -47,9 +47,14 @@ public class JWTFilter extends OncePerRequestFilter {
         log.info("requestURI={}", requestURI);
 
         // 특정 요청 URI에 대해서는 필터링을 하지 않고 바로 다음 필터로 넘어감
-        if ("/reissue".equals(requestURI) || "/users/signup".equals(requestURI)) {
+//        if ("/reissue".equals(requestURI) || "/users/signup".equals(requestURI)) {
+//            filterChain.doFilter(request, response);
+//            log.info("/reissue={}", requestURI);
+//            return;
+//        }
+        if ("/users/signup".equals(requestURI)) {
             filterChain.doFilter(request, response);
-            log.info("/reissue={}", requestURI);
+            log.info("/users/signup={}", requestURI);
             return;
         }
         if (requestURI.startsWith("/images")) {
@@ -100,6 +105,7 @@ public class JWTFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
+
 
         //jwt 토큰 추출
         String token = authorization.split(" ")[1];
