@@ -123,7 +123,7 @@ public class FeedController {
 
             FeedListOutput searchFeedOutput = buildSingleFeedOutput(searchFeed, loginUserId);
             feedListOutputList.add(0, searchFeedOutput);
-            
+
             return ResponseEntity.ok().body(feedListOutputList);
         } else {
             return ResponseEntity.notFound().build();
@@ -131,10 +131,13 @@ public class FeedController {
     }
 
     @PostMapping("")
-    public ResponseEntity<FeedSaveOutput> insertFeed(@RequestBody FeedSaveInputDto feedSaveInputDto) {
+    public ResponseEntity<FeedSaveOutput> insertFeed(@RequestHeader("Authorization") String token, @RequestBody FeedSaveInputDto feedSaveInputDto) {
         log.info(feedSaveInputDto.toString());
+        log.info(token);
 
-        Optional<User> optionalUser = userService.findByUserId("door123");
+        String userId = jwtUtil.getUserIdFromToken(token);
+
+        Optional<User> optionalUser = userService.findByUserId(userId);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
 
@@ -166,8 +169,12 @@ public class FeedController {
     }
 
     @PutMapping("")
-    public ResponseEntity<Void> updateFeed(@RequestBody FeedUpdateInputDto feedUpdateInputDto) {
+    public ResponseEntity<Void> updateFeed(
+
+            @RequestBody FeedUpdateInputDto feedUpdateInputDto
+    ) {
         log.info(feedUpdateInputDto.toString());
+
 
         Optional<User> optionalUser = userService.findByUserId("door123");
         if (optionalUser.isPresent()) {

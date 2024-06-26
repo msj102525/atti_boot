@@ -59,14 +59,18 @@ public class JWTUtil {
             return null;
         }
     }
+
     //getUserIdFromToken 만들기
     public String getUserIdFromToken(String token) {
         try {
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
             // JWT에서 클레임 추출
             Claims claims = Jwts.parser()
-                .setSigningKey(secretKey)
-                .parseClaimsJws(token)
-                .getBody();
+                    .setSigningKey(secretKey)
+                    .parseClaimsJws(token)
+                    .getBody();
 
             // 클레임에서 userId 추출
             return claims.get("userId", String.class);
@@ -131,6 +135,7 @@ public class JWTUtil {
             return null;  // 예외 발생 시 null 반환
         }
     }
+
     //모든 클레임 가져옴
     public Claims getAllClaimsFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
