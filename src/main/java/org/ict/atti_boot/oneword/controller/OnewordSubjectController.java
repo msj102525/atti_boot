@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.oneword.model.dto.OnewordSubjectDto;
 import org.ict.atti_boot.oneword.model.service.OnewordSubjectService;
 import org.ict.atti_boot.security.jwt.util.JWTUtil;
+import org.ict.atti_boot.user.jpa.entity.User;
+import org.ict.atti_boot.user.model.service.UserService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -14,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -24,7 +27,8 @@ public class OnewordSubjectController {
     private final OnewordSubjectService onewordSubjectService;
 
     private final JWTUtil jwtUtil;
-    //private final UserRepository userRepository;
+
+    private final UserService userService;
 
     @GetMapping("/list")
     public ResponseEntity<List<OnewordSubjectDto>> selectList(
@@ -95,39 +99,93 @@ public class OnewordSubjectController {
     @PostMapping // insert
     public ResponseEntity<?> insertOnewordSubject(HttpServletRequest request,
                                                   @RequestBody OnewordSubjectDto onewordSubjectDto){
+
         log.info("insertBoard : {}", onewordSubjectDto);
 
         //// 2024.06.25
         String token = request.getHeader("Authorization").substring("Bearer ".length());
-        String userEmail = jwtUtil.getUserEmailFromToken(token);
-        boolean isAdmin = jwtUtil.isAdminFromToken(token);
 
-        log.info("insertBoard(token-2024.06.25) : {}", token);
+        // log.info(feedSaveInputDto.toString());
+        log.info("token(insert) : {}", token);
 
-//        if (!isAdmin) {
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied. User is not an administrator.");
-//        }
+        String userId = jwtUtil.getUserIdFromToken(token);
 
-        onewordSubjectService.insertOnewordSubject(onewordSubjectDto);
-        //return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
-        return new ResponseEntity<Void>(HttpStatus.CREATED);  //// 글등록 성공시 생성되었다는 상태 코드를 반환함
+        //String userEmail = jwtUtil.getUserEmailFromToken(token);
+        //boolean isAdmin = jwtUtil.isAdminFromToken(token);
+
+        //log.info("insertBoard(token-2024.06.25) : {}", token);
+
+        Optional<User> optionalUser = userService.findByUserId(userId);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+
+            log.info("user insert : {}", user.getUserId());
+
+            onewordSubjectDto.setOwsjWriter(user.getUserId());
+
+            onewordSubjectService.insertOnewordSubject(onewordSubjectDto);
+
+            //if (!isAdmin) {
+            //  return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied. User is not an administrator.");
+            //}
+            //return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+
+            return new ResponseEntity<Void>(HttpStatus.CREATED);  //// 글등록 성공시 생성되었다는 상태 코드를 반환함
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            //return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied. User is not an administrator.");
+        }
     }
 
     @PutMapping("/{owsjNum}")  //요청 경로에 반드시 pk 에 해당하는 값을 전송해야 함 (안 보내면 에러)(update)
     public ResponseEntity<OnewordSubjectDto> updateOnewordSubject(
+            HttpServletRequest request,
             @PathVariable("owsjNum") int owsjNum,
             @RequestBody OnewordSubjectDto onewordSubjectDto){
+
         log.info("updateOnewordSubject : {}, {}", owsjNum, onewordSubjectDto);
-        onewordSubjectService.updateOnewordSubject(onewordSubjectDto);
-        //return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
-        return new ResponseEntity<>(onewordSubjectDto, HttpStatus.OK);
+
+        //// 2024.06.27 추가
+        String token = request.getHeader("Authorization").substring("Bearer ".length());
+
+        String userId = jwtUtil.getUserIdFromToken(token);
+
+        Optional<User> optionalUser = userService.findByUserId(userId);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+
+            onewordSubjectDto.setOwsjWriter(user.getUserId());
+            onewordSubjectService.updateOnewordSubject(onewordSubjectDto);
+
+            //return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(onewordSubjectDto, HttpStatus.OK);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
     @DeleteMapping("/{owsjNum}")
-    public ResponseEntity<Integer> deleteOnewordSubject(@PathVariable("owsjNum") int owsjNum){
+    public ResponseEntity<Integer> deleteOnewordSubject(
+            HttpServletRequest request,
+            @PathVariable("owsjNum") int owsjNum){
+
         log.info("deleteNotice : {}", owsjNum);
-        onewordSubjectService.deleteOnewordSubject(owsjNum);
-        //return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
-        return new ResponseEntity<>(owsjNum, HttpStatus.OK);
+
+        //// 2024.06.27 추가
+        String token = request.getHeader("Authorization").substring("Bearer ".length());
+
+        String userId = jwtUtil.getUserIdFromToken(token);
+
+        Optional<User> optionalUser = userService.findByUserId(userId);
+        if (optionalUser.isPresent()) {
+
+            User user = optionalUser.get();
+
+            onewordSubjectService.deleteOnewordSubject(owsjNum);
+            //return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(owsjNum, HttpStatus.OK);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 }
