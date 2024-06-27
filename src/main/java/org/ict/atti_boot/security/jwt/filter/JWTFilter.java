@@ -1,7 +1,5 @@
 package org.ict.atti_boot.security.jwt.filter;
 
-// 필요한 클래스와 인터페이스를 import 합니다.
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -13,31 +11,31 @@ import org.ict.atti_boot.admin.repository.SuspensionRepository;
 import org.ict.atti_boot.security.jwt.util.JWTUtil;
 import org.ict.atti_boot.user.jpa.entity.User;
 import org.ict.atti_boot.user.model.output.CustomUserDetails;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
-// Lombok의 @Slf4j 어노테이션을 사용하여 로깅 기능을 자동으로 추가합니다.
 @Slf4j
-// Spring Security의 OncePerRequestFilter를 상속받아, 모든 요청에 대해 한 번씩 실행되는 필터를 정의합니다.
 public class JWTFilter extends OncePerRequestFilter {
 
-    // JWT 관련 유틸리티 메서드를 제공하는 JWTUtil 클래스의 인스턴스를 멤버 변수로 가집니다.
     private final JWTUtil jwtUtil;
     private final SuspensionRepository suspensionRepository;
 
-    // 생성자를 통해 JWTUtil의 인스턴스를 주입받습니다.
     public JWTFilter(JWTUtil jwtUtil, SuspensionRepository suspensionRepository) {
-
         this.jwtUtil = jwtUtil;
         this.suspensionRepository = suspensionRepository;
     }
 
-    // 필터의 주요 로직을 구현하는 메서드입니다.
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         log.debug("JWTFilter 오류={}", request.getRequestURI());
@@ -46,108 +44,122 @@ public class JWTFilter extends OncePerRequestFilter {
         String requestMethod = request.getMethod();
         log.info("requestURI={}", requestURI);
 
-        // 특정 요청 URI에 대해서는 필터링을 하지 않고 바로 다음 필터로 넘어감
-//        if ("/reissue".equals(requestURI) || "/users/signup".equals(requestURI)) {
-//            filterChain.doFilter(request, response);
-//            log.info("/reissue={}", requestURI);
-//            return;
-//        }
-        if ("/users/signup".equals(requestURI)) {
-            filterChain.doFilter(request, response);
-            log.info("/users/signup={}", requestURI);
-            return;
-        }
-        if (requestURI.startsWith("/images")) {
+        if (skipFiltering(requestURI, requestMethod)) {
             filterChain.doFilter(request, response);
             return;
         }
-        if (requestURI.equals("/review") && requestMethod.equals("GET")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        if (requestURI.startsWith("/doctor") && !requestURI.equals("/doctor/mypage")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        if (requestURI.startsWith("/feed")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        if (requestURI.startsWith("/like")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        if (requestURI.startsWith("/reply")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        if (requestURI.startsWith("/onewordsubject")) {
-            log.info(requestURI);
-            filterChain.doFilter(request, response);
-            return;
-        }
+
         if (authorization == null || !authorization.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
-        if (requestURI.startsWith("/file")) {
-            log.info(requestURI);
-            filterChain.doFilter(request, response);
-            return;
-        }
-        if (requestURI.equals("/auth/signUp") || requestURI.equals("/auth/kakao/callback") || requestURI.equals("/auth/naver/callback")) {
-            log.info(requestURI);
-            filterChain.doFilter(request, response);
-            return;
-        }
-        if (requestURI.startsWith("/inquiry")) {
-            log.info(requestURI);
-            filterChain.doFilter(request, response);
-            return;
-        }
 
-
-        //jwt 토큰 추출
-        String token = authorization.split(" ")[1];
+        String token = authorization.substring(7); // "Bearer "를 제거한 실제 토큰
 
         try {
-            // 토큰이 만료되었는지 확인
-            jwtUtil.isTokenExpired(token);
-            // 토큰의 모든 클레임을 가져옴
             Claims claims = jwtUtil.getAllClaimsFromToken(token);
+            if (jwtUtil.isTokenExpired(token)) {
+                throw new ExpiredJwtException(null, claims, "Token expired");
+            }
             log.info("JWT Claims: {}", claims);
-            // 토큰의 카테고리가 'access'인지 확인
             String category = jwtUtil.getCategoryFromToken(token);
             if (category == null || !category.equals("access")) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
-            // 토큰에서 사용자 정보 추출
-            String userId = jwtUtil.getUserEmailFromToken(token);
+            String username = jwtUtil.getUserEmailFromToken(token);
             boolean is_admin = jwtUtil.isAdminFromToken(token);
             String userRealId = jwtUtil.getUserIdFromToken(token);
-            // 사용자 객체 생성 및 설정
             User user = new User();
-            user.setEmail(userId);
+            user.setEmail(username);
             user.setUserId(userRealId);
             user.setPassword("tempPassword");
             user.setUserType(String.valueOf(user.getUserType()));
-            // 사용자 인증 정보 설정
             CustomUserDetails customUserDetails = new CustomUserDetails(user, is_admin, suspensionRepository);
             Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
 
             SecurityContextHolder.getContext().setAuthentication(authToken);
-            // 다음 필터 호출
             filterChain.doFilter(request, response);
-            log.info(userId);
-
+            log.info(username);
         } catch (ExpiredJwtException e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
+            log.info("토큰이 만료되었습니다. 재발급을 시도합니다.");
+            String newToken = reissueToken(request, response, authorization);
+            if (newToken != null) {
+                response.setHeader("Authorization", "Bearer " + newToken);
+                filterChain.doFilter(request, response);
+            } else {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            }
         } catch (Exception e) {
             log.error("Invalid JWT token", e);
-            filterChain.doFilter(request, response);
-            return;
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         }
     }
+
+    private boolean skipFiltering(String requestURI, String requestMethod) {
+        return "/users/signup".equals(requestURI) || requestURI.startsWith("/images") || requestURI.equals("/review") && requestMethod.equals("GET") ||
+                requestURI.startsWith("/doctor") && !requestURI.equals("/doctor/mypage") || requestURI.startsWith("/feed") ||
+                requestURI.startsWith("/like") || requestURI.startsWith("/reply") || requestURI.startsWith("/onewordsubject") ||
+                requestURI.startsWith("/file") || requestURI.equals("/auth/signUp") || requestURI.equals("/auth/kakao/callback") ||
+                requestURI.equals("/auth/naver/callback") || requestURI.equals("/reissue");
+    }
+
+//    private String reissueToken(HttpServletRequest request, HttpServletResponse response, String expiredToken) {
+//        RestTemplate restTemplate = new RestTemplate();
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.set("Authorization", expiredToken);
+//        HttpEntity<String> entity = new HttpEntity<>(headers);
+//
+//        try {
+//            ResponseEntity<String> reissueResponse = restTemplate.exchange(
+//                    "http://localhost:8080/reissue", // 재발급 엔드포인트
+//                    HttpMethod.POST,
+//                    entity,
+//                    String.class
+//            );
+//
+//            if (reissueResponse.getStatusCode() == HttpStatus.OK) {
+//                return reissueResponse.getHeaders().getFirst("Authorization");
+//            } else if (reissueResponse.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+//                log.info("Refresh token expired, logging out user");
+//                SecurityContextHolder.clearContext();
+//            }
+//        } catch (HttpClientErrorException.NotFound e) {
+//            log.error("User not found", e);
+//            SecurityContextHolder.clearContext();
+//        } catch (Exception e) {
+//            log.error("Failed to reissue token", e);
+//        }
+
+//        return null;
+private String reissueToken(HttpServletRequest request, HttpServletResponse response, String expiredToken) {
+    RestTemplate restTemplate = new RestTemplate();
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("Authorization", "Bearer " + expiredToken);
+    HttpEntity<String> entity = new HttpEntity<>(headers);
+
+    try {
+        ResponseEntity<String> reissueResponse = restTemplate.exchange(
+                "http://localhost:8080/reissue", // 재발급 엔드포인트
+                HttpMethod.POST,
+                entity,
+                String.class
+        );
+
+        if (reissueResponse.getStatusCode() == HttpStatus.OK) {
+            return reissueResponse.getHeaders().getFirst("Authorization");
+        } else if (reissueResponse.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+            log.info("Refresh token expired, logging out user");
+            SecurityContextHolder.clearContext();
+        }
+    } catch (HttpClientErrorException.NotFound e) {
+        log.error("User not found", e);
+        SecurityContextHolder.clearContext();
+    } catch (Exception e) {
+        log.error("Failed to reissue token", e);
+    }
+
+    return null;
+}
+
 }

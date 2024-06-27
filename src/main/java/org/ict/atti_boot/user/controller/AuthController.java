@@ -130,11 +130,10 @@ public class AuthController {
             user.setSnsAccessToken(accessToken);
             userRepository.save(user);
 
-            // JWT 토큰 발급
-//            Long accessExpiredMs = 600000L; // 10분
-            Long accessExpiredMs = 40 * 60 * 1000L; // 40분
+
+            Long accessExpiredMs = 600000L; // 10분
             String accessTokenJwt = jwtUtil.generateToken(email, "access", accessExpiredMs);
-            Long refreshExpiredMs = 86400000L; // 24시간
+            Long refreshExpiredMs = 7200000L; // 2시간
             String refreshTokenJwt = jwtUtil.generateToken(email, "refresh", refreshExpiredMs);
 
             // TokenLogin 엔티티 저장
@@ -355,9 +354,9 @@ public ResponseEntity<?> unlinkKakaoAccount(@RequestBody Map<String, String> req
             userRepository.save(user);
 
             // JWT 토큰 발급
-            Long accessExpiredMs = 40 * 60 * 1000L; // 40분
+            Long accessExpiredMs = 600000L; // 10분
             String accessTokenJwt = jwtUtil.generateToken(email, "access", accessExpiredMs);
-            Long refreshExpiredMs = 86400000L; // 24시간
+            Long refreshExpiredMs = 7200000L; // 2시간
             String refreshTokenJwt = jwtUtil.generateToken(email, "refresh", refreshExpiredMs);
 
             // TokenLogin 엔티티 저장

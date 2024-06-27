@@ -35,6 +35,7 @@ public class CustomLogoutHandler implements LogoutHandler {
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+        log.info("로그 아웃 들어옴ㅁㅁㅁㅁㅁㅁㅁ");
         String authorization = request.getHeader("Authorization");
         if (authorization != null && authorization.startsWith("Bearer ")) {
             String token = authorization.substring(7); // 'Bearer ' 문자 제거
@@ -57,9 +58,9 @@ public class CustomLogoutHandler implements LogoutHandler {
             }
 
             // 만료 여부와 상관없이 사용자 정보를 조회하여 로그아웃 처리를 합니다.
-            String userName = jwtUtil.getUserEmailFromToken(token);
-            log.info("Logged out user: {}", userName);
-            Optional<User> userOptional = userService.findByEmail(userName);
+            String username = jwtUtil.getUserEmailFromToken(token);
+            log.info("Logged out user: {}", username);
+            Optional<User> userOptional = userService.findByEmail(username);
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
 
@@ -81,13 +82,13 @@ public class CustomLogoutHandler implements LogoutHandler {
                 Optional<TokenLogin> tokenLoginOptional = tokenLoginService.findByUserUserId(user.getUserId());
                 if (tokenLoginOptional.isPresent()) {
                     tokenLoginService.deleteByRefreshToken(tokenLoginOptional.get().getRefreshToken());
-                    log.info("Deleted token for user: {}", user.getUserId());
+                    log.info("유저 데이터 삭제함!!!!: {}", user.getUserId());
                 }
             }
 
             // 성공적인 로그아웃 응답을 설정합니다.
             response.setStatus(HttpServletResponse.SC_OK);
-            log.info("Logged out successfully");
+            log.info("로그아웃 완료함!!!");
         } else {
             // Authorization 헤더가 없거나 잘못된 경우 처리
             handleLogoutError(response, HttpServletResponse.SC_BAD_REQUEST, "Missing or invalid Authorization header.");

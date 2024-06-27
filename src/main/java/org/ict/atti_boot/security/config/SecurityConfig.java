@@ -64,7 +64,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/notice").hasRole("ADMIN") // '/notice' 경로에 대한 POST 요청은 ADMIN 역할을 가진 사용자만 가능합니다.
                         .requestMatchers(
-                                "/users/**", "/login", "/reissue", "/auth/**",
+                                "/users/**", "/login","/reissue","/auth/**",
                                 "/file/**",
                                 "/notice/**",
                                 "/doctor/**",
@@ -80,7 +80,8 @@ public class SecurityConfig {
                                 "/images/**",
                                 "/chat/**",
                                 "/file/**",
-                                "inquiry/**"
+                                "inquiry/**",
+                                "reissue/**"
                         )
                         .permitAll() // 해당 경로들은 인증 없이 접근 가능합니다.
                         .requestMatchers(new AntPathRequestMatcher("/admin/**")).hasRole("ADMIN") // '/admin/**' 경로는 ADMIN 역할을 가진 사용자만 접근 가능합니다

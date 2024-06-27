@@ -48,8 +48,10 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
 //        this.refreshExpiredMs = 86400000L;   // 1일
-        this.refreshExpiredMs = 7200000L;     // 2시간
-        this.accessExpiredMs = 600000L;      // 10분
+//        this.refreshExpiredMs = 7200000L;     // 2시간
+
+        this.accessExpiredMs = 60000L; // 10초
+        this.refreshExpiredMs = 2700000L; // 30초
     }
 
     @Override
@@ -78,9 +80,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         // 액세스 토큰과 리프레시 토큰을 생성합니다.
         String accessToken = jwtUtil.generateToken(username, "access", accessExpiredMs);
-        log.info("Successfully accessToken authenticated user {}", username);
+        log.info("Successfully authenticated user {}. Access Token: {}", username, accessToken);
         String refreshToken = jwtUtil.generateToken(username, "refresh", refreshExpiredMs);
-        log.info("Successfully refreshToken authenticated user {}", username);
+        log.info("Successfully authenticated user {}. Refresh Token: {}", username, refreshToken);
 
         // 사용자 정보를 데이터베이스에서 조회합니다.
         Optional<User> userOptional = userService.findByEmail(username);
@@ -99,6 +101,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                 tokenLogin.setRefreshCreated(LocalDateTime.now());
                 tokenLogin.setRefreshExpires(LocalDateTime.now().plusSeconds(refreshExpiredMs / 1000));
                 tokenLoginService.save(tokenLogin);
+                log.info("Updated existing TokenLogin for user {}", username);
             } else {
                 // 새로운 TokenLogin 객체 생성 및 저장
                 TokenLogin tokenLogin = TokenLogin.builder()
@@ -112,11 +115,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                         .refreshExpires(LocalDateTime.now().plusSeconds(refreshExpiredMs / 1000))
                         .build();
                 tokenLoginService.save(tokenLogin);
+                log.info("Created new TokenLogin for user {}", username);
             }
 
             // 응답 헤더에 액세스 토큰을 추가합니다.
             response.addHeader("Authorization", "Bearer " + accessToken);
-            response.addHeader("Authorization", "Bearer " + refreshToken);
             response.setHeader("Access-Control-Expose-Headers", "Authorization");
 
             // 응답 본문에 사용자 정보를 JSON 형식으로 추가합니다.
@@ -145,11 +148,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             response.setContentType("application/json");
             response.getWriter().write(responseBodyJson);
             response.getWriter().flush();
+
+            log.info("Successfully responded with user information for user {}", username);
         } else {
             throw new UsernameNotFoundException("User not found");
         }
     }
-
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
@@ -180,5 +184,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String jsonResponse = new ObjectMapper().writeValueAsString(responseData);
         response.getWriter().write(jsonResponse);
         response.getWriter().flush();
+        log.info("인증 시도가 실패했습니다: {}", message);
     }
 }

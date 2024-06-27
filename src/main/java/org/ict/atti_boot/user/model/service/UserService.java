@@ -1,6 +1,7 @@
 package org.ict.atti_boot.user.model.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.ict.atti_boot.inquiry.model.inquiryService.InquiryService;
 import org.ict.atti_boot.security.repository.TokenLoginRepository;
 import org.ict.atti_boot.user.jpa.entity.User;
 import org.ict.atti_boot.user.jpa.repository.SocialLoginRepository;
@@ -33,13 +34,15 @@ public class UserService {
     private final TokenLoginRepository tokenLoginRepository;
     private final SocialLoginRepository socialLoginRepository;
     private final JavaMailSender emailSender;
+    private final InquiryService inquiryService;
 
-    public UserService(BCryptPasswordEncoder bCryptPasswordEncoder, UserRepository userRepository, JavaMailSender javaMailSender, TokenLoginRepository tokenLoginRepository, SocialLoginRepository socialLoginRepository, JavaMailSender emailSender) {
+    public UserService(BCryptPasswordEncoder bCryptPasswordEncoder, UserRepository userRepository, JavaMailSender javaMailSender, TokenLoginRepository tokenLoginRepository, SocialLoginRepository socialLoginRepository, JavaMailSender emailSender, InquiryService inquiryService) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userRepository = userRepository;
         this.tokenLoginRepository = tokenLoginRepository;
         this.emailSender = javaMailSender;
         this.socialLoginRepository = socialLoginRepository;
+        this.inquiryService = inquiryService;
     }
 
     //회원가입처리
@@ -170,13 +173,13 @@ public class UserService {
         }
     }
 
-
     //회원 탈퇴
     @Transactional
     public void deleteUser(String userId) {
         log.debug("Deleting user by id: {}", userId);
         if (userRepository.existsById(userId)) {
             // 연관된 데이터 삭제
+            inquiryService.deleteInquiriesByUserId(userId);
             tokenLoginRepository.deleteByUserId(userId);
             socialLoginRepository.deleteByUserId(userId);
             log.debug("Related token login data for user {} deleted successfully", userId);

@@ -1,9 +1,7 @@
 package org.ict.atti_boot.security.jwt.util;
 
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.DecodingException;
 import lombok.extern.slf4j.Slf4j;
-
 import org.ict.atti_boot.user.jpa.entity.User;
 import org.ict.atti_boot.user.jpa.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,12 +20,14 @@ public class JWTUtil {
 
     private final SecretKey secretKey;
     private final UserRepository userRepository;
+
     // 생성자를 통해 비밀 키와 UserRepository 인스턴스를 주입
     public JWTUtil(@Value("${jwt.secret}") String secret, UserRepository userRepository) {
         this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.HS256.getJcaName());
         this.userRepository = userRepository;
     }
-    //jwt 토큰 생성
+
+    // JWT 토큰 생성
     public String generateToken(String userEmail, String category, Long expiredMs) {
         Optional<User> user = userRepository.findByEmail(userEmail);
 
@@ -42,116 +42,134 @@ public class JWTUtil {
                 .claim("admin", isAdmin)
                 .claim("category", category)
                 .claim("userId", user.get().getUserId())
-                .setExpiration(new Date(System.currentTimeMillis() + expiredMs))    //토큰 만료 시간 (밀리초)
+                .setExpiration(new Date(System.currentTimeMillis() + expiredMs)) // 토큰 만료 시간 (밀리초)
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
 
-        log.info("generate token : " + token);
+        log.info("Generated token: " + token);
         return token;
     }
-    //jwt 토큰에서 사용자 이메일 추출
+
+//    // JWT 토큰에서 사용자 이메일 추출
+//    public String getUserEmailFromToken(String token) {
+//        log.info("Extracting user email from token: " + token);
+//        try {
+//            if (token.startsWith("Bearer ")) {
+//                token = token.substring(7);
+//            }
+//
+//            Claims claims = getClaimsFromToken(token);
+//            return claims.getSubject();
+//        } catch (ExpiredJwtException e) {
+//            log.error("Token expired", e);
+//            return e.getClaims().getSubject(); // 만료된 토큰에서도 사용자 이메일을 가져올 수 있도록
+//        } catch (JwtException | IllegalArgumentException e) {
+//            log.error("Invalid JWT token", e);
+//            return null;
+//        }
+//    }
+// JWT 토큰에서 사용자 이메일 추출
     public String getUserEmailFromToken(String token) {
+        log.info("Extracting user email from token: " + token);
         try {
-            if (token.startsWith("Bearer")) {
-                return token.substring(7);
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
             }
-            Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
+
+            Claims claims = getClaimsFromToken(token);
             return claims.getSubject();
+        } catch (ExpiredJwtException e) {
+            log.error("Token expired", e);
+            return e.getClaims().getSubject(); // 만료된 토큰에서도 사용자 이메일을 가져올 수 있도록
         } catch (JwtException | IllegalArgumentException e) {
             log.error("Invalid JWT token", e);
             return null;
         }
     }
 
-    //getUserIdFromToken 만들기
-    //jwt 토큰에서 사용자 아이디 추출
+    // JWT 토큰에서 사용자 아이디 추출
     public String getUserIdFromToken(String token) {
         try {
             if (token.startsWith("Bearer ")) {
                 token = token.substring(7);
             }
-            // JWT에서 클레임 추출
-            Claims claims = Jwts.parser()
-                    .setSigningKey(secretKey)
-                    .parseClaimsJws(token)
-                    .getBody();
 
-            // 클레임에서 userId 추출
+            Claims claims = getClaimsFromToken(token);
             return claims.get("userId", String.class);
-
         } catch (ExpiredJwtException e) {
-            // 토큰이 만료된 경우 예외 처리
             throw new IllegalArgumentException("Token is expired", e);
         } catch (SignatureException e) {
-            // 서명이 잘못된 경우 예외 처리
             throw new IllegalArgumentException("Invalid token signature", e);
         } catch (Exception e) {
-            // 기타 예외 처리
             throw new IllegalArgumentException("Invalid token", e);
         }
     }
 
-//    public boolean isTokenExpired(String token) {
-//        try {
-//            log.debug("Received token: {}", token);  // 토큰 값 로그 출력
-//            Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
-//            return claims.getExpiration().before(new Date());
-//        } catch (MalformedJwtException e) {
-//            log.error("잘못된 형식의 JWT 토큰", e);
-//            return true;  // 잘못된 형식의 토큰은 만료된 것으로 간주
-//        } catch (JwtException | IllegalArgumentException e) {
-//            log.error("유효하지 않은 JWT 토큰", e);
-//            return true;  // 기타 예외 발생 시 만료된 것으로 간주
-//        }
-//    }
-
-    //토큰 만료 여부 확인
+    // 토큰 만료 여부 확인
     public boolean isTokenExpired(String token) {
+        log.info("Checking token expiration for: " + token);
         try {
-            if(token.startsWith("Bearer ")) {
+            if (token.startsWith("Bearer ")) {
                 token = token.substring(7);
             }
-            Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
-            return claims.getBody().getExpiration().before(new Date());
-        } catch (MalformedJwtException | SignatureException | UnsupportedJwtException | DecodingException e) {
-            System.err.println("Invalid JWT token: " + e.getMessage());
-            return true;
+
+            Claims claims = getClaimsFromToken(token);
+            return claims.getExpiration().before(new Date());
+        } catch (JwtException | IllegalArgumentException e) {
+            log.error("Invalid JWT token: ", e);
+            return true; // 잘못된 토큰도 만료된 것으로 간주
         }
     }
 
-    //토큰에서 관리자여부 확인
+    // 토큰에서 관리자 여부 확인
     public boolean isAdminFromToken(String token) {
         try {
-            if(token.startsWith("Bearer ")) {
+            if (token.startsWith("Bearer ")) {
                 token = token.substring(7);
             }
-            Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
+
+            Claims claims = getClaimsFromToken(token);
             return Boolean.TRUE.equals(claims.get("admin", Boolean.class));
         } catch (JwtException | IllegalArgumentException e) {
             log.error("Invalid JWT token", e);
-            return false;  // 예외 발생 시 false 반환
+            return false; // 예외 발생 시 false 반환
         }
     }
 
     // 토큰에서 카테고리 추출
     public String getCategoryFromToken(String token) {
         try {
-            if (token.startsWith("Bearer")) {
-                return token.substring(7);
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
             }
-            Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
+
+            Claims claims = getClaimsFromToken(token);
             return claims.get("category", String.class);
         } catch (MalformedJwtException e) {
             log.error("Malformed JWT token: ", e);
             return null;
         } catch (JwtException | IllegalArgumentException e) {
             log.error("Invalid JWT token", e);
-            return null;  // 예외 발생 시 null 반환
+            return null; // 예외 발생 시 null 반환
         }
     }
 
-    //모든 클레임 가져옴
+    // 모든 클레임 가져오기
     public Claims getAllClaimsFromToken(String token) {
+        try {
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+
+            return getClaimsFromToken(token);
+        } catch (JwtException | IllegalArgumentException e) {
+            log.error("Invalid JWT token", e);
+            return null;
+        }
+    }
+
+    // 토큰에서 클레임 추출
+    private Claims getClaimsFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
     }
 }
