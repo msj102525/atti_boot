@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.atti_boot.oneword.jpa.entity.OnewordSubjectEntity;
 import org.ict.atti_boot.oneword.jpa.repository.OnewordSubjectRepository;
+import org.ict.atti_boot.oneword.jpa.repository.OnewordSubjectVo;
 import org.ict.atti_boot.oneword.model.dto.OnewordSubjectDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -19,6 +21,11 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class OnewordSubjectService {
     private final OnewordSubjectRepository onewordSubjectRepository;
+
+    // 전체 list
+    public List<OnewordSubjectVo> selectListAll() {
+        return onewordSubjectRepository.findSelectListAll();
+    }
 
     public ArrayList<OnewordSubjectDto> selectList(Pageable pageable) {
         Page<OnewordSubjectEntity> pages = onewordSubjectRepository.findAll(pageable);

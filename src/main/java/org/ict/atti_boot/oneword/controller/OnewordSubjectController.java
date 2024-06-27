@@ -3,6 +3,8 @@ package org.ict.atti_boot.oneword.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ict.atti_boot.feed.repository.FeedContentVo;
+import org.ict.atti_boot.oneword.jpa.repository.OnewordSubjectVo;
 import org.ict.atti_boot.oneword.model.dto.OnewordSubjectDto;
 import org.ict.atti_boot.oneword.model.service.OnewordSubjectService;
 import org.ict.atti_boot.security.jwt.util.JWTUtil;
@@ -24,11 +26,16 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @CrossOrigin     //// 리액트 애플리케이션(포트가 다름)의 자원 요청을 처리하기 위함
 public class OnewordSubjectController {
+
     private final OnewordSubjectService onewordSubjectService;
-
     private final JWTUtil jwtUtil;
-
     private final UserService userService;
+
+    @GetMapping("/listall")
+    public ResponseEntity<?> selectListAll() {
+        List<OnewordSubjectVo> top5FeedContentList = onewordSubjectService.selectListAll();
+        return ResponseEntity.ok().body(top5FeedContentList);
+    }
 
     @GetMapping("/list")
     public ResponseEntity<List<OnewordSubjectDto>> selectList(
