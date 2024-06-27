@@ -6,6 +6,7 @@ import org.ict.atti_boot.reply.model.entity.Reply;
 import org.ict.atti_boot.reply.model.input.ReplySaveInputDto;
 import org.ict.atti_boot.reply.model.output.ReplyListOutput;
 import org.ict.atti_boot.reply.service.ReplyService;
+import org.ict.atti_boot.security.jwt.util.JWTUtil;
 import org.ict.atti_boot.user.jpa.entity.User;
 import org.ict.atti_boot.user.model.service.UserService;
 import org.springframework.data.domain.Page;
@@ -27,50 +28,30 @@ public class ReplyController {
 
     private final ReplyService replyService;
     private final UserService userService;
+    private final JWTUtil jwtUtil;
 
     @PostMapping("")
-    public ResponseEntity<Reply> insertReply(@RequestBody ReplySaveInputDto replySaveInputDto) {
+    public ResponseEntity<Reply> insertReply(@RequestHeader("Authorization") String token, @RequestBody ReplySaveInputDto replySaveInputDto) {
         log.info(replySaveInputDto.toString());
+        String userId = jwtUtil.getUserIdFromToken(token);
 
-        Optional<User> optionalUser = userService.findByUserId("user02");
+        Optional<User> optionalUser = userService.findByUserId(userId);
 
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-
-            Reply reply;
-
-            if (replySaveInputDto.getReplyNum() == 0) {
-                reply = Reply.builder()
-                        .user(user)
-                        .feedNum(replySaveInputDto.getFeedNum())
-                        .replyContent(replySaveInputDto.getReplyContent())
-                        .replySeq(1)
-                        .replyLev(1)
-                        .replyReplyRef(0)
-                        .build();
-            } else {
-                reply = Reply.builder()
-                        .user(user)
-                        .feedNum(replySaveInputDto.getFeedNum())
-                        .replyContent(replySaveInputDto.getReplyContent())
-                        .replySeq(replySaveInputDto.getReplySeq() + 1)
-                        .replyLev(2)
-                        .replyReplyRef(replySaveInputDto.getReplyNum())
-                        .build();
-            }
-
-            Reply resultReply = replyService.insertReply(reply);
-
-            if (resultReply != null) {
-                return ResponseEntity.ok(resultReply);
-            } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-            }
-        } else {
+        if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-    }
 
+        User user = optionalUser.get();
+        Reply reply = createReply(replySaveInputDto, user);
+
+        Reply resultReply = replyService.insertReply(reply);
+
+        if (resultReply != null) {
+            return ResponseEntity.ok(resultReply);
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
     @GetMapping("")
     public ResponseEntity<List<ReplyListOutput>> selectReplyByFeedNum(
@@ -81,48 +62,16 @@ public class ReplyController {
         log.info("feedNum: " + feedNum);
 
         Pageable pageable = PageRequest.of(page, size);
-
         Page<Reply> replies = replyService.selectReplyByFeedNum(pageable, feedNum);
 
         List<ReplyListOutput> replyListOutputList = new ArrayList<>();
 
         replies.getContent().forEach(reply -> {
             if (reply.getReplyReplyRef() == 0) {
-                List<ReplyListOutput> childReplies = new ArrayList<>();
                 List<Reply> childReplyEntities = replyService.findAllByReplyReplyRef(reply.getReplyNum());
-                childReplyEntities.forEach(childReply -> {
-                    ReplyListOutput childReplyOutput = ReplyListOutput.builder()
-                            .feedNum(childReply.getFeedNum())
-                            .replyNum(childReply.getReplyNum())
-                            .replyReplyRef(childReply.getReplyReplyRef())
-                            .replyLev(childReply.getReplyLev())
-                            .replySeq(childReply.getReplySeq())
-                            .replyDate(childReply.getReplyDate())
-                            .replyContent(childReply.getReplyContent())
-                            .replyWriter(childReply.getUser().getUserId())
-                            .replyUserType(childReply.getUser().getUserType())
-                            .replyWriterProfileUrl(childReply.getUser().getProfileUrl())
-                            .replyContent(childReply.getReplyContent())
-                            .childReply(null) // 하위 댓글은 1단계만
-                            .build();
-                    childReplies.add(childReplyOutput);
-                });
+                List<ReplyListOutput> childReplies = convertToReplyListOutputs(childReplyEntities);
 
-                ReplyListOutput replyListOutput = ReplyListOutput.builder()
-                        .feedNum(reply.getFeedNum())
-                        .replyNum(reply.getReplyNum())
-                        .replyReplyRef(reply.getReplyReplyRef())
-                        .replyLev(reply.getReplyLev())
-                        .replySeq(reply.getReplySeq())
-                        .replyDate(reply.getReplyDate())
-                        .replyContent(reply.getReplyContent())
-                        .replyWriter(reply.getUser().getUserId())
-                        .replyUserType(reply.getUser().getUserType())
-                        .replyWriterProfileUrl(reply.getUser().getProfileUrl())
-                        .replyContent(reply.getReplyContent())
-                        .childReply(childReplies)
-                        .build();
-
+                ReplyListOutput replyListOutput = convertToReplyListOutput(reply, childReplies);
                 replyListOutputList.add(replyListOutput);
             }
         });
@@ -130,4 +79,39 @@ public class ReplyController {
         return ResponseEntity.ok(replyListOutputList);
     }
 
+    private Reply createReply(ReplySaveInputDto replySaveInputDto, User user) {
+        return Reply.builder()
+                .user(user)
+                .feedNum(replySaveInputDto.getFeedNum())
+                .replyContent(replySaveInputDto.getReplyContent())
+                .replySeq(replySaveInputDto.getReplyNum() == 0 ? 1 : replySaveInputDto.getReplySeq() + 1)
+                .replyLev(replySaveInputDto.getReplyNum() == 0 ? 1 : 2)
+                .replyReplyRef(replySaveInputDto.getReplyNum())
+                .build();
+    }
+
+    private List<ReplyListOutput> convertToReplyListOutputs(List<Reply> replies) {
+        List<ReplyListOutput> replyListOutputs = new ArrayList<>();
+        replies.forEach(reply -> {
+            ReplyListOutput replyListOutput = convertToReplyListOutput(reply, null);
+            replyListOutputs.add(replyListOutput);
+        });
+        return replyListOutputs;
+    }
+
+    private ReplyListOutput convertToReplyListOutput(Reply reply, List<ReplyListOutput> childReplies) {
+        return ReplyListOutput.builder()
+                .feedNum(reply.getFeedNum())
+                .replyNum(reply.getReplyNum())
+                .replyReplyRef(reply.getReplyReplyRef())
+                .replyLev(reply.getReplyLev())
+                .replySeq(reply.getReplySeq())
+                .replyDate(reply.getReplyDate())
+                .replyContent(reply.getReplyContent())
+                .replyWriter(reply.getUser().getUserId())
+                .replyUserType(reply.getUser().getUserType())
+                .replyWriterProfileUrl(reply.getUser().getProfileUrl())
+                .childReply(childReplies)
+                .build();
+    }
 }
