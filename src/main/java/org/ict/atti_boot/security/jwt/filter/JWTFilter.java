@@ -123,7 +123,7 @@ public class JWTFilter extends OncePerRequestFilter {
                 requestURI.startsWith("/images") ||    // 이미지 요청
                 (requestURI.equals("/review") && requestMethod.equals("GET")) ||  // 리뷰 조회 요청
                 (requestURI.startsWith("/doctor") && !requestURI.equals("/doctor/mypage")) ||  // 의사 관련 요청, 단 /doctor/mypage는 제외
-//                requestURI.startsWith("/feed") ||  // 피드 요청
+                requestURI.startsWith("/feed") ||  // 피드 요청
                 requestURI.startsWith("/like") ||  // 좋아요 요청
                 requestURI.startsWith("/reply") ||  // 댓글 요청
                 requestURI.startsWith("/onewordsubject") ||  // 한마디 주제 요청
