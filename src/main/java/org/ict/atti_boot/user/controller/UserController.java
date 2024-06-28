@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,11 +26,11 @@ import java.util.Random;
 public class UserController {
 
     private final UserService userService;
+    private final PasswordEncoder passwordEncoder; // PasswordEncoder 추가
 
-
-    public UserController(UserService userService){
-
+    public UserController(UserService userService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // 유저정보
@@ -43,7 +43,6 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
-
 
     @PostMapping("/signup")
     public ResponseEntity<String> signUp(@RequestBody(required = false) User user) {
@@ -81,25 +80,25 @@ public class UserController {
         }
     }
 
-// 유저 정보 삭제
-@DeleteMapping("/deleteUser/{userId}")
-public ResponseEntity<Void> deleteUser(@PathVariable String userId, @AuthenticationPrincipal CustomUserDetails userDetails) {
-    log.info("Authenticated deleteUser: {}", userDetails.getUserId());
-    if (userDetails.getUserId().equals(userId)) {
-        log.info("Request user ID: {}", userId);
-        try {
-            userService.deleteUser(userId);
-            log.info("Deleted user: {}", userId);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            log.error("Error deleting user: {}", userId, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    // 유저 정보 삭제
+    @DeleteMapping("/deleteUser/{userId}")
+    public ResponseEntity<Void> deleteUser(@PathVariable String userId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        log.info("Authenticated deleteUser: {}", userDetails.getUserId());
+        if (userDetails.getUserId().equals(userId)) {
+            log.info("Request user ID: {}", userId);
+            try {
+                userService.deleteUser(userId);
+                log.info("Deleted user: {}", userId);
+                return ResponseEntity.noContent().build();
+            } catch (Exception e) {
+                log.error("Error deleting user: {}", userId, e);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        } else {
+            log.warn("Unauthorized delete attempt by user: {}", userDetails.getUserId());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-    } else {
-        log.warn("Unauthorized delete attempt by user: {}", userDetails.getUserId());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
-}
 
     //아이디 찾기
     @PostMapping("/userIdfind")
@@ -125,6 +124,7 @@ public ResponseEntity<Void> deleteUser(@PathVariable String userId, @Authenticat
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
         }
     }
+
     // 비밀번호 찾기
     @PostMapping("/passwordReset")
     public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> request) {
@@ -177,5 +177,28 @@ public ResponseEntity<Void> deleteUser(@PathVariable String userId, @Authenticat
         return tempPassword.toString();
     }
 
+    @PostMapping("/changePassword")
+    public ResponseEntity<?> changePassword(@RequestBody Map<String, String> passwordData, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        String currentPassword = passwordData.get("currentPassword");
+        String newPassword = passwordData.get("newPassword");
+        String userId = userDetails.getUserId();
 
+        Optional<User> userOptional = userService.findById(userId);
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        User user = userOptional.get();
+
+        // 현재 비밀번호 검증
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Current password is incorrect");
+        }
+
+        // 새로운 비밀번호로 업데이트
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userService.save(user);
+
+        return ResponseEntity.ok("Password changed successfully");
+    }
 }
