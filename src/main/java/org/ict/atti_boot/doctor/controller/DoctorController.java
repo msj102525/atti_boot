@@ -72,6 +72,13 @@ public class DoctorController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<Map<String, Object>> searchDoctors(@PageableDefault(size = 4, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable, @RequestParam(name = "selectedTags", required = false) List<String> tags,
+                                                             @RequestParam(name = "keyword", required = false) String name,
+                                                             @RequestParam(name = "gender", required = false) Character gender) {
+        return ResponseEntity.ok(doctorService.findByAllConditions(name, tags, gender, pageable));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<DoctorDetail> getDoctorDetail(@PageableDefault(size = 4, sort = "writeDate", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(name = "id", required = false) String doctorId) {
         Doctor doctor = doctorService.getDoctorById(doctorId);
@@ -106,17 +113,9 @@ public class DoctorController {
         Set<DoctorTag> tags = tagService.getTagsById(doctorId);
 
         DoctorDetail doctorDetail = new DoctorDetail(doctor, reviewList, ratingCount, averageScore, hasMoreReview, careers, educations, tags);
-        log.info(doctorDetail.toString());
         return ResponseEntity.ok(doctorDetail);
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<Map<String, Object>> searchDoctors(@PageableDefault(size = 4, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable, @RequestParam(name = "selectedTags", required = false) List<String> tags,
-                                                             @RequestParam(name = "keyword", required = false) String name,
-                                                             @RequestParam(name = "gender", required = false) Character gender) {
-        long tagCount = tags.size();
-        return ResponseEntity.ok(doctorService.findByAllConditions(name, tags, tagCount, gender, pageable));
-    }
 
     @GetMapping("/mypage")
     public ResponseEntity<DoctorUpdateVo> getDoctorProfile() {
