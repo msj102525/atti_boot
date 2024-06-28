@@ -283,4 +283,8 @@ public class UserService {
         log.debug("Finding user by userName: {} and email: {}", userName, email);
         return userRepository.findByUserNameAndEmail(userName, email);
     }
+
+    public void save(User user) {
+        userRepository.save(user);
+    }
 }
