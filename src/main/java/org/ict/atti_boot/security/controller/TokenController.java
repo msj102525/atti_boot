@@ -143,15 +143,15 @@ public class TokenController {
         String username = user.getEmail();
 
         // 새로운 AccessToken 발급 (만료 시간 1분)
-        //Long accessExpiredMs = 60000L; // 1분
-        Long accessExpiredMs = 10000L; // 10초 test
+        Long accessExpiredMs = 600000L; // 1분
+//        Long accessExpiredMs = 10000L; // 10초 test
         String newAccessToken = jwtUtil.generateToken(username, "access", accessExpiredMs);
         response.addHeader("Authorization", "Bearer " + newAccessToken);
         response.setHeader("Access-Control-Expose-Headers", "Authorization");
 
         // 새로운 리프레시 토큰 발급 (만료 시간 2시간)
-        //Long refreshExpiredMs = 7200000L; // 2시간
-        Long refreshExpiredMs = 60000L; //1분
+        Long refreshExpiredMs = 7200000L; // 2시간
+//        Long refreshExpiredMs = 60000L; //1분
         String newRefreshToken = jwtUtil.generateToken(username, "refresh", refreshExpiredMs);
 
         // 새롭게 발급된 토큰 정보를 DB에 저장
