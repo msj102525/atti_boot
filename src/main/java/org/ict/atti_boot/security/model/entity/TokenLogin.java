@@ -51,9 +51,9 @@ public class TokenLogin {
         LocalDateTime now = LocalDateTime.now();
         if (accessCreated == null) accessCreated = now;
         if (refreshCreated == null) refreshCreated = now;
-//        if (accessExpires == null) accessExpires = now.plusSeconds(600); // 600초(10분) 설정
-//        if (refreshExpires == null) refreshExpires = now.plusSeconds(86400); // 86400초(24시간) 설정
-        if (accessExpires == null) accessExpires = now.plusSeconds(10); // 10초 설정
-        if (refreshExpires == null) refreshExpires = now.plusSeconds(30); // 30초 설정
+        if (accessExpires == null) accessExpires = now.plusSeconds(600); // 600초(10분) 설정
+        if (refreshExpires == null) refreshExpires = now.plusSeconds(7200); // 7200초(2시간) 설정
+//        if (accessExpires == null) accessExpires = now.plusSeconds(10); // 10초 설정
+//        if (refreshExpires == null) refreshExpires = now.plusSeconds(30); // 30초 설정
     }
 }

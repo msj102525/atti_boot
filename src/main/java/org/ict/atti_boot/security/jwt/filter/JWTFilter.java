@@ -131,8 +131,8 @@ public class JWTFilter extends OncePerRequestFilter {
                 requestURI.equals("/auth/signUp") ||  // 회원가입 인증 요청
                 requestURI.equals("/auth/kakao/callback") ||  // 카카오 인증 콜백
                 requestURI.equals("/auth/naver/callback") ||  // 네이버 인증 콜백
-                requestURI.equals("/reissue") || // 토큰 재발급 요청
-                requestURI.equals("/inquiry");
+                requestURI.equals("/reissue"); // 토큰 재발급 요청
+//                requestURI.equals("/inquiry");
     }
 
     // 만료된 토큰을 재발급받는 메서드
