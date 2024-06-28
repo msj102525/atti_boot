@@ -79,7 +79,7 @@ public class SecurityConfig {
                                 "/reply/**",
                                 "/images/**",
                                 "/chat/**",
-                                "/file/**",
+                                "/profile/**",
                                 "inquiry/**",
                                 "reissue/**"
                         )

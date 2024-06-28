@@ -162,7 +162,7 @@ public class AuthController {
     }
 
 
-        //카카오 회원 가입
+    //카카오 회원 가입
     @GetMapping("/kakao/signup/callback")
     public void kakaoSignup(@RequestParam String code, HttpServletResponse response) throws IOException, JSONException {
         log.info("code signup = {}", code);

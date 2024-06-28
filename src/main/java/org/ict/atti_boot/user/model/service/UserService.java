@@ -238,8 +238,8 @@ public class UserService {
 
   //프로필 사진 삭제
     @Transactional
-    public void deleteProfilePhoto(Long userId) {
-        Optional<User> userOpt = userRepository.findById(String.valueOf(userId));
+    public void deleteProfilePhoto(String userId) {
+        Optional<User> userOpt = userRepository.findById(userId);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             if (user.getProfileUrl() != null) {
