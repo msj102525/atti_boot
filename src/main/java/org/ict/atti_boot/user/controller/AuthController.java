@@ -149,15 +149,36 @@ public class AuthController {
                     .build();
             tokenLoginService.save(tokenLogin);
 
-            // 로그인 성공 후 URL에 토큰 정보 포함하여 리다이렉트
-            String redirectUrl = String.format("http://localhost:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s&userName=%s&nickName=%s&phone=%s&birthday=%s&gender=%s&loginType=%s",
-                    accessTokenJwt, refreshTokenJwt, user.getUserId(), user.getEmail(), user.getUserName(), user.getNickName(), user.getPhone(), user.getBirthDate(), user.getGender(),user.getLoginType());
+//            // 로그인 성공 후 URL에 토큰 정보 포함하여 리다이렉트
+//            String redirectUrl = String.format("http://localhost:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s&userName=%s&nickName=%s&phone=%s&birthday=%s&gender=%s&loginType=%s",
+//                    accessTokenJwt, refreshTokenJwt, user.getUserId(), user.getEmail(), user.getUserName(), user.getNickName(), user.getPhone(), user.getBirthDate(), user.getGender(),user.getLoginType());
+//            response.sendRedirect(redirectUrl);
+//            log.info("로그인 성공: {}", email);
+//        } else {
+//            // 신규 사용자 회원가입 필요
+//            log.info("회원가입 필요: {}", email);
+//            response.sendRedirect("http://localhost:3000/signup"); // 회원가입 페이지로 리다이렉트
+//        }
+//    }
+            // URL 인코딩
+            String userId = URLEncoder.encode(user.getUserId(), StandardCharsets.UTF_8);
+            String emailEncoded = URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8);
+            String userName = URLEncoder.encode(user.getUserName(), StandardCharsets.UTF_8);
+            String nickName = URLEncoder.encode(user.getNickName(), StandardCharsets.UTF_8);
+            String phone = URLEncoder.encode(user.getPhone(), StandardCharsets.UTF_8);
+            String birthday = URLEncoder.encode(String.valueOf(user.getBirthDate()), StandardCharsets.UTF_8);
+            String gender = URLEncoder.encode(String.valueOf(user.getGender()), StandardCharsets.UTF_8);
+            String loginType = URLEncoder.encode(user.getLoginType(), StandardCharsets.UTF_8);
+
+            String redirectUrl = String.format(
+                    "http://localhost:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s&userName=%s&nickName=%s&phone=%s&birthday=%s&gender=%s&loginType=%s",
+                    accessTokenJwt, refreshTokenJwt, userId, emailEncoded, userName, nickName, phone, birthday, gender, loginType
+            );
             response.sendRedirect(redirectUrl);
             log.info("로그인 성공: {}", email);
         } else {
-            // 신규 사용자 회원가입 필요
             log.info("회원가입 필요: {}", email);
-            response.sendRedirect("http://localhost:3000/signup"); // 회원가입 페이지로 리다이렉트
+            response.sendRedirect("http://localhost:3000/signup");
         }
     }
 
@@ -373,15 +394,36 @@ public ResponseEntity<?> unlinkKakaoAccount(@RequestBody Map<String, String> req
             tokenLoginService.save(tokenLogin);
 
 
-            // 로그인 성공 후 URL에 토큰 정보 포함하여 리다이렉트
-            String redirectUrl = String.format("http://localhost:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s&userName=%s&nickName=%s&phone=%s&birthday=%s&gender=%s&loginType=%s",
-                    accessTokenJwt, refreshTokenJwt, user.getUserId(), user.getEmail(), user.getUserName(), user.getNickName(), user.getPhone(), user.getBirthDate(), user.getGender(), user.getLoginType());
+//            // 로그인 성공 후 URL에 토큰 정보 포함하여 리다이렉트
+//            String redirectUrl = String.format("http://localhost:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s&userName=%s&nickName=%s&phone=%s&birthday=%s&gender=%s&loginType=%s",
+//                    accessTokenJwt, refreshTokenJwt, user.getUserId(), user.getEmail(), user.getUserName(), user.getNickName(), user.getPhone(), user.getBirthDate(), user.getGender(), user.getLoginType());
+//            response.sendRedirect(redirectUrl);
+//            log.info("로그인 성공: {}", email);
+//        } else {
+//            // 신규 사용자 회원가입 필요
+//            log.info("회원가입 필요: {}", email);
+//            response.sendRedirect("http://localhost:3000/signup"); // 회원가입 페이지로 리다이렉트
+//        }
+//    }
+            // URL 인코딩
+            String userId = URLEncoder.encode(user.getUserId(), StandardCharsets.UTF_8);
+            String emailEncoded = URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8);
+            String userName = URLEncoder.encode(user.getUserName(), StandardCharsets.UTF_8);
+            String nickName = URLEncoder.encode(user.getNickName(), StandardCharsets.UTF_8);
+            String phone = URLEncoder.encode(user.getPhone(), StandardCharsets.UTF_8);
+            String birthday = URLEncoder.encode(String.valueOf(user.getBirthDate()), StandardCharsets.UTF_8);
+            String gender = URLEncoder.encode(String.valueOf(user.getGender()), StandardCharsets.UTF_8);
+            String loginType = URLEncoder.encode(user.getLoginType(), StandardCharsets.UTF_8);
+
+            String redirectUrl = String.format(
+                    "http://localhost:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s&userName=%s&nickName=%s&phone=%s&birthday=%s&gender=%s&loginType=%s",
+                    accessTokenJwt, refreshTokenJwt, userId, emailEncoded, userName, nickName, phone, birthday, gender, loginType
+            );
             response.sendRedirect(redirectUrl);
             log.info("로그인 성공: {}", email);
         } else {
-            // 신규 사용자 회원가입 필요
             log.info("회원가입 필요: {}", email);
-            response.sendRedirect("http://localhost:3000/signup"); // 회원가입 페이지로 리다이렉트
+            response.sendRedirect("http://localhost:3000/signup");
         }
     }
 
