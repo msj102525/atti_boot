@@ -49,9 +49,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         this.jwtUtil = jwtUtil;
 //        this.refreshExpiredMs = 86400000L;   // 1일
 //        this.refreshExpiredMs = 7200000L;     // 2시간
+//        this.accessExpiredMs = 60000L; // 60 초
+//        this.refreshExpiredMs = 60000L; // 60 초
+        this.accessExpiredMs = 10000L; // 10 초
+        this.refreshExpiredMs = 30000L; // 30 초
 
-        this.accessExpiredMs = 60000L; // 10초
-        this.refreshExpiredMs = 2700000L; // 30초
     }
 
     @Override
@@ -100,6 +102,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                 tokenLogin.setAccessExpires(LocalDateTime.now().plusSeconds(accessExpiredMs / 1000));
                 tokenLogin.setRefreshCreated(LocalDateTime.now());
                 tokenLogin.setRefreshExpires(LocalDateTime.now().plusSeconds(refreshExpiredMs / 1000));
+                tokenLogin.setStatus("activated"); // 상태를 "activated"로 설정
                 tokenLoginService.save(tokenLogin);
                 log.info("Updated existing TokenLogin for user {}", username);
             } else {
@@ -113,6 +116,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                         .accessExpires(LocalDateTime.now().plusSeconds(accessExpiredMs / 1000))
                         .refreshCreated(LocalDateTime.now())
                         .refreshExpires(LocalDateTime.now().plusSeconds(refreshExpiredMs / 1000))
+                        .status("activated") // 상태를 "activated"로 설정
                         .build();
                 tokenLoginService.save(tokenLogin);
                 log.info("Created new TokenLogin for user {}", username);
@@ -154,6 +158,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             throw new UsernameNotFoundException("User not found");
         }
     }
+
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {

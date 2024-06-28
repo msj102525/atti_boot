@@ -16,12 +16,14 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.Optional;
 
 @Slf4j
+@Component
 public class CustomLogoutHandler implements LogoutHandler {
     private final JWTUtil jwtUtil;
     private final TokenLoginService tokenLoginService;
@@ -35,7 +37,7 @@ public class CustomLogoutHandler implements LogoutHandler {
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        log.info("로그 아웃 들어옴ㅁㅁㅁㅁㅁㅁㅁ");
+        log.info("로그 아웃 들어옴");
         String authorization = request.getHeader("Authorization");
         if (authorization != null && authorization.startsWith("Bearer ")) {
             String token = authorization.substring(7); // 'Bearer ' 문자 제거
@@ -82,26 +84,20 @@ public class CustomLogoutHandler implements LogoutHandler {
                 Optional<TokenLogin> tokenLoginOptional = tokenLoginService.findByUserUserId(user.getUserId());
                 if (tokenLoginOptional.isPresent()) {
                     tokenLoginService.deleteByRefreshToken(tokenLoginOptional.get().getRefreshToken());
-                    log.info("유저 데이터 삭제함!!!!: {}", user.getUserId());
+                    log.info("유저 데이터 삭제함: {}", user.getUserId());
                 }
             }
 
             // 성공적인 로그아웃 응답을 설정합니다.
             response.setStatus(HttpServletResponse.SC_OK);
-            log.info("로그아웃 완료함!!!");
+            log.info("로그아웃 완료함");
         } else {
             // Authorization 헤더가 없거나 잘못된 경우 처리
-            handleLogoutError(response, HttpServletResponse.SC_BAD_REQUEST, "Missing or invalid Authorization header.");
+            handleLogoutError(response, HttpServletResponse.SC_BAD_REQUEST, "Authorization 헤더가 없거나 유효하지 않음");
         }
     }
 
-    /**
-     * 로그아웃 오류 응답을 설정하는 헬퍼 메서드
-     *
-     * @param response HTTP 응답 객체
-     * @param status   HTTP 상태 코드
-     * @param message  오류 메시지
-     */
+    // 로그아웃 오류 응답을 설정하는 헬퍼 메서드
     private void handleLogoutError(HttpServletResponse response, int status, String message) {
         response.setStatus(status);
         response.setContentType("application/json");

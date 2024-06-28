@@ -27,6 +27,11 @@ public class TokenLoginService {
         return tokenLoginRepository.findByRefreshToken(token);
     }
 
+    // Access Token으로 TokenLogin 엔티티를 찾습니다.
+    public Optional<TokenLogin> findByAccessToken(String token) {
+        return tokenLoginRepository.findByAccessToken(token);
+    }
+
     // Refresh Token이 존재하는지 확인합니다.
     public Boolean existsByRefreshToken(String tokenValue) {
         return tokenLoginRepository.existsByRefreshToken(tokenValue);

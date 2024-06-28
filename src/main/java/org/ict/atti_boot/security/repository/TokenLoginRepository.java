@@ -20,5 +20,9 @@ public interface TokenLoginRepository extends JpaRepository<TokenLogin, String> 
 
     void deleteByUserId(String userId);
 
+    void deleteByAccessToken(String accessToken);
+
+    Optional<TokenLogin> findByAccessToken(String accessToken);
+
 }
 
