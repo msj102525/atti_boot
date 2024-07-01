@@ -122,14 +122,12 @@ public class AuthController {
         }
 
         Optional<User> optionalUser = userRepository.findByEmailAndLoginType(email, "kakao");
-
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
 
             // 사용자의 카카오 액세스 토큰 업데이트
             user.setSnsAccessToken(accessToken);
             userRepository.save(user);
-
 
             Long accessExpiredMs = 1500000L; // 25분
             String accessTokenJwt = jwtUtil.generateToken(email, "access", accessExpiredMs);
@@ -149,26 +147,15 @@ public class AuthController {
                     .build();
             tokenLoginService.save(tokenLogin);
 
-//            // 로그인 성공 후 URL에 토큰 정보 포함하여 리다이렉트
-//            String redirectUrl = String.format("http://localhost:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s&userName=%s&nickName=%s&phone=%s&birthday=%s&gender=%s&loginType=%s",
-//                    accessTokenJwt, refreshTokenJwt, user.getUserId(), user.getEmail(), user.getUserName(), user.getNickName(), user.getPhone(), user.getBirthDate(), user.getGender(),user.getLoginType());
-//            response.sendRedirect(redirectUrl);
-//            log.info("로그인 성공: {}", email);
-//        } else {
-//            // 신규 사용자 회원가입 필요
-//            log.info("회원가입 필요: {}", email);
-//            response.sendRedirect("http://localhost:3000/signup"); // 회원가입 페이지로 리다이렉트
-//        }
-//    }
-            // URL 인코딩
-            String userId = URLEncoder.encode(user.getUserId(), StandardCharsets.UTF_8);
-            String emailEncoded = URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8);
-            String userName = URLEncoder.encode(user.getUserName(), StandardCharsets.UTF_8);
-            String nickName = URLEncoder.encode(user.getNickName(), StandardCharsets.UTF_8);
-            String phone = URLEncoder.encode(user.getPhone(), StandardCharsets.UTF_8);
-            String birthday = URLEncoder.encode(String.valueOf(user.getBirthDate()), StandardCharsets.UTF_8);
-            String gender = URLEncoder.encode(String.valueOf(user.getGender()), StandardCharsets.UTF_8);
-            String loginType = URLEncoder.encode(user.getLoginType(), StandardCharsets.UTF_8);
+            // 로그인 성공 후 URL에 토큰 정보 포함하여 리다이렉트
+            String userId = URLEncoder.encode(Optional.ofNullable(user.getUserId()).orElse(""), StandardCharsets.UTF_8);
+            String emailEncoded = URLEncoder.encode(Optional.ofNullable(user.getEmail()).orElse(""), StandardCharsets.UTF_8);
+            String userName = URLEncoder.encode(Optional.ofNullable(user.getUserName()).orElse(""), StandardCharsets.UTF_8);
+            String nickName = URLEncoder.encode(Optional.ofNullable(user.getNickName()).orElse(""), StandardCharsets.UTF_8);
+            String phone = URLEncoder.encode(Optional.ofNullable(user.getPhone()).orElse(""), StandardCharsets.UTF_8);
+            String birthday = URLEncoder.encode(Optional.ofNullable(String.valueOf(user.getBirthDate())).orElse(""), StandardCharsets.UTF_8);
+            String gender = URLEncoder.encode(Optional.ofNullable(String.valueOf(user.getGender())).orElse(""), StandardCharsets.UTF_8);
+            String loginType = URLEncoder.encode(Optional.ofNullable(user.getLoginType()).orElse(""), StandardCharsets.UTF_8);
 
             String redirectUrl = String.format(
                     "http://localhost:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s&userName=%s&nickName=%s&phone=%s&birthday=%s&gender=%s&loginType=%s",
@@ -177,8 +164,9 @@ public class AuthController {
             response.sendRedirect(redirectUrl);
             log.info("로그인 성공: {}", email);
         } else {
+            // 신규 사용자 회원가입 필요
             log.info("회원가입 필요: {}", email);
-            response.sendRedirect("http://localhost:3000/signup");
+            response.sendRedirect("http://localhost:3000/signup"); // 회원가입 페이지로 리다이렉트
         }
     }
 
@@ -369,12 +357,12 @@ public ResponseEntity<?> unlinkKakaoAccount(@RequestBody Map<String, String> req
         Optional<User> optionalUser = userRepository.findByEmailAndLoginType(email, "naver");
 
         if (optionalUser.isPresent()) {
-            // 기존 사용자 로그인 처리
             User user = optionalUser.get();
+
+            // 사용자의 카카오 액세스 토큰 업데이트
             user.setSnsAccessToken(accessToken);
             userRepository.save(user);
 
-            // JWT 토큰 발급
             Long accessExpiredMs = 1500000L; // 25분
             String accessTokenJwt = jwtUtil.generateToken(email, "access", accessExpiredMs);
             Long refreshExpiredMs = 3600000L; // 1시간
@@ -393,27 +381,15 @@ public ResponseEntity<?> unlinkKakaoAccount(@RequestBody Map<String, String> req
                     .build();
             tokenLoginService.save(tokenLogin);
 
-
-//            // 로그인 성공 후 URL에 토큰 정보 포함하여 리다이렉트
-//            String redirectUrl = String.format("http://localhost:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s&userName=%s&nickName=%s&phone=%s&birthday=%s&gender=%s&loginType=%s",
-//                    accessTokenJwt, refreshTokenJwt, user.getUserId(), user.getEmail(), user.getUserName(), user.getNickName(), user.getPhone(), user.getBirthDate(), user.getGender(), user.getLoginType());
-//            response.sendRedirect(redirectUrl);
-//            log.info("로그인 성공: {}", email);
-//        } else {
-//            // 신규 사용자 회원가입 필요
-//            log.info("회원가입 필요: {}", email);
-//            response.sendRedirect("http://localhost:3000/signup"); // 회원가입 페이지로 리다이렉트
-//        }
-//    }
             // URL 인코딩
-            String userId = URLEncoder.encode(user.getUserId(), StandardCharsets.UTF_8);
-            String emailEncoded = URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8);
-            String userName = URLEncoder.encode(user.getUserName(), StandardCharsets.UTF_8);
-            String nickName = URLEncoder.encode(user.getNickName(), StandardCharsets.UTF_8);
-            String phone = URLEncoder.encode(user.getPhone(), StandardCharsets.UTF_8);
-            String birthday = URLEncoder.encode(String.valueOf(user.getBirthDate()), StandardCharsets.UTF_8);
-            String gender = URLEncoder.encode(String.valueOf(user.getGender()), StandardCharsets.UTF_8);
-            String loginType = URLEncoder.encode(user.getLoginType(), StandardCharsets.UTF_8);
+            String userId = URLEncoder.encode(Optional.ofNullable(user.getUserId()).orElse(""), StandardCharsets.UTF_8);
+            String emailEncoded = URLEncoder.encode(Optional.ofNullable(user.getEmail()).orElse(""), StandardCharsets.UTF_8);
+            String userName = URLEncoder.encode(Optional.ofNullable(user.getUserName()).orElse(""), StandardCharsets.UTF_8);
+            String nickName = URLEncoder.encode(Optional.ofNullable(user.getNickName()).orElse(""), StandardCharsets.UTF_8);
+            String phone = URLEncoder.encode(Optional.ofNullable(user.getPhone()).orElse(""), StandardCharsets.UTF_8);
+            String birthday = URLEncoder.encode(Optional.ofNullable(String.valueOf(user.getBirthDate())).orElse(""), StandardCharsets.UTF_8);
+            String gender = URLEncoder.encode(Optional.ofNullable(String.valueOf(user.getGender())).orElse(""), StandardCharsets.UTF_8);
+            String loginType = URLEncoder.encode(Optional.ofNullable(user.getLoginType()).orElse(""), StandardCharsets.UTF_8);
 
             String redirectUrl = String.format(
                     "http://localhost:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s&userName=%s&nickName=%s&phone=%s&birthday=%s&gender=%s&loginType=%s",
@@ -427,7 +403,7 @@ public ResponseEntity<?> unlinkKakaoAccount(@RequestBody Map<String, String> req
         }
     }
 
-    // 네이버 회원가입 콜백 처리
+        // 네이버 회원가입 콜백 처리
     @GetMapping("/naver/signup/callback")
     public void naverSignup(@RequestParam String code, HttpServletResponse response) throws IOException {
         log.info("Received authorization code: {}", code);

@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-// Lombok의 @Slf4j 어노테이션을 사용하여 로깅을 간편하게 합니다.
 @Slf4j
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -49,9 +48,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         this.jwtUtil = jwtUtil;
         this.refreshExpiredMs = 3600000L;   // 1시간
         this.accessExpiredMs = 1500000L;     // 25분
-//        this.accessExpiredMs = 15000L; // 15 초
-//        this.refreshExpiredMs = 60000L; // 30 초
-
     }
 
     @Override
@@ -77,19 +73,17 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // 인증된 사용자 정보를 가져옵니다.
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
         String username = customUserDetails.getUsername();
-
         // 액세스 토큰과 리프레시 토큰을 생성합니다.
         String accessToken = jwtUtil.generateToken(username, "access", accessExpiredMs);
         log.info("Successfully authenticated user {}. Access Token: {}", username, accessToken);
         String refreshToken = jwtUtil.generateToken(username, "refresh", refreshExpiredMs);
         log.info("Successfully authenticated user {}. Refresh Token: {}", username, refreshToken);
-
         // 사용자 정보를 데이터베이스에서 조회합니다.
         Optional<User> userOptional = userService.findByEmail(username);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
 
-            // TokenLogin 객체가 이미 존재하는지 확인합니다.
+            // TokenLogin 객체가 존재하는지 확인합니다.
             Optional<TokenLogin> existingTokenLogin = tokenLoginService.findByUserUserId(user.getUserId());
             if (existingTokenLogin.isPresent()) {
                 // 기존 TokenLogin 객체 업데이트
@@ -151,7 +145,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             response.getWriter().write(responseBodyJson);
             response.getWriter().flush();
 
-            log.info("Successfully responded with user information for user {}", username);
+            log.info("사용자의 정보로 성공적으로 응답했습니다 {}", username);
         } else {
             throw new UsernameNotFoundException("User not found");
         }
