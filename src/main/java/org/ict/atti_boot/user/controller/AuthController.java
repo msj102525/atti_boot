@@ -131,9 +131,9 @@ public class AuthController {
             userRepository.save(user);
 
 
-            Long accessExpiredMs = 600000L; // 10분
+            Long accessExpiredMs = 1500000L; // 25분
             String accessTokenJwt = jwtUtil.generateToken(email, "access", accessExpiredMs);
-            Long refreshExpiredMs = 7200000L; // 2시간
+            Long refreshExpiredMs = 3600000L; // 1시간
             String refreshTokenJwt = jwtUtil.generateToken(email, "refresh", refreshExpiredMs);
 
             // TokenLogin 엔티티 저장
@@ -375,9 +375,9 @@ public ResponseEntity<?> unlinkKakaoAccount(@RequestBody Map<String, String> req
             userRepository.save(user);
 
             // JWT 토큰 발급
-            Long accessExpiredMs = 600000L; // 10분
+            Long accessExpiredMs = 1500000L; // 25분
             String accessTokenJwt = jwtUtil.generateToken(email, "access", accessExpiredMs);
-            Long refreshExpiredMs = 7200000L; // 2시간
+            Long refreshExpiredMs = 3600000L; // 1시간
             String refreshTokenJwt = jwtUtil.generateToken(email, "refresh", refreshExpiredMs);
 
             // TokenLogin 엔티티 저장

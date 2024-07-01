@@ -9,4 +9,5 @@ public interface InquiryRepository extends JpaRepository<InquiryEntity, Integer>
     List<InquiryEntity> findByTitleContaining(String keyword);
 
     void deleteByUserId(String userId);
+    List<InquiryEntity> findByInquiryNoGreaterThan(int inquiryNo);
 }

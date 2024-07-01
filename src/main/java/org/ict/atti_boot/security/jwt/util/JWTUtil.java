@@ -181,4 +181,9 @@ public class JWTUtil {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
+    public boolean isTokenValid(String accessToken) {
+
+        return null != getClaimsFromToken(accessToken);
+    }
 }

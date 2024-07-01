@@ -36,13 +36,12 @@ public class SecurityConfig {
     private final SuspensionRepository suspensionRepository;
 
     // 생성자를 통한 의존성 주입으로, 필요한 서비스와 설정을 초기화합니다.
-    public SecurityConfig(UserService userService, TokenLoginService tokenLoginService, AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, SuspensionRepository suspensionRepository) {
+    public SecurityConfig(UserService userService,CustomLogoutHandler customLogoutHandler, TokenLoginService tokenLoginService, AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, SuspensionRepository suspensionRepository) {
         this.userService = userService;
         this.tokenLoginService = tokenLoginService;
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
         this.suspensionRepository = suspensionRepository;
-
     }
 
     // 인증 관리자를 스프링 컨테이너에 Bean으로 등록합니다. 인증 과정에서 중요한 역할을 합니다.

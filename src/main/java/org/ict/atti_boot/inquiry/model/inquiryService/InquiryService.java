@@ -63,13 +63,29 @@ public class InquiryService {
         return inquiryRepository.save(inquiryData);
     }
 
+//    @Transactional
+//    public void deleteInquiry(int inquiryNo) {
+//        inquiryRepository.deleteById(inquiryNo);
+//    }
     @Transactional
     public void deleteInquiry(int inquiryNo) {
         inquiryRepository.deleteById(inquiryNo);
+        adjustInquiryNumbersAfterDeletion(inquiryNo);
     }
+    private void adjustInquiryNumbersAfterDeletion(int deletedInquiryNo) {
+        List<InquiryEntity> inquiries = inquiryRepository.findByInquiryNoGreaterThan(deletedInquiryNo);
+        for (InquiryEntity inquiry : inquiries) {
+            inquiry.setInquiryNo(inquiry.getInquiryNo() - 1);
+            inquiryRepository.save(inquiry);
+        }
+    }
+
 
     @Transactional
     public void deleteInquiriesByUserId(String userId) {
     inquiryRepository.deleteByUserId(userId);
     }
+
+
+
 }

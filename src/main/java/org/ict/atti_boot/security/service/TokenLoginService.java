@@ -55,19 +55,5 @@ public class TokenLoginService {
         tokenLoginRepository.save(tokenLogin);
     }
 
-    // Refresh Token의 유효성을 검사합니다.
-    public ResponseEntity<String> validateRefreshToken(String refreshToken) {
-        // TokenLoginRepository를 이용하여 Refresh Token으로 TokenLogin 엔티티를 조회합니다.
-        Optional<TokenLogin> refreshTokenOptional = tokenLoginRepository.findByRefreshToken(refreshToken);
 
-        // Refresh Token이 존재하지 않는 경우, HTTP 401 상태 코드와 함께 "Refresh token not found" 메시지를 반환합니다.
-        return refreshTokenOptional.map(tokenLogin -> {
-            // 조회된 TokenLogin 엔티티의 상태가 "activated"인지 확인합니다.
-            if (!"activated".equals(tokenLogin.getStatus())) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token invalid or expired");
-            }
-            // Refresh Token이 유효한 경우, HTTP 200 상태 코드와 함께 "Refresh token is valid" 메시지를 반환합니다.
-            return ResponseEntity.ok("Refresh token is valid");
-        }).orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token not found"));
-    }
 }
