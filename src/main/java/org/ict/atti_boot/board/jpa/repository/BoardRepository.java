@@ -17,7 +17,7 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Integer> {
 
     Page<BoardEntity> findAllByBoardWriter(String boardWriter, Pageable pageable);
 
-    Page<BoardEntity> findAllByBoardTitle(String boardTitle, Pageable pageable);
+    Page<BoardEntity> findAllByBoardTitleContaining(String boardTitle, Pageable pageable);
 
     Page<BoardEntity> findAllByBoardDateBetween(LocalDateTime beginDate, LocalDateTime endDate, Pageable pageable);
 

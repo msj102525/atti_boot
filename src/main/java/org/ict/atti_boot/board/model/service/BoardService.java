@@ -103,13 +103,14 @@ public class BoardService {
 
 
     public void deleteBoard(int boardNum) {
+
         boardRepository.deleteById(boardNum);
     }
 
     // 검색
     public Page<BoardEntity> getBoards(String action, String keyword, LocalDateTime beginDate, LocalDateTime endDate, Pageable pageable) {
         if ("title".equals(action)) {
-            return boardRepository.findAllByBoardTitle(keyword, pageable);
+            return boardRepository.findAllByBoardTitleContaining(keyword, pageable);
         } else if ("writer".equals(action)) {
             return boardRepository.findAllByBoardWriter(keyword, pageable);
         } else if ("date".equals(action)) {
