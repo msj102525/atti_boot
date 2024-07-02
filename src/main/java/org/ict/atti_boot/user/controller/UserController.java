@@ -34,10 +34,10 @@ public class UserController {
     }
 
     // 유저정보
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getUser(@PathVariable String id) {
-        log.info(id);
-        Optional<User> user = userService.findByUserId(id);
+    @GetMapping("/{userId}")
+    public ResponseEntity<User> getUser(@PathVariable String userId) {
+        log.info("유저 정보 요청들어옴",userId);
+        Optional<User> user = userService.findByUserId(userId);
         if (user.isPresent()) {
             return ResponseEntity.ok(user.get());
         } else {
