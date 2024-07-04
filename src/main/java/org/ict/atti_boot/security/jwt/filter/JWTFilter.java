@@ -147,7 +147,8 @@ public class JWTFilter extends OncePerRequestFilter {
         try {
             // 재발급 엔드포인트로 POST 요청을 보냄
             ResponseEntity<String> reissueResponse = restTemplate.exchange(
-                    "http://localhost:8080/reissue", // 재발급 엔드포인트
+//                    "http://localhost:8080/reissue", // 재발급 엔드포인트
+                    "43.202.66.137:3000/reissue",
                     HttpMethod.POST,
                     entity,
                     String.class
