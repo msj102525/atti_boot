@@ -116,10 +116,16 @@ public class FeedController {
 
     @GetMapping("/similar/{feedNum}")
     public ResponseEntity<List<FeedListOutput>> selectSimilarFeedByFeedNum(
-            @PathVariable int feedNum
+            @PathVariable int feedNum,
+            @RequestHeader(value = "Authorization", required = false) String token
     ) {
-        log.info("selectSimilarFeedByFeedNum called : {}", feedNum);
-        String loginUserId = "door123";
+        log.info("selectSimilarFeedByFeedNum called : {}" + feedNum + token);
+        String loginUserId = null;
+        if (token != null) {
+            loginUserId = jwtUtil.getUserIdFromToken(token);
+        }
+
+        log.info("loginUserId:" + loginUserId);
 
         Feed searchFeed = feedService.selectFeedById(feedNum);
         if (searchFeed != null) {
