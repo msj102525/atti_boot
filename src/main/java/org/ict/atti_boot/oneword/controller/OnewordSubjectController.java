@@ -107,13 +107,13 @@ public class OnewordSubjectController {
     public ResponseEntity<?> insertOnewordSubject(HttpServletRequest request,
                                                   @RequestBody OnewordSubjectDto onewordSubjectDto){
 
-        log.info("insertBoard : {}", onewordSubjectDto);
+        log.info("insertOnewordSubject : {}", onewordSubjectDto);
 
         //// 2024.06.25
         String token = request.getHeader("Authorization").substring("Bearer ".length());
 
         // log.info(feedSaveInputDto.toString());
-        log.info("token(insert) : {}", token);
+        log.info("token(insertOnewordSubject) : {}", token);
 
         String userId = jwtUtil.getUserIdFromToken(token);
 
