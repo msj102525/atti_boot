@@ -117,7 +117,8 @@ public class AuthController {
 
         if (email == null) {
             log.error("카카오에서 이메일 정보를 제공하지 않습니다.");
-            response.sendRedirect("http://localhost:3000/login"); // 실패 시 로그인 페이지로 리다이렉트
+//            response.sendRedirect("http://localhost:3000/login"); // 실패 시 로그인 페이지로 리다이렉트
+            response.sendRedirect("http://43.202.66.137:3000/login"); // 실패 시 로그인 페이지로 리다이렉트
             return;
         }
 
@@ -158,7 +159,7 @@ public class AuthController {
             String loginType = URLEncoder.encode(Optional.ofNullable(user.getLoginType()).orElse(""), StandardCharsets.UTF_8);
 
             String redirectUrl = String.format(
-                    "http://localhost:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s&userName=%s&nickName=%s&phone=%s&birthday=%s&gender=%s&loginType=%s",
+                    "http://43.202.66.137:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s&userName=%s&nickName=%s&phone=%s&birthday=%s&gender=%s&loginType=%s",
                     accessTokenJwt, refreshTokenJwt, userId, emailEncoded, userName, nickName, phone, birthday, gender, loginType
             );
             response.sendRedirect(redirectUrl);
@@ -166,7 +167,8 @@ public class AuthController {
         } else {
             // 신규 사용자 회원가입 필요
             log.info("회원가입 필요: {}", email);
-            response.sendRedirect("http://localhost:3000/signup"); // 회원가입 페이지로 리다이렉트
+//            response.sendRedirect("http://localhost:3000/signup"); // 회원가입 페이지로 리다이렉트
+            response.sendRedirect("http://43.202.66.137:3000/signup"); // 회원가입 페이지로 리다이렉트
         }
     }
 
@@ -215,7 +217,7 @@ public class AuthController {
 
         if (email == null) {
             log.error("카카오에서 이메일 정보를 제공하지 않습니다.");
-            response.sendRedirect("http://localhost:3000/login"); // 실패 시 로그인 페이지로 리다이렉트
+            response.sendRedirect("http://43.202.66.137:3000/login"); // 실패 시 로그인 페이지로 리다이렉트
             return;
         }
 
@@ -249,7 +251,7 @@ public class AuthController {
             socialLoginRepository.save(socialLogin);
 
             // 회원가입 성공 후 로그인 페이지로 이동
-            response.sendRedirect("http://localhost:3000/login");
+            response.sendRedirect("http://43.202.66.137:3000/login");
         }
     }
 
@@ -270,7 +272,7 @@ public class AuthController {
         log.info("logout response = {}", logoutResponse.getBody());
 
         // 로그아웃 성공 후 리다이렉트
-        response.sendRedirect("http://localhost:3000/logout-success");
+        response.sendRedirect("http://43.202.66.137:3000/logout-success");
     }
 
 //카카오연결끊기
@@ -349,7 +351,7 @@ public ResponseEntity<?> unlinkKakaoAccount(@RequestBody Map<String, String> req
         // 이메일이 없으면 로그인 페이지로 리다이렉트
         if (email == null) {
             log.error("네이버에서 이메일 정보를 제공하지 않습니다.");
-            response.sendRedirect("http://localhost:3000/login");
+            response.sendRedirect("http://43.202.66.137:3000/login");
             return;
         }
 
@@ -392,14 +394,14 @@ public ResponseEntity<?> unlinkKakaoAccount(@RequestBody Map<String, String> req
             String loginType = URLEncoder.encode(Optional.ofNullable(user.getLoginType()).orElse(""), StandardCharsets.UTF_8);
 
             String redirectUrl = String.format(
-                    "http://localhost:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s&userName=%s&nickName=%s&phone=%s&birthday=%s&gender=%s&loginType=%s",
+                    "http://43.202.66.137:3000/login/success?access=%s&refresh=%s&userId=%s&email=%s&userName=%s&nickName=%s&phone=%s&birthday=%s&gender=%s&loginType=%s",
                     accessTokenJwt, refreshTokenJwt, userId, emailEncoded, userName, nickName, phone, birthday, gender, loginType
             );
             response.sendRedirect(redirectUrl);
             log.info("로그인 성공: {}", email);
         } else {
             log.info("회원가입 필요: {}", email);
-            response.sendRedirect("http://localhost:3000/signup");
+            response.sendRedirect("http://43.202.66.137:3000/signup");
         }
     }
 
@@ -475,7 +477,7 @@ public ResponseEntity<?> unlinkKakaoAccount(@RequestBody Map<String, String> req
 
         // 이메일이 없으면 로그인 페이지로 리다이렉트
         if (email == null) {
-            response.sendRedirect("http://localhost:3000/login");
+            response.sendRedirect("http://43.202.66.137:3000/login");
             return;
         }
 
@@ -484,7 +486,7 @@ public ResponseEntity<?> unlinkKakaoAccount(@RequestBody Map<String, String> req
 
         if (optionalUser.isPresent()) {
             // 이미 가입된 사용자는 로그인 페이지로 리다이렉트
-            response.sendRedirect("http://localhost:3000/login");
+            response.sendRedirect("http://43.202.66.137:3000/login");
         } else {
             // 새로운 사용자 등록
             User newUser = User.builder()
@@ -511,7 +513,7 @@ public ResponseEntity<?> unlinkKakaoAccount(@RequestBody Map<String, String> req
             socialLoginRepository.save(socialLogin);
 
             // 회원가입 후 로그인 페이지로 리다이렉트
-            response.sendRedirect("http://localhost:3000/login");
+            response.sendRedirect("http://43.202.66.137:3000/login");
         }
     }
 
@@ -534,7 +536,7 @@ public ResponseEntity<?> unlinkKakaoAccount(@RequestBody Map<String, String> req
         log.info("logout response = {}", logoutResponse.getBody());
 
         // 로그아웃 성공 후 리다이렉트
-        response.sendRedirect("http://localhost:3000/logout-success");
+        response.sendRedirect("http://43.202.66.137:3000/logout-success");
     }
 
     // 유저 정보 수정
